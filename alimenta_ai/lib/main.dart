@@ -1,7 +1,7 @@
+import 'package:alimenta_ai/pages/tela_introducao.dart';
+import 'package:alimenta_ai/pages/login.dart';
 import 'package:alimenta_ai/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'package:alimenta_ai/pages/login.dart';
-import 'package:alimenta_ai/pages/welcome.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,12 +14,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Poppins'),
-      initialRoute: '/',
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: '/intro',
       routes: {
-        '/': (context) => WelcomeScreen(),
-        '/login': (context) => LoginPage(),
-        '/home': (context) => HomePage(),
+        '/intro': (context) => const TelaIntroducao(),
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const HomePage(),
       },
     );
   }

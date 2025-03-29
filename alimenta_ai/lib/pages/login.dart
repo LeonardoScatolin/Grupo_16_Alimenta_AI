@@ -495,8 +495,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               text: 'ENTRAR',
                               isLoading: _isLoading,
                               onPressed: () {
-                                _animateButton();
-                                _login();
+                                // Add your login logic here
+                                Navigator.pushNamed(context, '/home');
                               },
                               gradient: LinearGradient(
                                 colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
