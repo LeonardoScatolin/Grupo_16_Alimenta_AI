@@ -348,7 +348,7 @@ class _HomePageState extends State<HomePage> {
       elevation: 0.0,
       centerTitle: true,
       leading: GestureDetector(
-        onTap: () {},
+        onTap: () => Navigator.pushNamed(context, '/login'),  // Adiciona navegação para a tela de login
         child: Container(
           margin: EdgeInsets.all(10),
           alignment: Alignment.center,

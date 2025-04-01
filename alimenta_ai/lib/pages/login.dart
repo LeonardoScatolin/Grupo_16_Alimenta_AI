@@ -3,7 +3,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
+import '../widgets/custom_app_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -316,10 +317,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Login',
+        onBackPressed: () => Navigator.pushNamed(context, '/intro'),
+      ),
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: FadeTransition(
@@ -336,8 +338,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
             // Bolinhas decorativas em roxo - já existentes
             Positioned(
-              left: _bubble1X * screenWidth,
-              top: _bubble1Y * screenHeight,
+              left: _bubble1X * MediaQuery.of(context).size.width,
+              top: _bubble1Y * MediaQuery.of(context).size.height,
               child: Container(
                 height: 120,
                 width: 120,
@@ -349,8 +351,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
 
             Positioned(
-              left: _bubble2X * screenWidth,
-              top: _bubble2Y * screenHeight,
+              left: _bubble2X * MediaQuery.of(context).size.width,
+              top: _bubble2Y * MediaQuery.of(context).size.height,
               child: Container(
                 height: 100,
                 width: 100,
@@ -362,8 +364,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
 
             Positioned(
-              left: _bubble3X * screenWidth,
-              top: _bubble3Y * screenHeight,
+              left: _bubble3X * MediaQuery.of(context).size.width,
+              top: _bubble3Y * MediaQuery.of(context).size.height,
               child: Container(
                 height: 90,
                 width: 90,
@@ -376,8 +378,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
             // Novas bolinhas decorativas
             Positioned(
-              left: _bubble4X * screenWidth,
-              top: _bubble4Y * screenHeight,
+              left: _bubble4X * MediaQuery.of(context).size.width,
+              top: _bubble4Y * MediaQuery.of(context).size.height,
               child: Container(
                 height: 70,
                 width: 70,
@@ -389,8 +391,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
 
             Positioned(
-              left: _bubble5X * screenWidth,
-              top: _bubble5Y * screenHeight,
+              left: _bubble5X * MediaQuery.of(context).size.width,
+              top: _bubble5Y * MediaQuery.of(context).size.height,
               child: Container(
                 height: 110,
                 width: 110,
@@ -402,8 +404,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
 
             Positioned(
-              left: _bubble6X * screenWidth,
-              top: _bubble6Y * screenHeight,
+              left: _bubble6X * MediaQuery.of(context).size.width,
+              top: _bubble6Y * MediaQuery.of(context).size.height,
               child: Container(
                 height: 60,
                 width: 60,
@@ -497,8 +499,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               text: 'ENTRAR',
                               isLoading: _isLoading,
                               onPressed: () {
-                                _animateButton();
-                                _login();
+                                // Add your login logic here
+                                Navigator.pushNamed(context, '/home');
                               },
                               gradient: LinearGradient(
                                 colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
