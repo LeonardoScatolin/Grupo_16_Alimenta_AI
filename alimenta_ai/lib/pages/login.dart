@@ -1,5 +1,6 @@
+// ignore_for_file: deprecated_member_use, library_private_types_in_public_api, use_super_parameters
+
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -309,6 +310,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     await Future.delayed(const Duration(seconds: 2));
 
     setState(() => _isLoading = false);
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacementNamed(context, '/');
   }
 
@@ -662,34 +664,4 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSocialButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 15,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 30,
-        ),
-      ),
-    );
-  }
 }
