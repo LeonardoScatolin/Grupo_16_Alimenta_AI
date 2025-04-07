@@ -106,7 +106,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
   // Funções de movimento das bolinhas
   void _moveBubble1() {
     setState(() {
-      final speed = 0.001;
+      const speed = 0.001;
       _bubble1X += _bubble1DirX * speed;
       _bubble1Y += _bubble1DirY * speed;
       if (_bubble1X <= 0 || _bubble1X >= 1) _bubble1DirX *= -1;
@@ -116,7 +116,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
 
   void _moveBubble2() {
     setState(() {
-      final speed = 0.001;
+      const speed = 0.001;
       _bubble2X += _bubble2DirX * speed;
       _bubble2Y += _bubble2DirY * speed;
       if (_bubble2X <= 0 || _bubble2X >= 1) _bubble2DirX *= -1;
@@ -126,7 +126,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
 
   void _moveBubble3() {
     setState(() {
-      final speed = 0.001;
+      const speed = 0.001;
       _bubble3X += _bubble3DirX * speed;
       _bubble3Y += _bubble3DirY * speed;
       if (_bubble3X <= 0 || _bubble3X >= 1) _bubble3DirX *= -1;
@@ -136,7 +136,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
 
   void _moveBubble4() {
     setState(() {
-      final speed = 0.001;
+      const speed = 0.001;
       _bubble4X += _bubble4DirX * speed;
       _bubble4Y += _bubble4DirY * speed;
       if (_bubble4X <= 0 || _bubble4X >= 1) _bubble4DirX *= -1;
@@ -146,7 +146,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
 
   void _moveBubble5() {
     setState(() {
-      final speed = 0.001;
+      const speed = 0.001;
       _bubble5X += _bubble5DirX * speed;
       _bubble5Y += _bubble5DirY * speed;
       if (_bubble5X <= 0 || _bubble5X >= 1) _bubble5DirX *= -1;
@@ -156,7 +156,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
 
   void _moveBubble6() {
     setState(() {
-      final speed = 0.001;
+      const speed = 0.001;
       _bubble6X += _bubble6DirX * speed;
       _bubble6Y += _bubble6DirY * speed;
       if (_bubble6X <= 0 || _bubble6X >= 1) _bubble6DirX *= -1;
@@ -193,7 +193,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
               width: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF7661EC).withOpacity(0.1),
+                color: const Color(0xFF7661EC).withOpacity(0.1),
               ),
             ),
           ),
@@ -205,7 +205,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
               width: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF7661EC).withOpacity(0.1),
+                color: const Color(0xFF7661EC).withOpacity(0.1),
               ),
             ),
           ),
@@ -217,7 +217,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
               width: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF7661EC).withOpacity(0.1),
+                color: const Color(0xFF7661EC).withOpacity(0.1),
               ),
             ),
           ),
@@ -229,7 +229,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
               width: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF7661EC).withOpacity(0.1),
+                color: const Color(0xFF7661EC).withOpacity(0.1),
               ),
             ),
           ),
@@ -241,7 +241,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
               width: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF7661EC).withOpacity(0.1),
+                color: const Color(0xFF7661EC).withOpacity(0.1),
               ),
             ),
           ),
@@ -253,7 +253,7 @@ class _TelaIntroducaoState extends State<TelaIntroducao> with TickerProviderStat
               width: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFF7661EC).withOpacity(0.1),
+                color: const Color(0xFF7661EC).withOpacity(0.1),
               ),
             ),
           ),

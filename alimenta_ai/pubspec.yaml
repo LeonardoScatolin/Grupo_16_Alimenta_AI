@@ -21,8 +21,8 @@ flutter:
   
   assets:
     - assets/icons/seta_esquerda.svg
-    - assets/images/
     - assets/icons/
+    - assets/icons_bar/
   
   fonts:
     - family: Poppins

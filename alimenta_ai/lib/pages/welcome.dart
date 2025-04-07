@@ -61,7 +61,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       _loadingController.repeat();
 
       // Navegar para a tela de login após 3 segundos
-      Future.delayed(Duration(milliseconds: 3000), () {
+      Future.delayed(const Duration(milliseconds: 3000), () {
         Navigator.pushReplacementNamed(context, '/login');
       });
     });
@@ -129,7 +129,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Color(0xFF6E55E3).withOpacity(0.5),
+                                color: const Color(0xFF6E55E3).withOpacity(0.5),
                                 blurRadius: 6,
                                 spreadRadius: 0,
                               ),

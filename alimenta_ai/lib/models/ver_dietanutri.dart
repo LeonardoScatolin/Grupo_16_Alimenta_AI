@@ -29,7 +29,7 @@ class ModeloDieta {
         duracao: '10min',
         calorias: '200KCal',
         viewIsSelected: true,
-        boxColor: Color(0xff92A3FD)
+        boxColor: const Color(0xff92A3FD)
         ));
 
     dietas.add(ModeloDieta(
@@ -38,7 +38,7 @@ class ModeloDieta {
         duracao: '10min',
         calorias: '200KCal',
         viewIsSelected: false,
-        boxColor: Color(0xffC58BF2)
+        boxColor: const Color(0xffC58BF2)
         ));
 
     dietas.add(ModeloDieta(
@@ -47,7 +47,7 @@ class ModeloDieta {
         duracao: '10min',
         calorias: '200KCal',
         viewIsSelected: false,
-        boxColor: Color(0xff92A3FD)
+        boxColor: const Color(0xff92A3FD)
         ));
 
     return dietas;

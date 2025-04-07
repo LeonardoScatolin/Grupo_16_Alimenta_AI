@@ -163,7 +163,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _moveBubble1() {
     setState(() {
       // Velocidade de movimento
-      final speed = 0.001;
+      const speed = 0.001;
 
       // Atualiza a posição
       _bubble1X += _bubble1DirX * speed;
@@ -183,7 +183,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _moveBubble2() {
     setState(() {
       // Velocidade de movimento (diferente para cada bolinha)
-      final speed = 0.0008;
+      const speed = 0.0008;
 
       _bubble2X += _bubble2DirX * speed;
       _bubble2Y += _bubble2DirY * speed;
@@ -201,7 +201,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _moveBubble3() {
     setState(() {
       // Velocidade de movimento
-      final speed = 0.0012;
+      const speed = 0.0012;
 
       _bubble3X += _bubble3DirX * speed;
       _bubble3Y += _bubble3DirY * speed;
@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _moveBubble4() {
     setState(() {
       // Velocidade mais lenta
-      final speed = 0.0007;
+      const speed = 0.0007;
 
       _bubble4X += _bubble4DirX * speed;
       _bubble4Y += _bubble4DirY * speed;
@@ -236,7 +236,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _moveBubble5() {
     setState(() {
       // Velocidade muito lenta
-      final speed = 0.0005;
+      const speed = 0.0005;
 
       _bubble5X += _bubble5DirX * speed;
       _bubble5Y += _bubble5DirY * speed;
@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _moveBubble6() {
     setState(() {
       // Velocidade média
-      final speed = 0.0009;
+      const speed = 0.0009;
 
       _bubble6X += _bubble6DirX * speed;
       _bubble6Y += _bubble6DirY * speed;
@@ -283,37 +283,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _animateButton() {
-    _buttonController.forward().then((_) {
-      _buttonController.reverse();
-    });
-  }
 
-  Future<void> _login() async {
-    // Validação básica
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Por favor, preencha todos os campos'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.all(16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    // Simula o processo de login
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() => _isLoading = false);
-    // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, '/');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +315,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 120,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF7661EC).withOpacity(0.1),
+                  color: const Color(0xFF7661EC).withOpacity(0.1),
                 ),
               ),
             ),
@@ -358,7 +328,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF7661EC).withOpacity(0.07),
+                  color: const Color(0xFF7661EC).withOpacity(0.07),
                 ),
               ),
             ),
@@ -371,7 +341,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF6E55E3).withOpacity(0.1),
+                  color: const Color(0xFF6E55E3).withOpacity(0.1),
                 ),
               ),
             ),
@@ -385,7 +355,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 70,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF6E55E3).withOpacity(0.06),
+                  color: const Color(0xFF6E55E3).withOpacity(0.06),
                 ),
               ),
             ),
@@ -398,7 +368,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 110,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF9980FF).withOpacity(0.05),
+                  color: const Color(0xFF9980FF).withOpacity(0.05),
                 ),
               ),
             ),
@@ -411,7 +381,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 width: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF5D42D9).withOpacity(0.08),
+                  color: const Color(0xFF5D42D9).withOpacity(0.08),
                 ),
               ),
             ),
@@ -420,7 +390,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             SafeArea(
               child: Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 28),
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -443,7 +413,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         keyboardType: TextInputType.emailAddress,
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Password field
                       _buildTextField(
@@ -473,9 +443,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             onPressed: () {},
                             style: TextButton.styleFrom(
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              padding: EdgeInsets.symmetric(vertical: 4),
+                              padding: const EdgeInsets.symmetric(vertical: 4),
                             ),
-                            child: Text(
+                            child: const Text(
                               'Esqueceu a senha?',
                               style: TextStyle(
                                 fontSize: 12,
@@ -487,7 +457,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         ],
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Login button with animation
                       AnimatedBuilder(
@@ -502,7 +472,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 // Add your login logic here
                                 Navigator.pushNamed(context, '/home');
                               },
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
                               ),
                             ),
@@ -510,14 +480,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         },
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Sign up text
                       Center(
                         child: TextButton(
                           onPressed: () {},
                           style: TextButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 4),
+                            padding: const EdgeInsets.symmetric(vertical: 4),
                           ),
                           child: RichText(
                             text: TextSpan(
@@ -526,7 +496,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 color: Colors.grey[600],
                                 fontSize: 13,
                               ),
-                              children: [
+                              children: const [
                                 TextSpan(
                                   text: 'Cadastre-se',
                                   style: TextStyle(
@@ -562,10 +532,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Color(0xFF1D1617).withOpacity(0.07),
+            color: const Color(0xFF1D1617).withOpacity(0.07),
             blurRadius: 40,
             spreadRadius: 0.0,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
           )
         ],
       ),
@@ -573,7 +543,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 16,
           color: Colors.black87,
         ),
@@ -585,12 +555,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             color: Colors.grey[500],
             fontSize: 15,
           ),
-          contentPadding: EdgeInsets.symmetric(vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(vertical: 18),
           prefixIcon: Padding(
             padding: const EdgeInsets.only(left: 16, right: 10),
             child: Icon(
               prefixIcon,
-              color: Color(0xFF6E55E3),
+              color: const Color(0xFF6E55E3),
               size: 22,
             ),
           ),
@@ -601,7 +571,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: Color(0xFF6E55E3),
               width: 1.5,
             ),
@@ -628,9 +598,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Color(0xFF6E55E3).withOpacity(0.3),
+            color: const Color(0xFF6E55E3).withOpacity(0.3),
             blurRadius: 15,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
             spreadRadius: 1,
           ),
         ],
@@ -643,7 +613,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           splashColor: Colors.white.withOpacity(0.2),
           child: Center(
             child: isLoading
-                ? SizedBox(
+                ? const SizedBox(
                     height: 24,
                     width: 24,
                     child: CircularProgressIndicator(
@@ -653,7 +623,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   )
                 : Text(
                     text,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

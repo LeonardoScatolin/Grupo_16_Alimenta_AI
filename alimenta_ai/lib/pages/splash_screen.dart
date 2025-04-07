@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
     _logoOpacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
-        curve: Interval(0.0, 0.5, curve: Curves.easeIn),
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
       ),
     );
 
@@ -69,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _textSlideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.5),
+      begin: const Offset(0, 0.5),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -79,13 +79,13 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Iniciando as animações em sequência
-    Future.delayed(Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       _logoController.forward().then((_) {
         // Após o logo aparecer, inicia a animação do texto
-        Future.delayed(Duration(milliseconds: 200), () {
+        Future.delayed(const Duration(milliseconds: 200), () {
           _textController.forward().then((_) {
             // Após completar as animações, navega para a próxima tela
-            Future.delayed(Duration(milliseconds: 800), () {
+            Future.delayed(const Duration(milliseconds: 800), () {
               Navigator.pushReplacementNamed(context, '/welcome');
             });
           });

@@ -18,7 +18,7 @@ class ModeloCategoria {
       ModeloCategoria(
         name: 'Almoço',
         iconPath: 'assets/icons/plate.svg',
-        boxColor: Color(0xff92A3FD)
+        boxColor: const Color(0xff92A3FD)
       )
     );
 
@@ -26,7 +26,7 @@ class ModeloCategoria {
       ModeloCategoria(
         name: 'Café Matinal',
         iconPath: 'assets/icons/pancakes.svg',
-        boxColor: Color(0xffC58BF2)
+        boxColor: const Color(0xffC58BF2)
       )
     );
 
@@ -34,7 +34,7 @@ class ModeloCategoria {
       ModeloCategoria(
         name: 'Lanches',
         iconPath: 'assets/icons/lanches.svg',
-        boxColor: Color(0xff92A3FD)
+        boxColor: const Color(0xff92A3FD)
       )
     );
 
@@ -42,7 +42,7 @@ class ModeloCategoria {
       ModeloCategoria(
         name: 'Jantar',
         iconPath: 'assets/icons/janta.svg',
-        boxColor: Color(0xffC58BF2)
+        boxColor: const Color(0xffC58BF2)
       )
     );
 

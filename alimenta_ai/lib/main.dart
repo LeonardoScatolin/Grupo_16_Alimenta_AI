@@ -1,7 +1,9 @@
-import 'package:alimenta_ai/pages/tela_introducao.dart';
 import 'package:alimenta_ai/pages/login.dart';
-import 'package:alimenta_ai/pages/home.dart';
+import 'package:alimenta_ai/pages/registro_alimentos.dart';
+import 'package:alimenta_ai/pages/dashboard.dart';
+import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:flutter/material.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -20,9 +22,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/intro',
       routes: {
-        '/intro': (context) => const TelaIntroducao(),
+        '/intro': (context) => const WelcomeScreen(),
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
+        '/home': (context) => const DashboardPage(),
+        '/registra-alimento': (context) => const HomePage(),
       },
     );
   }
