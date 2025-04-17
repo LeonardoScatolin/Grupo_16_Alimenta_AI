@@ -1,6 +1,7 @@
 import 'package:alimenta_ai/pages/login.dart';
 import 'package:alimenta_ai/pages/registro_alimentos.dart';
 import 'package:alimenta_ai/pages/dashboard.dart';
+import 'package:alimenta_ai/pages/tela_notificacao.dart';
 import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/home': (context) => const DashboardPage(),
         '/registra-alimento': (context) => const HomePage(),
+        '/notificacao': (context) => const NotificacoesPage(),
       },
     );
   }
