@@ -1,10 +1,9 @@
-// ignore_for_file: deprecated_member_use, library_private_types_in_public_api, use_super_parameters
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import '../widgets/custom_app_bar.dart';
+import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -55,11 +54,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   double _bubble5DirY = -1.2; // Nova bolinha
   double _bubble6DirX = -0.8; // Nova bolinha
   double _bubble6DirY = 0.9; // Nova bolinha
-
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+
+  // Auth service instance
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -283,8 +284,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -468,10 +467,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             child: _buildGradientButton(
                               text: 'ENTRAR',
                               isLoading: _isLoading,
-                              onPressed: () {
-                                // Add your login logic here
-                                Navigator.pushNamed(context, '/home');
-                              },
+                              onPressed: _handleLogin,
                               gradient: const LinearGradient(
                                 colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
                               ),
@@ -636,4 +632,61 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
+  // Method to handle login with API
+  Future<void> _handleLogin() async {
+    // Basic validation
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showSnackBar('Por favor, preencha todos os campos', isError: true);
+      return;
+    }
+
+    // Show loading indicator
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Button animation
+    _buttonController.forward().then((_) => _buttonController.reverse());
+
+    try {
+      // Call login API
+      final result = await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      // Hide loading indicator
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Handle login result
+      if (result['success']) {
+        _showSnackBar('Login realizado com sucesso!');
+        // Navigate to home page after successful login
+        Future.delayed(const Duration(milliseconds: 500), () {
+          Navigator.pushNamed(context, '/home');
+        });
+      } else {
+        _showSnackBar(result['message'], isError: true);
+      }
+    } catch (e) {
+      // Hide loading indicator and show error
+      setState(() {
+        _isLoading = false;
+      });
+      _showSnackBar('Erro ao fazer login. Tente novamente.', isError: true);
+    }
+  }
+
+  // Helper method to show snackbar messages
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 }
