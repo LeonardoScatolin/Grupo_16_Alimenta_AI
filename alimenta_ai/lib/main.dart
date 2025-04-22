@@ -1,4 +1,5 @@
 import 'package:alimenta_ai/pages/login.dart';
+import 'package:alimenta_ai/pages/refeicoes.dart';
 import 'package:alimenta_ai/pages/registro_alimentos.dart';
 import 'package:alimenta_ai/pages/dashboard.dart';
 import 'package:alimenta_ai/pages/tela_notificacao.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const DashboardPage(),
         '/registra-alimento': (context) => const HomePage(),
         '/notificacao': (context) => const NotificacoesPage(),
+        '/refeicao': (context) => const RefeicoesPage(),
       },
     );
   }
