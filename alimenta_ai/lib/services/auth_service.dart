@@ -1,46 +1,40 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class AuthService {
+  // Simplified base URL - will be used for future implementation
+  String get baseUrl {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:5000/api';
+    } else {
+      return 'http://localhost:5000/api';
+    }
+  }
 
-  final String baseUrl = 'http://10.0.2.2:5000/api';
-
-
-  // Method to handle login
+  // Simplified login method that doesn't actually make a network request
   Future<Map<String, dynamic>> login(String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/login'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          'email': email,
-          'password': password,
-        }),
-      );
+    debugPrint('Simplified login with email: $email');
 
-      final responseData = jsonDecode(response.body);
+    // Add a small delay to simulate network request
+    await Future.delayed(const Duration(milliseconds: 500));
 
-      if (response.statusCode == 200) {
-        return {
-          'success': true,
-          'message': responseData['message'],
-          'user': responseData['user'],
-        };
-      } else {
-        return {
-          'success': false,
-          'message': responseData['message'] ?? 'Login failed',
-        };
-      }
-    } catch (e) {
-      debugPrint('Error during login: $e');
+    // Basic validation
+    if (email.isEmpty || password.isEmpty) {
       return {
         'success': false,
-        'message': 'Connection error. Please check your internet connection.',
+        'message': 'Email e senha são obrigatórios.',
       };
     }
+
+    // For development, always return success
+    // Later, you can replace this with actual backend authentication
+    return {
+      'success': true,
+      'message': 'Login realizado com sucesso!',
+      'user': {
+        'id': '1',
+        'name': 'Usuário Teste',
+        'email': email,
+      },
+    };
   }
 }

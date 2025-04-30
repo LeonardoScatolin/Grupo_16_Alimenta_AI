@@ -61,7 +61,7 @@ class _DashboardPageState extends State<DashboardPage>
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
   }
-  
+
   Widget _buildGreetingSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,9 +345,11 @@ class _DashboardPageState extends State<DashboardPage>
                   builder: (context, child) {
                     return CustomPaint(
                       painter: CircleProgressPainter(
-                        progress: _progressAnimation.value * 0.33, // 780/2400 ≈ 0.33
+                        progress:
+                            _progressAnimation.value * 0.33, // 780/2400 ≈ 0.33
                         color: const Color(0xff9DCEFF),
-                        backgroundColor: const Color(0xff9DCEFF).withOpacity(0.2),
+                        backgroundColor:
+                            const Color(0xff9DCEFF).withOpacity(0.2),
                         strokeWidth: 10,
                       ),
                       child: const Center(
@@ -391,9 +393,12 @@ class _DashboardPageState extends State<DashboardPage>
             icon: 'assets/icons_bar/Home-Active.svg',
             isActive: true,
           ),
-          _buildNavItem(
-            icon: 'assets/icons_bar/Activity.svg',
-            isActive: false,
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/refeicao'),
+            child: _buildNavItem(
+              icon: 'assets/icons_bar/Activity.svg',
+              isActive: false,
+            ),
           ),
           _buildAddButton(),
           _buildNavItem(
@@ -419,30 +424,33 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildAddButton() {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xff92A3FD).withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/registra-alimento'),
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Center(
-        child: SvgPicture.asset(
-          'assets/icons_bar/plus.svg',
-          color: Colors.white,
-          width: 24,
-          height: 24,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xff92A3FD).withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            'assets/icons_bar/plus.svg',
+            color: Colors.white,
+            width: 24,
+            height: 24,
+          ),
         ),
       ),
     );

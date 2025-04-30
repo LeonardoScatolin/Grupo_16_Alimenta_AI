@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import '../widgets/custom_app_bar.dart';
 import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -287,10 +286,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Login',
-        onBackPressed: () => Navigator.pushNamed(context, '/intro'),
-      ),
+      // Removido o AppBar que continha o título de login e o botão de voltar
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: false,
       body: FadeTransition(
@@ -383,13 +379,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   color: const Color(0xFF5D42D9).withOpacity(0.08),
                 ),
               ),
-            ),
-
-            // Conteúdo principal
+            ), // Conteúdo principal
             SafeArea(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  padding: const EdgeInsets.fromLTRB(
+                      28, 40, 28, 28), // Aumentado o padding do topo
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
