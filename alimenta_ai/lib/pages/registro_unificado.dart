@@ -575,8 +575,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
   Widget _buildDateSelector() {
     final today = _getBrasiliaTimeNow();
-    final startDate = today.subtract(const Duration(days: 15));
-    const totalDays = 30;
+    final startDate = DateTime(today.year, today.month, 1);
+    final totalDays = DateTime(today.year, today.month + 1, 0).day;
 
     // Scroll to today's date only on first load
     if (!_initialScrollDone) {
