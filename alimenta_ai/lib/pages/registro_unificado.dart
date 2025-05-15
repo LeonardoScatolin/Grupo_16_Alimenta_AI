@@ -1144,14 +1144,40 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                         color: Colors.red, size: 18)),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(item.name),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Calorias: ${item.calories} kcal'),
+                          Text('Proteínas: ${item.protein} g'),
+                          Text('Carboidratos: ${item.carbs} g'),
+                          Text('Gorduras: ${item.fat} g'),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Fechar'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              ),
+
             ]),
           ]),
         ]),
       ),
     );
   }
-
   Widget _buildNutrientBadge(String text, Color color) {
     return Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
