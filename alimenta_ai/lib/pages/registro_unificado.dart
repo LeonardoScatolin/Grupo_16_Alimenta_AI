@@ -1148,36 +1148,228 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                 onTap: () {
                   showDialog(
                     context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: Text(item.name),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Calorias: ${item.calories} kcal'),
-                          Text('Proteínas: ${item.protein} g'),
-                          Text('Carboidratos: ${item.carbs} g'),
-                          Text('Gorduras: ${item.fat} g'),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: const Text('Fechar'),
+                    builder: (ctx) {
+                      return Dialog(
+                        backgroundColor: Colors.white,
+                        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Título e ícone de lixeira
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item.name,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.purple),
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                      final mi = meals.indexWhere((m) => m.items.contains(item));
+                                      if (mi != -1) {
+                                        removeFoodFromMeal(meals[mi].title, meals[mi].items.indexOf(item));
+                                      }
+                                    },
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Tabela TACO',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Campo quantidade e unidade (visual)
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 85,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.grey.shade100),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.08),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      "50",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.normal,
+                                        color: Color(0xFF7B6F72),
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    width: 85,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.grey.shade100),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.08),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: const [
+                                        Text(
+                                          "G",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.normal,
+                                            color: Color(0xFF7B6F72),
+                                            fontFamily: 'Poppins',
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: Color(0xFF7B6F72)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              const Text(
+                                'Informação Nutricional',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Calorias
+                              _buildInfoCard(
+                                iconPath: 'assets/icons/protein.svg',
+                                label: 'Calorias',
+                                value: '${item.calories} cal',
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Proteínas
+                              _buildInfoCard(
+                                iconPath: 'assets/icons/protein.svg',
+                                label: 'Proteínas',
+                                value: '${item.protein}g',
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Gordura
+                              _buildInfoCard(
+                                iconPath: 'assets/icons/protein.svg',
+                                label: 'Gordura',
+                                value: '${item.fat}g',
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Carboidrato
+                              _buildInfoCard(
+                                iconPath: 'assets/icons/protein.svg',
+                                label: 'Carbo',
+                                value: '${item.carbs}g',
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
                 child: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
               ),
-
             ]),
           ]),
         ]),
       ),
     );
   }
+
+Widget _buildInfoCard({
+  required String iconPath,
+  required String label,
+  required String value,
+}) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.03),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        // Texto + Ícone (esquerda)
+        Expanded(
+          child: Row(
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.5,
+                  color: Color(0xFF1D1617), // ← cor dos nomes
+                ),
+              ),
+              const SizedBox(width: 6),
+              SvgPicture.asset(iconPath, width: 18, height: 18),
+            ],
+          ),
+        ),
+
+        // Valor à direita (ex: 500 cal)
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            height: 1.5,
+            color: Color(0xFF7B6F72), // ← cor dos valores
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
   Widget _buildNutrientBadge(String text, Color color) {
     return Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
