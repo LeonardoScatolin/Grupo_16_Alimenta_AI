@@ -381,126 +381,128 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ), // Conteúdo principal
             SafeArea(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      28, 40, 28, 28), // Aumentado o padding do topo
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Logo maior e centralizada
-                      Center(
-                        child: SvgPicture.asset(
-                          'assets/icons/logo.svg',
-                          height: 200, // Tamanho ajustado
-                        ),
-                      ),
-
-                      const SizedBox(height: 30), // Espaço reduzido
-
-                      // Email field
-                      _buildTextField(
-                        controller: _emailController,
-                        hintText: 'Email',
-                        prefixIcon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Password field
-                      _buildTextField(
-                        controller: _passwordController,
-                        hintText: 'Senha',
-                        prefixIcon: Icons.lock_outline,
-                        obscureText: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: Colors.grey[600],
+              child: SingleChildScrollView( // Add ScrollView
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                        28, 40, 28, 28), // Aumentado o padding do topo
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Logo maior e centralizada
+                        Center(
+                          child: SvgPicture.asset(
+                            'assets/icons/logo.svg',
+                            height: 200, // Tamanho ajustado
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
+                        ),
+
+                        const SizedBox(height: 30), // Espaço reduzido
+
+                        // Email field
+                        _buildTextField(
+                          controller: _emailController,
+                          hintText: 'Email',
+                          prefixIcon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Password field
+                        _buildTextField(
+                          controller: _passwordController,
+                          hintText: 'Senha',
+                          prefixIcon: Icons.lock_outline,
+                          obscureText: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: Colors.grey[600],
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {},
+                              style: TextButton.styleFrom(
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                              ),
+                              child: const Text(
+                                'Esqueceu a senha?',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF6E55E3),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Login button with animation
+                        AnimatedBuilder(
+                          animation: _buttonAnimation,
+                          builder: (context, child) {
+                            return Transform.translate(
+                              offset: Offset(0, _buttonAnimation.value),
+                              child: _buildGradientButton(
+                                text: 'ENTRAR',
+                                isLoading: _isLoading,
+                                onPressed: _handleLogin,
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
+                                ),
+                              ),
+                            );
                           },
                         ),
-                      ),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
+                        const SizedBox(height: 16),
+
+                        // Sign up text
+                        Center(
+                          child: TextButton(
                             onPressed: () {},
                             style: TextButton.styleFrom(
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               padding: const EdgeInsets.symmetric(vertical: 4),
                             ),
-                            child: const Text(
-                              'Esqueceu a senha?',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF6E55E3),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Login button with animation
-                      AnimatedBuilder(
-                        animation: _buttonAnimation,
-                        builder: (context, child) {
-                          return Transform.translate(
-                            offset: Offset(0, _buttonAnimation.value),
-                            child: _buildGradientButton(
-                              text: 'ENTRAR',
-                              isLoading: _isLoading,
-                              onPressed: _handleLogin,
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Sign up text
-                      Center(
-                        child: TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                          ),
-                          child: RichText(
-                            text: TextSpan(
-                              text: 'Não tem uma conta? ',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 13,
-                              ),
-                              children: const [
-                                TextSpan(
-                                  text: 'Cadastre-se',
-                                  style: TextStyle(
-                                    color: Color(0xFF6E55E3),
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            child: RichText(
+                              text: TextSpan(
+                                text: 'Não tem uma conta? ',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 13,
                                 ),
-                              ],
+                                children: const [
+                                  TextSpan(
+                                    text: 'Cadastre-se',
+                                    style: TextStyle(
+                                      color: Color(0xFF6E55E3),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
