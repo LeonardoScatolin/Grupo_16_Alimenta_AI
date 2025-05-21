@@ -3,6 +3,8 @@ import 'package:alimenta_ai/pages/dashboard.dart';
 import 'package:alimenta_ai/pages/tela_notificacao.dart';
 import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:alimenta_ai/pages/registro_unificado.dart';
+import 'package:alimenta_ai/pages/profile.dart';
+import 'package:alimenta_ai/pages/weight_history.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/notificacao': (context) => const NotificacoesPage(),
         '/refeicao': (context) =>
             const RegistroUnificadoPage(), // Agora usa a mesma página para ambos
+        '/profile': (context) => const ProfilePage(),
+        '/weight-history': (context) => const WeightHistoryPage(),
       },
     );
   }

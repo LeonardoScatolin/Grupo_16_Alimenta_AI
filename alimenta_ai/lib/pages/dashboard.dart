@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../services/weight_service.dart';
+import 'package:alimenta_ai/pages/weight_history.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -88,124 +90,154 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildWeightTrackingCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xff9DCEFF).withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+    final weightService = WeightService();
+
+    // Usar AnimatedBuilder para reconstruir quando houver mudanças no serviço
+    return AnimatedBuilder(
+      animation: weightService,
+      builder: (context, child) {
+        final double lastWeight = weightService.lastWeight;
+        final String weightText = lastWeight > 0
+            ? '${lastWeight.toStringAsFixed(1)} kg'
+            : 'Sem registro';
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xff9DCEFF).withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Registro dos Pesos',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Registro dos Pesos',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'acompanhe seu peso',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.8),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'acompanhe seu peso',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.8),
+                  SizedBox(
+                    height: 70,
+                    width: 70,
+                    child: AnimatedBuilder(
+                      animation: _animationController,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          painter: CircleProgressPainter(
+                            progress: _progressAnimation.value,
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF7A66EC),
+                                    Color(0xFF5D42D9)
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    blurRadius: 8,
+                                    spreadRadius: 1,
+                                  )
+                                ],
+                              ),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  weightText,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black26,
+                                        blurRadius: 2,
+                                        offset: Offset(0, 1),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
-              SizedBox(
-                height: 70,
-                width: 70,
-                child: AnimatedBuilder(
-                  animation: _animationController,
-                  builder: (context, child) {
-                    return CustomPaint(
-                      painter: CircleProgressPainter(
-                        progress: _progressAnimation.value,
-                        color: Colors.white,
-                      ),
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF7A66EC), Color(0xFF5D42D9)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.25),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              )
-                            ],
-                          ),
-                          child: const Text(
-                            '120 kg',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black26,
-                                  blurRadius: 2,
-                                  offset: Offset(0, 1),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WeightHistoryPage(),
+                    ),
+                  );
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(100, 30),
+                  backgroundColor: Colors.white.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: const Text(
+                  'Ver histórico',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Container(
-            width: 120,
-            height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFF6E55E3),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: TextButton(
-              onPressed: () {},
-              child: const Text(
-                'Ver Mais',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -236,20 +268,20 @@ class _DashboardPageState extends State<DashboardPage>
             ),
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          Column(
             children: [
               _buildGoalItem(
-                icon: Icons.water_drop_outlined,
-                value: '3L',
-                title: 'Água Diária',
-                color: Colors.blue,
+                icon: 'assets/icons/janta.svg',
+                title: 'Pratos diários',
+                value: '3 refeições por dia',
+                progress: 0.6,
               ),
+              const SizedBox(height: 15),
               _buildGoalItem(
-                icon: Icons.local_fire_department_outlined,
-                value: '2400',
-                title: 'Calorias',
-                color: Colors.orange,
+                icon: 'assets/icons/protein.svg',
+                title: 'Proteínas',
+                value: '25g por dia',
+                progress: 0.7,
               ),
             ],
           ),
@@ -259,40 +291,78 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildGoalItem({
-    required IconData icon,
-    required String value,
+    required String icon,
     required String title,
-    required Color color,
+    required String value,
+    required double progress,
   }) {
-    return Column(
+    return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            shape: BoxShape.circle,
+            color: const Color(0xFFEEEEFF),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 30,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+          child: Center(
+            child: SvgPicture.asset(
+              icon,
+              height: 20,
+              width: 20,
+            ),
           ),
         ),
-        const SizedBox(height: 5),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 50,
+          height: 50,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 35,
+                height: 35,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 5,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xff92A3FD),
+                  ),
+                ),
+              ),
+              Text(
+                '${(progress * 100).toInt()}%',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -318,7 +388,7 @@ class _DashboardPageState extends State<DashboardPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Calorias',
+            'Calorias Diárias',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -329,41 +399,44 @@ class _DashboardPageState extends State<DashboardPage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                '780 kCal',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xff9DCEFF),
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '1500 kcal',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff92A3FD),
+                    ),
+                  ),
+                  Text(
+                    'de 1800 kcal',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                height: 80,
-                width: 80,
-                child: AnimatedBuilder(
-                  animation: _animationController,
-                  builder: (context, child) {
-                    return CustomPaint(
-                      painter: CircleProgressPainter(
-                        progress:
-                            _progressAnimation.value * 0.33, // 780/2400 ≈ 0.33
-                        color: const Color(0xff9DCEFF),
-                        backgroundColor:
-                            const Color(0xff9DCEFF).withOpacity(0.2),
-                        strokeWidth: 10,
+              SizedBox(
+                height: 70,
+                width: 70,
+                child: CustomPaint(
+                  painter: CircleProgressPainter(
+                    progress: 0.8,
+                    color: const Color(0xff92A3FD),
+                    backgroundColor: const Color(0xFFEEEEFF),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '80%',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      child: const Center(
-                        child: Text(
-                          '33%',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -375,7 +448,7 @@ class _DashboardPageState extends State<DashboardPage>
 
   Widget _buildBottomNavigationBar() {
     return Container(
-      height: 70,
+      height: 80,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -393,21 +466,16 @@ class _DashboardPageState extends State<DashboardPage>
             icon: 'assets/icons_bar/Home-Active.svg',
             isActive: true,
           ),
-          GestureDetector(
-            onTap: () => Navigator.pushNamed(context, '/refeicao'),
+          Container(
+            margin: const EdgeInsets.only(top: 10),
+            child: _buildAddButton(),
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 10),
             child: _buildNavItem(
-              icon: 'assets/icons_bar/Activity.svg',
+              icon: 'assets/icons_bar/Profile.svg',
               isActive: false,
             ),
-          ),
-          _buildAddButton(),
-          _buildNavItem(
-            icon: 'assets/icons_bar/Camera.svg',
-            isActive: false,
-          ),
-          _buildNavItem(
-            icon: 'assets/icons_bar/Profile.svg',
-            isActive: false,
           ),
         ],
       ),
@@ -415,48 +483,42 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildNavItem({required String icon, required bool isActive}) {
-    return SvgPicture.asset(
-      icon,
-      color: isActive ? const Color(0xff92A3FD) : Colors.grey,
-      width: 24,
-      height: 24,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SvgPicture.asset(
+          icon,
+          height: 24,
+          color: isActive ? const Color(0xff92A3FD) : Colors.grey,
+        ),
+      ],
     );
   }
 
   Widget _buildAddButton() {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/registra-alimento'),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xff92A3FD).withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/icons_bar/plus.svg',
-            color: Colors.white,
-            width: 24,
-            height: 24,
-          ),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: SvgPicture.asset(
+          'assets/icons_bar/plus.svg',
+          height: 24,
+          color: Colors.white,
         ),
       ),
     );
   }
 }
 
+// Classe para desenhar o círculo de progresso
 class CircleProgressPainter extends CustomPainter {
   final double progress;
   final Color color;
@@ -475,17 +537,16 @@ class CircleProgressPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - strokeWidth / 2;
 
-    // Background circle
+    // Desenha o círculo de fundo
     if (backgroundColor != Colors.transparent) {
       final backgroundPaint = Paint()
         ..color = backgroundColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth;
-
       canvas.drawCircle(center, radius, backgroundPaint);
     }
 
-    // Progress arc
+    // Desenha o progresso
     final progressPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
@@ -495,7 +556,7 @@ class CircleProgressPainter extends CustomPainter {
     final progressAngle = 2 * 3.14159 * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
-      -3.14159 / 2, // Start from top
+      -3.14159 / 2, // Começa no topo
       progressAngle,
       false,
       progressPaint,
@@ -503,7 +564,10 @@ class CircleProgressPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(CircleProgressPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.color != color ||
+        oldDelegate.backgroundColor != backgroundColor ||
+        oldDelegate.strokeWidth != strokeWidth;
   }
 }
