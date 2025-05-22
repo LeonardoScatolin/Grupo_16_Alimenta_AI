@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:alimenta_ai/pages/login.dart';
-import 'package:alimenta_ai/services/auth_service.dart';
 
 void main() {
   group('Login Page Tests', () {
     testWidgets('Login page shows all required UI elements', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: LoginPage()),
+        const MaterialApp(home: LoginPage()),
       );
 
       // Verificar elementos visuais principais
@@ -20,7 +19,7 @@ void main() {
 
     testWidgets('Shows error on empty fields', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: LoginPage()),
+        const MaterialApp(home: LoginPage()),
       );
 
       // Tentar login com campos vazios
@@ -32,7 +31,7 @@ void main() {
 
     testWidgets('Login button triggers animation', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: LoginPage()),
+        const MaterialApp(home: LoginPage()),
       );
 
       // Preencher campos

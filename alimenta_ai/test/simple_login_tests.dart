@@ -56,7 +56,7 @@ void main() {
   group('Gray Box Tests - Component Interaction', () {
     testWidgets('Password visibility toggle works',
         (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: const LoginPage()));
+      await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
       // Initially password should be obscured
       Finder passwordField = find.widgetWithText(TextField, 'Senha');

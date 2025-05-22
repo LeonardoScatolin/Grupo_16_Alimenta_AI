@@ -45,31 +45,59 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: appbar(),
       backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          searchField(),
-          SizedBox(
-            height: 40,
-          ),
-          sessaoCategoria(),
-          SizedBox(
-            height: 40,
-          ),
-          dietasNutri(),
-          searchIAField()
-        ],
+      body: SingleChildScrollView( // Adicione um SingleChildScrollView
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            searchField(),
+            const SizedBox(height: 40),
+            sessaoCategoria(),
+            const SizedBox(height: 40),
+            dietasNutri(),
+            searchIAField(),
+            const SizedBox(height: 80), // Espaço para o botão flutuante
+          ],
+        ),
       ),
+      floatingActionButton: GestureDetector(
+        onTap: () => Navigator.pushNamed(context, '/registro-unificado'),
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 30,
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   Container searchIAField() {
     return Container(
-      margin: EdgeInsets.only(top: 40, left: 20, right: 20),
+      margin: const EdgeInsets.only(top: 40, left: 20, right: 20),
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
             // ignore: deprecated_member_use
-            color: Color(0xff1D1617).withOpacity(0.11),
+            color: const Color(0xff1D1617).withOpacity(0.11),
             blurRadius: 40,
             spreadRadius: 0.0)
       ]),
@@ -79,9 +107,9 @@ class _HomePageState extends State<HomePage> {
         decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            contentPadding: EdgeInsets.all(15),
+            contentPadding: const EdgeInsets.all(15),
             hintText: 'Fale o que comeu!',
-            hintStyle: TextStyle(color: Color(0xffDDDADA), fontSize: 14),
+            hintStyle: const TextStyle(color: Color(0xffDDDADA), fontSize: 14),
             prefixIcon: Padding(
               padding: const EdgeInsets.all(12),
               child: Container(
@@ -111,12 +139,12 @@ class _HomePageState extends State<HomePage> {
                     });
                   },
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 150),
+                    duration: const Duration(milliseconds: 150),
                     transform: Matrix4.translationValues(0, micButtonOffset, 0),
                     child: SvgPicture.asset(
                       'assets/icons/mic.svg',
                       color: isRecording
-                          ? Color(0xff92A3FD)
+                          ? const Color(0xff92A3FD)
                           : null, // Mudar cor quando estiver gravando
                     ),
                   ),
@@ -129,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    VerticalDivider(
+                    const VerticalDivider(
                       color: Colors.black,
                       indent: 10,
                       endIndent: 10,
@@ -154,15 +182,15 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 20),
+        const Padding(
+          padding: EdgeInsets.only(left: 20),
           child: Text(
             'Cardápio do(a)\nNutri:',
             style: TextStyle(
                 color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         SizedBox(
@@ -181,7 +209,7 @@ class _HomePageState extends State<HomePage> {
                     SvgPicture.asset(dietas[index].iconPath),
                     Text(
                       dietas[index].name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                         fontSize: 16,
@@ -189,7 +217,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Text(
                       '${dietas[index].duracao} | ${dietas[index].calorias}',
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Color(0xff7B6F72),
                           fontSize: 13,
                           fontWeight: FontWeight.w400),
@@ -198,10 +226,10 @@ class _HomePageState extends State<HomePage> {
                       height: 45,
                       width: 130,
                       decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                               colors: [Color(0xff9DCEFF), Color(0xff92A3FD)]),
                           borderRadius: BorderRadius.circular(50)),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Ver',
                           style: TextStyle(
@@ -215,12 +243,12 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             },
-            separatorBuilder: (context, index) => SizedBox(
+            separatorBuilder: (context, index) => const SizedBox(
               width: 25,
             ),
             itemCount: dietas.length,
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.only(left: 20, right: 20),
+            padding: const EdgeInsets.only(left: 20, right: 20),
           ),
         )
       ],
@@ -231,15 +259,15 @@ class _HomePageState extends State<HomePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 20),
+        const Padding(
+          padding: EdgeInsets.only(left: 20),
           child: Text(
             'Refeições',
             style: TextStyle(
                 color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         SizedBox(
@@ -247,8 +275,8 @@ class _HomePageState extends State<HomePage> {
           child: ListView.separated(
             itemCount: categorias.length,
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.only(left: 20, right: 20),
-            separatorBuilder: (context, index) => SizedBox(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            separatorBuilder: (context, index) => const SizedBox(
               width: 25,
             ),
             itemBuilder: (context, index) {
@@ -264,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       width: 50,
                       height: 50,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: Colors.white, shape: BoxShape.circle),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -273,7 +301,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Text(
                       categorias[index].name,
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontWeight: FontWeight.w400,
                           color: Colors.black,
                           fontSize: 14),
@@ -290,11 +318,11 @@ class _HomePageState extends State<HomePage> {
 
   Container searchField() {
     return Container(
-      margin: EdgeInsets.only(top: 40, left: 20, right: 20),
+      margin: const EdgeInsets.only(top: 40, left: 20, right: 20),
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(
             // ignore: deprecated_member_use
-            color: Color(0xff1D1617).withOpacity(0.11),
+            color: const Color(0xff1D1617).withOpacity(0.11),
             blurRadius: 40,
             spreadRadius: 0.0)
       ]),
@@ -303,9 +331,9 @@ class _HomePageState extends State<HomePage> {
         decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            contentPadding: EdgeInsets.all(15),
+            contentPadding: const EdgeInsets.all(15),
             hintText: 'Procurar Alimento',
-            hintStyle: TextStyle(color: Color(0xffDDDADA), fontSize: 14),
+            hintStyle: const TextStyle(color: Color(0xffDDDADA), fontSize: 14),
             prefixIcon: Padding(
               padding: const EdgeInsets.all(12),
               child: SvgPicture.asset('assets/icons/Search.svg'),
@@ -316,7 +344,7 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    VerticalDivider(
+                    const VerticalDivider(
                       color: Colors.black,
                       indent: 10,
                       endIndent: 10,
@@ -339,7 +367,7 @@ class _HomePageState extends State<HomePage> {
 
   AppBar appbar() {
     return AppBar(
-      title: Text(
+      title: const Text(
         'Registrar Refeição',
         style: TextStyle(
             color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
@@ -350,10 +378,10 @@ class _HomePageState extends State<HomePage> {
       leading: GestureDetector(
         onTap: () => Navigator.pushNamed(context, '/login'),  // Adiciona navegação para a tela de login
         child: Container(
-          margin: EdgeInsets.all(10),
+          margin: const EdgeInsets.all(10),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              color: Color(0xffF7F8F8),
+              color: const Color(0xffF7F8F8),
               borderRadius: BorderRadius.circular(10)),
           child: SvgPicture.asset(
             'assets/icons/seta_esquerda.svg',
@@ -366,11 +394,11 @@ class _HomePageState extends State<HomePage> {
         GestureDetector(
           onTap: () {},
           child: Container(
-            margin: EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             alignment: Alignment.center,
             width: 37,
             decoration: BoxDecoration(
-                color: Color(0xffF7F8F8),
+                color: const Color(0xffF7F8F8),
                 borderRadius: BorderRadius.circular(10)),
             child: SvgPicture.asset(
               'assets/icons/dots.svg',

@@ -9,7 +9,7 @@ void main() {
 
   group('End-to-End Flow Tests', () {
     testWidgets('Complete meal registration flow', (WidgetTester tester) async {
-      await tester.pumpWidget(MyApp());
+      await tester.pumpWidget(const MyApp());
 
       // 1. Login flow
       await _performLogin(tester);

@@ -45,7 +45,7 @@ class ImprovedWidgets {
     // Obtém a data atual no horário de Brasília
     final today = _getBrasiliaTimeNow();
     final startDate = today.subtract(const Duration(days: 15));
-    final totalDays = 31; // Aumentando para mostrar mais dias
+    const totalDays = 31; // Aumentando para mostrar mais dias
 
     // Scroll controller para posicionar o dia atual no centro
     final ScrollController scrollController =
@@ -86,10 +86,10 @@ class ImprovedWidgets {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.calendar_month_rounded,
                     size: 20,
-                    color: const Color(0xff92A3FD),
+                    color: Color(0xff92A3FD),
                   ),
                   const SizedBox(width: 8),
                   Text(

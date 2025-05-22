@@ -6,7 +6,7 @@ void main() {
   group('Meal Tracking Tests', () {
     testWidgets('Shows all meal sections', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: RegistroUnificadoPage()),
+        const MaterialApp(home: RegistroUnificadoPage()),
       );
 
       expect(find.text('Café da Manhã'), findsOneWidget);
@@ -17,7 +17,7 @@ void main() {
 
     testWidgets('Can add food to meal', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: RegistroUnificadoPage()),
+        const MaterialApp(home: RegistroUnificadoPage()),
       );
 
       // Encontrar e tocar no botão de adicionar alimento
@@ -31,7 +31,7 @@ void main() {
 
     testWidgets('Calculates total calories correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: RegistroUnificadoPage()),
+        const MaterialApp(home: RegistroUnificadoPage()),
       );
 
       // Verificar se o sumário de calorias é exibido
@@ -45,7 +45,7 @@ void main() {
 
     testWidgets('Shows date selector', (WidgetTester tester) async {
       await tester.pumpWidget(
-        MaterialApp(home: RegistroUnificadoPage()),
+        const MaterialApp(home: RegistroUnificadoPage()),
       );
 
       // Verificar elementos do seletor de data

@@ -32,7 +32,7 @@ void main() {
     });
 
     testWidgets('Add meal input validation', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: RegistroUnificadoPage()));
+      await tester.pumpWidget(const MaterialApp(home: RegistroUnificadoPage()));
 
       // Teste de classes de equivalência para entrada de calorias
       final testCases = [
@@ -48,7 +48,7 @@ void main() {
     });
 
     testWidgets('Meal recording workflow', (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(home: RegistroUnificadoPage()));
+      await tester.pumpWidget(const MaterialApp(home: RegistroUnificadoPage()));
 
       // 1. Verificar estado inicial
       expect(find.text('Adicionar Alimento'), findsOneWidget);

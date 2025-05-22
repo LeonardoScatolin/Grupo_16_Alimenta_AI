@@ -317,7 +317,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
             const SizedBox(height: 15),
             TextFormField(
               controller: _weightController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 hintText: 'Digite seu peso atual (em kg)',
                 filled: true,
@@ -509,7 +509,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
                               weightChange > 0
                                   ? '+${weightChange.toStringAsFixed(1)}'
                                   : weightChange < 0
-                                      ? '${weightChange.toStringAsFixed(1)}'
+                                      ? weightChange.toStringAsFixed(1)
                                       : '0.0',
                               style: TextStyle(
                                 color: weightChange > 0

@@ -12,9 +12,9 @@ void main() {
     });
 
     test('Calorie calculation logic', () {
-      final int proteinCals = 4;
-      final int carbsCals = 4;
-      final int fatCals = 9;
+      const int proteinCals = 4;
+      const int carbsCals = 4;
+      const int fatCals = 9;
 
       // Test macro calculation
       int calculateCalories(int protein, int carbs, int fat) {

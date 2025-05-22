@@ -1240,9 +1240,9 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                       ],
                                     ),
                                     alignment: Alignment.center,
-                                    child: Row(
+                                    child: const Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
-                                      children: const [
+                                      children: [
                                         Text(
                                           "G",
                                           style: TextStyle(
@@ -1386,9 +1386,9 @@ Widget _buildInfoCard({
       Row(children: [
         const Icon(Icons.pie_chart_rounded, color: Color(0xff92A3FD), size: 24),
         const SizedBox(width: 8),
-        Expanded(
+        const Expanded(
             child: Text('Macros Totais',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20, fontWeight: FontWeight.bold))),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1401,11 +1401,11 @@ Widget _buildInfoCard({
                     blurRadius: 4,
                     offset: const Offset(0, 2))
               ]),
-          child: Row(children: [
-            const Icon(Icons.insights_rounded,
+          child: const Row(children: [
+            Icon(Icons.insights_rounded,
                 color: Color(0xff92A3FD), size: 16),
-            const SizedBox(width: 5),
-            const Text('Progresso diário',
+            SizedBox(width: 5),
+            Text('Progresso diário',
                 style: TextStyle(
                     color: Color(0xff92A3FD),
                     fontWeight: FontWeight.bold,

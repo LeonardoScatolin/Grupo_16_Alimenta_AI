@@ -428,10 +428,10 @@ class _DashboardPageState extends State<DashboardPage>
                     color: const Color(0xff92A3FD),
                     backgroundColor: const Color(0xFFEEEEFF),
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       '80%',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -470,11 +470,14 @@ class _DashboardPageState extends State<DashboardPage>
             margin: const EdgeInsets.only(top: 10),
             child: _buildAddButton(),
           ),
-          Container(
-            margin: const EdgeInsets.only(top: 10),
-            child: _buildNavItem(
-              icon: 'assets/icons_bar/Profile.svg',
-              isActive: false,
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/profile'),
+            child: Container(
+              margin: const EdgeInsets.only(top: 10),
+              child: _buildNavItem(
+                icon: 'assets/icons_bar/Profile.svg',
+                isActive: false,
+              ),
             ),
           ),
         ],
@@ -496,22 +499,32 @@ class _DashboardPageState extends State<DashboardPage>
   }
 
   Widget _buildAddButton() {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/registra-alimento'),
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xff92A3FD).withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: SvgPicture.asset(
-          'assets/icons_bar/plus.svg',
-          height: 24,
-          color: Colors.white,
+        child: Center(
+          child: SvgPicture.asset(
+            'assets/icons_bar/plus.svg',
+            height: 24,
+            color: Colors.white,
+          ),
         ),
       ),
     );

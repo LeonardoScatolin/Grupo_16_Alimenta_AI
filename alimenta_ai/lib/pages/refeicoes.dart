@@ -91,7 +91,7 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
   Widget _buildDateSelector() {
     final today = DateTime.now();
     final startDate = today.subtract(const Duration(days: 15));
-    final totalDays = 30;
+    const totalDays = 30;
 
     return Column(
       children: [

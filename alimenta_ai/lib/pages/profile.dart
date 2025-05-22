@@ -375,10 +375,10 @@ class _ProfilePageState extends State<ProfilePage> {
         color: isActive ? const Color(0xff92A3FD) : Colors.grey,
         width: 24,
         height: 24,
-        placeholderBuilder: (BuildContext context) => Container(
+        placeholderBuilder: (BuildContext context) => const SizedBox(
           width: 24,
           height: 24,
-          child: const Center(
+          child: Center(
             child: Icon(Icons.error, size: 20, color: Colors.grey),
           ),
         ),
@@ -413,10 +413,10 @@ class _ProfilePageState extends State<ProfilePage> {
             color: Colors.white,
             width: 24,
             height: 24,
-            placeholderBuilder: (BuildContext context) => Container(
+            placeholderBuilder: (BuildContext context) => const SizedBox(
               width: 24,
               height: 24,
-              child: const Center(
+              child: Center(
                 child: Icon(Icons.add, size: 24, color: Colors.white),
               ),
             ),
@@ -495,7 +495,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: ButtonStyle(
-                          foregroundColor: MaterialStateProperty.all<Color>(
+                          foregroundColor: WidgetStateProperty.all<Color>(
                               const Color(0xff92A3FD)),
                         ),
                         child: const Text(
@@ -513,17 +513,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           // Navigator.pushNamed(context, '/chat-nutricionista');
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
+                          backgroundColor: WidgetStateProperty.all<Color>(
                               const Color(0xff92A3FD)),
                           foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
+                              WidgetStateProperty.all<Color>(Colors.white),
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          padding: MaterialStateProperty.all<EdgeInsets>(
+                          padding: WidgetStateProperty.all<EdgeInsets>(
                             const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                           ),

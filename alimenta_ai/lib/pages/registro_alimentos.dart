@@ -192,9 +192,9 @@ class _HomePageState extends State<HomePage> {
                           child: hasRecordedAudio &&
                                   !isRecording &&
                                   !isPlayingAudio
-                              ? Icon(
+                              ? const Icon(
                                   Icons.play_arrow,
-                                  color: const Color(0xff92A3FD),
+                                  color: Color(0xff92A3FD),
                                   size: 28,
                                 )
                               : SvgPicture.asset(
