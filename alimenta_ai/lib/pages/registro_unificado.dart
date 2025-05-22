@@ -574,16 +574,16 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   }
 
   Widget _buildDateSelector() {
-    final today = _getBrasiliaTimeNow();
-    final startDate = DateTime(today.year, today.month, 1);
-    final totalDays = DateTime(today.year, today.month + 1, 0).day;
+    // Use selectedDate para definir o mês/ano exibido
+    final startDate = DateTime(selectedDate.year, selectedDate.month, 1);
+    final totalDays = DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
 
-    // Scroll to today's date only on first load
+    // Scroll to selected day only on first load
     if (!_initialScrollDone) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         const itemWidth = 60 + 12;
         final screenW = MediaQuery.of(context).size.width;
-        final offset = (itemWidth * 15) - (screenW / 2) + (itemWidth / 2);
+        final offset = (itemWidth * (selectedDate.day - 1)) - (screenW / 2) + (itemWidth / 2);
         if (offset > 0) _dateScrollController.jumpTo(offset);
         _initialScrollDone = true;
       });
@@ -591,8 +591,31 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
     return Column(
       children: [
-        Text("${_getMonthName(today.month)} ${today.year}",
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        GestureDetector(
+          onTap: () async {
+            final picked = await showDialog<DateTime>(
+              context: context,
+              builder: (ctx) => _MonthYearPickerDialog(
+                initialDate: selectedDate,
+              ),
+            );
+            if (picked != null) {
+              setState(() {
+                selectedDate = picked;
+                _loadMealsForDate(picked);
+                _initialScrollDone = false;
+              });
+            }
+          },
+          child: Text(
+            "${getMonthName(selectedDate.month)} ${selectedDate.year}",
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
         const SizedBox(height: 8),
         SizedBox(
           height: 60,
@@ -1825,4 +1848,90 @@ class _NoGlowScrollBehavior extends ScrollBehavior {
         PointerDeviceKind.stylus,
         PointerDeviceKind.unknown,
       };
+}
+
+class _MonthYearPickerDialog extends StatefulWidget {
+  final DateTime initialDate;
+  const _MonthYearPickerDialog({required this.initialDate});
+
+  @override
+  State<_MonthYearPickerDialog> createState() => _MonthYearPickerDialogState();
+}
+
+class _MonthYearPickerDialogState extends State<_MonthYearPickerDialog> {
+  late int selectedMonth;
+  late int selectedYear;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedMonth = widget.initialDate.month;
+    selectedYear = widget.initialDate.year;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Selecione mês e ano'),
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Mês
+          DropdownButton<int>(
+            value: selectedMonth,
+            items: List.generate(12, (i) {
+              return DropdownMenuItem(
+                value: i + 1,
+                child: Text(getMonthName(i + 1)),
+              );
+            }),
+            onChanged: (v) => setState(() => selectedMonth = v!),
+          ),
+          const SizedBox(width: 16),
+          // Ano
+          DropdownButton<int>(
+            value: selectedYear,
+            items: List.generate(10, (i) {
+              final year = DateTime.now().year - 5 + i;
+              return DropdownMenuItem(
+                value: year,
+                child: Text(year.toString()),
+              );
+            }),
+            onChanged: (v) => setState(() => selectedYear = v!),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(DateTime(selectedYear, selectedMonth, 1));
+          },
+          child: const Text('OK'),
+        ),
+      ],
+    );
+  }
+}
+
+String getMonthName(int m) {
+  const months = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ];
+  return months[m - 1];
 }
