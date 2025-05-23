@@ -10,6 +10,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _notificationsEnabled = true;
+  bool _isDarkMode = false;
+  String _currentLanguage = 'pt_BR';
 
   @override
   Widget build(BuildContext context) {
@@ -28,30 +30,14 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 0.0,
         centerTitle: true,
         actions: [
-          PopupMenuButton(
+          IconButton(
             icon: SvgPicture.asset(
-              'assets/icons/logout.svg',
+              'assets/icons/settings.svg',
               color: Colors.black,
               width: 24,
               height: 24,
             ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                onTap: () {
-                  Future.delayed(
-                    const Duration(seconds: 0),
-                    () => Navigator.of(context).pushReplacementNamed('/login'),
-                  );
-                },
-                child: const Text(
-                  'Sair',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+            onPressed: () => _showSettingsModal(context),
           ),
         ],
       ),
@@ -606,6 +592,136 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ],
+    );
+  }
+
+  // Método para alternar o tema
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+      // Aqui você implementaria a lógica para mudar o tema global
+    });
+  }
+
+  // Método para mudar o idioma
+  void _changeLanguage(String languageCode) {
+    setState(() {
+      _currentLanguage = languageCode;
+      // Aqui você implementaria a lógica para mudar o idioma global
+    });
+  }
+
+  void _showSettingsModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Cabeçalho
+                  Row(
+                    children: [
+                      const Text(
+                        'Configurações',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+
+                  // Idioma
+                  ListTile(
+                    leading: SvgPicture.asset(
+                      'assets/icons/language.svg',
+                      width: 24,
+                      height: 24,
+                      color: const Color(0xff92A3FD),
+                    ),
+                    title: const Text('Idioma'),
+                    trailing: DropdownButton<String>(
+                      value: _currentLanguage,
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'pt_BR',
+                          child: Text('Português'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'en_US',
+                          child: Text('English'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'es_ES',
+                          child: Text('Español'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setModalState(() {
+                          _changeLanguage(value!);
+                        });
+                      },
+                    ),
+                  ),
+
+                  // Tema
+                  ListTile(
+                    leading: SvgPicture.asset(
+                      _isDarkMode ? 'assets/icons/light.svg' : 'assets/icons/dark.svg',
+                      width: 24,
+                      height: 24,
+                      color: const Color(0xff92A3FD),
+                    ),
+                    title: Text(_isDarkMode ? 'Tema Claro' : 'Tema Escuro'),
+                    trailing: Switch(
+                      value: _isDarkMode,
+                      onChanged: (value) {
+                        setModalState(() {
+                          _toggleTheme();
+                        });
+                      },
+                      activeColor: const Color(0xff92A3FD),
+                    ),
+                  ),
+
+                  // Logout
+                  ListTile(
+                    leading: SvgPicture.asset(
+                      'assets/icons/logout.svg',
+                      width: 24,
+                      height: 24,
+                      color: Colors.red,
+                    ),
+                    title: const Text(
+                      'Sair',
+                      style: TextStyle(
+                        color: Colors.red,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pushReplacementNamed('/login');
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
