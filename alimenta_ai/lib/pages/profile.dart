@@ -27,6 +27,33 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.white,
         elevation: 0.0,
         centerTitle: true,
+        actions: [
+          PopupMenuButton(
+            icon: SvgPicture.asset(
+              'assets/icons/logout.svg',
+              color: Colors.black,
+              width: 24,
+              height: 24,
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                onTap: () {
+                  Future.delayed(
+                    const Duration(seconds: 0),
+                    () => Navigator.of(context).pushReplacementNamed('/login'),
+                  );
+                },
+                child: const Text(
+                  'Sair',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
