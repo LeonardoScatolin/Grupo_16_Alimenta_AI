@@ -5,10 +5,25 @@ import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:alimenta_ai/pages/registro_unificado.dart';
 import 'package:alimenta_ai/pages/profile.dart';
 import 'package:alimenta_ai/pages/weight_history.dart';
+import 'package:alimenta_ai/theme/app_theme.dart';
+import 'package:alimenta_ai/theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final themeProvider = ThemeProvider();
+  while (!themeProvider.isInitialized) {
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+  
+  runApp(
+    ChangeNotifierProvider.value(
+      value: themeProvider,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,23 +31,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: '/intro',
-      routes: {
-        '/intro': (context) => const WelcomeScreen(),
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const DashboardPage(),
-        '/registra-alimento': (context) => const RegistroUnificadoPage(),
-        '/notificacao': (context) => const NotificacoesPage(),
-        '/refeicao': (context) =>
-            const RegistroUnificadoPage(), // Agora usa a mesma página para ambos
-        '/profile': (context) => const ProfilePage(),
-        '/weight-history': (context) => const WeightHistoryPage(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          initialRoute: '/intro',
+          routes: {
+            '/intro': (context) => const WelcomeScreen(),
+            '/login': (context) => const LoginPage(),
+            '/home': (context) => const DashboardPage(),
+            '/registra-alimento': (context) => const RegistroUnificadoPage(),
+            '/notificacao': (context) => const NotificacoesPage(),
+            '/refeicao': (context) => const RegistroUnificadoPage(),
+            '/profile': (context) => const ProfilePage(),
+            '/weight-history': (context) => const WeightHistoryPage(),
+          },
+        );
       },
     );
   }

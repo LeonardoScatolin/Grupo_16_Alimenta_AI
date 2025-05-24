@@ -24,15 +24,15 @@ class NotificacoesPage extends StatelessWidget {
 
   AppBar appbar(BuildContext context) {
     return AppBar(
-      title: const Text(
+      title: Text(
         'Notificações',
         style: TextStyle(
-          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.onBackground,
           fontSize: 18,
-          color: Colors.black,
+          fontWeight: FontWeight.bold,
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 0.0,
       centerTitle: true,
       leading: GestureDetector(
@@ -70,7 +70,7 @@ class NotificacoesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: appbar(context),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -108,42 +108,45 @@ class NotificationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: SvgPicture.asset(imagem),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titulo,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  subtitulo,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: SvgPicture.asset(imagem),
             ),
-          ),
-          const SizedBox(width: 10),
-          const Icon(Icons.more_vert, color: Colors.grey, size: 20),
-        ],
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titulo,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitulo,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Icon(Icons.more_vert, color: Colors.grey, size: 20),
+          ],
+        ),
       ),
     );
   }

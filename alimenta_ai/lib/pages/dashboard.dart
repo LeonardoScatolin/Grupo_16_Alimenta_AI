@@ -42,25 +42,57 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 60.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildGreetingSection(),
-              const SizedBox(height: 25),
-              _buildWeightTrackingCard(),
-              const SizedBox(height: 25),
-              _buildDailyGoalsCard(),
-              const SizedBox(height: 25),
-              _buildCaloriesProgressCard(),
-            ],
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        title: Text(
+          'Dashboard',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: ListView(
+          children: [
+            _buildCard(
+              child: Container(
+                color: Theme.of(context).colorScheme.surface,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 60.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildGreetingSection(),
+                    const SizedBox(height: 25),
+                    _buildWeightTrackingCard(),
+                    const SizedBox(height: 25),
+                    _buildDailyGoalsCard(),
+                    const SizedBox(height: 25),
+                    _buildCaloriesProgressCard(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildCard({required Widget child}) {
+    return Card(
+      color: Theme.of(context).colorScheme.surface,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: child,
     );
   }
 

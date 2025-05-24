@@ -11,18 +11,22 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: Text(
+          'Refeições',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () {},
-        ),
-        title: const Text(
-          'Refeições',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         actions: [
           IconButton(
@@ -33,56 +37,103 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDateSelector(),
-            const SizedBox(height: 20),
-            const MealSection(
-              title: "Café da Manhã",
-              totalCalories: 630,
-              items: [
-                MealItem(name: "Pão Francês", calories: 230),
-                MealItem(name: "Ovo", calories: 400),
-              ],
-            ),
-            const MealSection(
-              title: "Almoço",
-              totalCalories: 475,
-              items: [
-                MealItem(name: "Arroz Branco Cozido", calories: 375),
-                MealItem(name: "Feijão Cozido", calories: 100),
-              ],
-            ),
-            const MealSection(
-              title: "Lanches",
-              totalCalories: 140,
-              items: [
-                MealItem(name: "Maçã", calories: 70),
-                MealItem(name: "Iogurte", calories: 70),
-              ],
-            ),
-            const MealSection(
-              title: "Janta",
-              totalCalories: 120,
-              items: [
-                MealItem(name: "Coca-Cola", calories: 150),
-                MealItem(name: "Arroz Branco Cozido", calories: 300),
-                MealItem(name: "Filé de Frango", calories: 400),
-              ],
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'Macros Totais',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildMacroBar(label: "Calorias", emoji: "🔥", current: 1800, total: 2500),
-            _buildMacroBar(label: "Proteinas", emoji: "🏋️‍♂️", current: 100, total: 200),
-            _buildMacroBar(label: "Gordura", emoji: "🥜", current: 50, total: 140),
-            _buildMacroBar(label: "Carbo", emoji: "🌾", current: 100, total: 400),
-            const SizedBox(height: 30),
-          ],
+        child: Container(
+          color: Theme.of(context).colorScheme.background,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDateSelector(),
+              const SizedBox(height: 20),
+              _buildMealCard(
+                title: "Café da Manhã",
+                totalCalories: 630,
+                items: [
+                  MealItem(name: "Pão Francês", calories: 230),
+                  MealItem(name: "Ovo", calories: 400),
+                ],
+              ),
+              _buildMealCard(
+                title: "Almoço",
+                totalCalories: 475,
+                items: [
+                  MealItem(name: "Arroz Branco Cozido", calories: 375),
+                  MealItem(name: "Feijão Cozido", calories: 100),
+                ],
+              ),
+              _buildMealCard(
+                title: "Lanches",
+                totalCalories: 140,
+                items: [
+                  MealItem(name: "Maçã", calories: 70),
+                  MealItem(name: "Iogurte", calories: 70),
+                ],
+              ),
+              _buildMealCard(
+                title: "Janta",
+                totalCalories: 120,
+                items: [
+                  MealItem(name: "Coca-Cola", calories: 150),
+                  MealItem(name: "Arroz Branco Cozido", calories: 300),
+                  MealItem(name: "Filé de Frango", calories: 400),
+                ],
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                'Macros Totais',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _buildMacroBar(label: "Calorias", emoji: "🔥", current: 1800, total: 2500),
+              _buildMacroBar(label: "Proteinas", emoji: "🏋️‍♂️", current: 100, total: 200),
+              _buildMacroBar(label: "Gordura", emoji: "🥜", current: 50, total: 140),
+              _buildMacroBar(label: "Carbo", emoji: "🌾", current: 100, total: 400),
+              const SizedBox(height: 30),
+              // Exemplo de botão com cor primária
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                onPressed: () {},
+                child: Text('Botão'),
+              ),
+              const SizedBox(height: 20),
+              // Exemplo de ícone com cor primária
+              Icon(
+                Icons.add,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(height: 20),
+              // Exemplo de container com gradiente e cor primária
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.secondary,
+                    ],
+                  ),
+                ),
+                height: 100,
+                width: double.infinity,
+              ),
+              Container(
+                color: Theme.of(context).colorScheme.background,
+                child: Card(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Exemplo de Card',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -213,44 +264,49 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
       ),
     );
   }
-}
 
-class MealSection extends StatelessWidget {
-  final String title;
-  final int totalCalories;
-  final List<MealItem> items;
-
-  const MealSection({
-    required this.title,
-    required this.totalCalories,
-    required this.items,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              '| $totalCalories calorias',
-              style: const TextStyle(fontSize: 14, color: Color(0xFF7B6F72)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        ...items.map((item) => item),
-        const SizedBox(height: 10),
-        const Divider(),
-      ],
+  Widget _buildMealCard({
+    required String title,
+    required int totalCalories,
+    required List<MealItem> items,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                '| $totalCalories calorias',
+                style: const TextStyle(fontSize: 14, color: Color(0xFF7B6F72)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...items.map((item) => item),
+          const SizedBox(height: 10),
+          Divider(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+          ),
+        ],
+      ),
     );
   }
 }

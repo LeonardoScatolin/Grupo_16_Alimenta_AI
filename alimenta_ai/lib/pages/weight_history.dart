@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import '../services/weight_service.dart';
+import 'package:provider/provider.dart';
+import 'package:alimenta_ai/theme/theme_provider.dart';
 
 class WeightHistoryPage extends StatefulWidget {
   const WeightHistoryPage({Key? key}) : super(key: key);
@@ -100,55 +102,63 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
     return AnimatedBuilder(
       animation: _weightService,
       builder: (context, _) {
-        final weightDifference = _weightService.calculateWeightDifference();
-        final weightDifferenceText = weightDifference >= 0
-            ? '+${weightDifference.toStringAsFixed(1)} kg'
-            : '${weightDifference.toStringAsFixed(1)} kg';
-        final isWeightLoss = weightDifference < 0;
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            final weightDifference = _weightService.calculateWeightDifference();
+            final weightDifferenceText = weightDifference >= 0
+                ? '+${weightDifference.toStringAsFixed(1)} kg'
+                : '${weightDifference.toStringAsFixed(1)} kg';
+            final isWeightLoss = weightDifference < 0;
 
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: const Text(
-              'Histórico de Peso',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            backgroundColor: Colors.white,
-            elevation: 0.0,
-            centerTitle: true,
-            leading: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                margin: const EdgeInsets.all(10),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xffF7F8F8),
-                  borderRadius: BorderRadius.circular(10),
+            return Scaffold(
+              backgroundColor: Theme.of(context).colorScheme.background,
+              appBar: AppBar(
+                title: Text(
+                  'Histórico de Peso',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.black,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-          body: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    _buildWeightSummaryCard(weightDifferenceText, isWeightLoss),
-                    _buildWeightChart(),
-                    _buildWeightInputSection(),
-                    Expanded(
-                      child: _buildWeightHistoryList(),
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                elevation: 0.0,
+                centerTitle: true,
+                leading: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ],
+                    child: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Theme.of(context).colorScheme.onBackground,
+                      size: 20,
+                    ),
+                  ),
                 ),
+              ),
+              body: _isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        _buildWeightSummaryCard(weightDifferenceText, isWeightLoss),
+                        _buildWeightChart(),
+                        _buildWeightInputSection(),
+                        Expanded(
+                          child: _buildWeightHistoryList(),
+                        ),
+                      ],
+                    ),
+            );
+          },
         );
       },
     );
@@ -292,11 +302,11 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -307,24 +317,31 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Adicionar Novo Peso',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onBackground,
               ),
             ),
             const SizedBox(height: 15),
             TextFormField(
               controller: _weightController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
               decoration: InputDecoration(
                 hintText: 'Digite seu peso atual (em kg)',
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                ),
                 filled: true,
-                fillColor: const Color(0xffF7F8F8),
+                fillColor: Theme.of(context).colorScheme.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide.none,
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -350,8 +367,8 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
               child: ElevatedButton(
                 onPressed: _addWeightRecord,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: const Color(0xff92A3FD),
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
@@ -375,11 +392,11 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
   Widget _buildWeightHistoryList() {
     final records = _weightService.weightRecords;
     return records.isEmpty
-        ? const Center(
+        ? Center(
             child: Text(
               'Nenhum registro de peso ainda. Adicione um!',
               style: TextStyle(
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onBackground,
                 fontSize: 16,
               ),
             ),
@@ -387,11 +404,11 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
         : Container(
             margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -407,7 +424,8 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
                 final weightChange = index < records.length - 1
                     ? record.weight - records[index + 1].weight
                     : 0.0;
-                final hasChange = index < records.length - 1;                return Dismissible(
+                final hasChange = index < records.length - 1;
+                return Dismissible(
                   key: Key('weight-${record.date.millisecondsSinceEpoch}'),
                   direction: DismissDirection.endToStart,
                   background: Container(

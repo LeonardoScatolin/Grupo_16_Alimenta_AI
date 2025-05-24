@@ -98,20 +98,26 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: appbar(),
       backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          searchField(),
-          const SizedBox(
-            height: 40,
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: Card(
+          color: Theme.of(context).colorScheme.surface,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              searchField(),
+              const SizedBox(
+                height: 40,
+              ),
+              sessaoCategoria(),
+              const SizedBox(
+                height: 40,
+              ),
+              dietasNutri(),
+              searchIAField()
+            ],
           ),
-          sessaoCategoria(),
-          const SizedBox(
-            height: 40,
-          ),
-          dietasNutri(),
-          searchIAField()
-        ],
+        ),
       ),
       // FloatingActionButton removido
     );

@@ -509,20 +509,23 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: Text(
+          'Registro Unificado',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
           icon: SvgPicture.asset('assets/icons/seta_esquerda.svg',
               height: 20, width: 20),
           onPressed: () => Navigator.pushNamed(context, '/home'),
-        ),
-        title: const Text(
-          'Refeições',
-          style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         actions: [
           IconButton(
@@ -537,38 +540,41 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           )
         ],
       ),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: LayoutBuilder(builder: (context, constraints) {
-              return ScrollConfiguration(
-                behavior: const _NoGlowScrollBehavior(),
-                child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minHeight: constraints.maxHeight),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildDateSelector(),
-                        const SizedBox(height: 25),
-                        _buildSummaryCard(),
-                        const SizedBox(height: 25),
-                        ...meals.map((meal) => _buildMealSection(meal)),
-                        const SizedBox(height: 30),
-                        _buildMacrosOverview(),
-                        const SizedBox(height: 50),
-                      ],
+      body: Container(
+        color: Theme.of(context).colorScheme.background,
+        child: Stack(
+          children: [
+            SafeArea(
+              child: LayoutBuilder(builder: (context, constraints) {
+                return ScrollConfiguration(
+                  behavior: const _NoGlowScrollBehavior(),
+                  child: SingleChildScrollView(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateSelector(),
+                          const SizedBox(height: 25),
+                          _buildSummaryCard(),
+                          const SizedBox(height: 25),
+                          ...meals.map((meal) => _buildMealSection(meal)),
+                          const SizedBox(height: 30),
+                          _buildMacrosOverview(),
+                          const SizedBox(height: 50),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            }),
-          ),
-          if (showRecordingModal) _buildRecordingModal(),
-        ],
+                );
+              }),
+            ),
+            if (showRecordingModal) _buildRecordingModal(),
+          ],
+        ),
       ),
     );
   }

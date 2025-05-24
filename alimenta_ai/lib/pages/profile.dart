@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:alimenta_ai/theme/theme_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -10,56 +12,62 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _notificationsEnabled = true;
-  bool _isDarkMode = false;
   String _currentLanguage = 'pt_BR';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Perfil',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0.0,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: SvgPicture.asset(
-              'assets/icons/settings.svg',
-              color: Colors.black,
-              width: 24,
-              height: 24,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          appBar: AppBar(
+            title: Text(
+              'Perfil',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            onPressed: () => _showSettingsModal(context),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              _buildProfileSection(),
-              const SizedBox(height: 30),
-              _buildInformationSection(),
-              const SizedBox(height: 20),
-              _buildNotificationSection(),
-              const SizedBox(height: 20),
-              _buildOthersSection(),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            elevation: 0.0,
+            centerTitle: true,
+            actions: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/icons/settings.svg',
+                  color: Theme.of(context).colorScheme.onBackground,
+                  width: 24,
+                  height: 24,
+                ),
+                onPressed: () => _showSettingsModal(context),
+              ),
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+          body: SingleChildScrollView(
+            child: Container(
+              color: Theme.of(context).colorScheme.background,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildProfileSection(),
+                    const SizedBox(height: 30),
+                    _buildInformationSection(),
+                    const SizedBox(height: 20),
+                    _buildNotificationSection(),
+                    const SizedBox(height: 20),
+                    _buildOthersSection(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          bottomNavigationBar: _buildBottomNavigationBar(),
+        );
+      }
     );
   }
 
@@ -67,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         clipBehavior: Clip.hardEdge,
         elevation: 2,
@@ -595,20 +603,16 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Método para alternar o tema
-  void _toggleTheme() {
+  void _changeLanguage(String langCode) {
     setState(() {
-      _isDarkMode = !_isDarkMode;
-      // Aqui você implementaria a lógica para mudar o tema global
+      _currentLanguage = langCode;
     });
+    // Aqui você pode adicionar a lógica para mudar o idioma do app
   }
 
-  // Método para mudar o idioma
-  void _changeLanguage(String languageCode) {
-    setState(() {
-      _currentLanguage = languageCode;
-      // Aqui você implementaria a lógica para mudar o idioma global
-    });
+  // Método para alternar o tema
+  void _toggleTheme() {
+    context.read<ThemeProvider>().toggleTheme();
   }
 
   void _showSettingsModal(BuildContext context) {
@@ -618,108 +622,113 @@ class _ProfilePageState extends State<ProfilePage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Cabeçalho
-                  Row(
+        return Consumer<ThemeProvider>(
+          builder: (context, themeProvider, child) {
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Configurações',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      // Cabeçalho
+                      Row(
+                        children: [
+                          const Text(
+                            'Configurações',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+
+                      // Idioma
+                      ListTile(
+                        leading: SvgPicture.asset(
+                          'assets/icons/language.svg',
+                          width: 24,
+                          height: 24,
+                          color: const Color(0xff92A3FD),
+                        ),
+                        title: const Text('Idioma'),
+                        trailing: DropdownButton<String>(
+                          value: _currentLanguage,
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'pt_BR',
+                              child: Text('Português'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'en_US',
+                              child: Text('English'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'es_ES',
+                              child: Text('Español'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setModalState(() {
+                              _changeLanguage(value!);
+                            });
+                          },
                         ),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
+
+                      // Tema
+                      ListTile(
+                        leading: Icon(
+                          themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        title: Text(
+                          themeProvider.isDarkMode ? 'Tema Escuro' : 'Tema Claro',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
+                        ),
+                        trailing: Switch(
+                          value: themeProvider.isDarkMode,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          onChanged: (value) {
+                            themeProvider.toggleTheme();
+                          },
+                        ),
+                      ),
+
+                      // Logout
+                      ListTile(
+                        leading: SvgPicture.asset(
+                          'assets/icons/logout.svg',
+                          width: 24,
+                          height: 24,
+                          color: Colors.red,
+                        ),
+                        title: const Text(
+                          'Sair',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushReplacementNamed('/login');
+                        },
                       ),
                     ],
                   ),
-                  const Divider(),
-
-                  // Idioma
-                  ListTile(
-                    leading: SvgPicture.asset(
-                      'assets/icons/language.svg',
-                      width: 24,
-                      height: 24,
-                      color: const Color(0xff92A3FD),
-                    ),
-                    title: const Text('Idioma'),
-                    trailing: DropdownButton<String>(
-                      value: _currentLanguage,
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'pt_BR',
-                          child: Text('Português'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'en_US',
-                          child: Text('English'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'es_ES',
-                          child: Text('Español'),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        setModalState(() {
-                          _changeLanguage(value!);
-                        });
-                      },
-                    ),
-                  ),
-
-                  // Tema
-                  ListTile(
-                    leading: SvgPicture.asset(
-                      _isDarkMode ? 'assets/icons/light.svg' : 'assets/icons/dark.svg',
-                      width: 24,
-                      height: 24,
-                      color: const Color(0xff92A3FD),
-                    ),
-                    title: Text(_isDarkMode ? 'Tema Claro' : 'Tema Escuro'),
-                    trailing: Switch(
-                      value: _isDarkMode,
-                      onChanged: (value) {
-                        setModalState(() {
-                          _toggleTheme();
-                        });
-                      },
-                      activeColor: const Color(0xff92A3FD),
-                    ),
-                  ),
-
-                  // Logout
-                  ListTile(
-                    leading: SvgPicture.asset(
-                      'assets/icons/logout.svg',
-                      width: 24,
-                      height: 24,
-                      color: Colors.red,
-                    ),
-                    title: const Text(
-                      'Sair',
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pushReplacementNamed('/login');
-                    },
-                  ),
-                ],
-              ),
+                );
+              },
             );
-          },
+          }
         );
       },
     );
