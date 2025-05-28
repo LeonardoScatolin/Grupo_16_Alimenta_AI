@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
       appBar: appbar(),
       backgroundColor: Colors.white,
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Card(
           color: Theme.of(context).colorScheme.surface,
           child: Column(

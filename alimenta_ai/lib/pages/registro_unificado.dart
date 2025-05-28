@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 import 'package:alimenta_ai/models/modelo_categoria.dart';
 import 'package:alimenta_ai/models/ver_dietanutri.dart';
+import 'package:alimenta_ai/services/audio_service.dart';
+import 'package:alimenta_ai/services/nutricao_service.dart';
 
 class RegistroUnificadoPage extends StatefulWidget {
   const RegistroUnificadoPage({Key? key}) : super(key: key);
@@ -15,6 +18,10 @@ class RegistroUnificadoPage extends StatefulWidget {
 }
 
 class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
+  // Constants for default user IDs
+  static const int DEFAULT_PACIENTE_ID = 1;
+  static const int DEFAULT_NUTRI_ID = 1;
+
   // Variáveis para controle de gravação de áudio
   bool isRecording = false;
   bool isPlayingAudio = false;
@@ -40,12 +47,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   int proteinTotal = 0;
   int fatTotal = 0;
   int carbsTotal = 0;
-
-  // Meta diária padrão
-  final int caloriesGoal = 2500;
-  final int proteinGoal = 200;
-  final int fatGoal = 140;
-  final int carbsGoal = 400;
+  // Meta diária dinâmica (carregada da API)
+  int caloriesGoal = 2000;
+  int proteinGoal = 150;
+  int fatGoal = 80;
+  int carbsGoal = 250;
 
   // Modelo de dados para refeições
   late List<MealData> meals;
@@ -87,6 +93,88 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     _initialScrollDone = false;
     initializeMeals();
     calculateTotalCalories();
+
+    // Carregar dados do NutricaoService
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _inicializarServicos();
+      _carregarDadosNutricao();
+      // Verificar permissões do microfone
+      _verificarPermissoesMicrofone();
+    });
+  }
+
+  // Inicializar serviços com dados do usuário
+  Future<void> _inicializarServicos() async {
+    // Configurações de teste - por enquanto usar dados fixos
+    debugPrint('⚙️ Inicializando serviços...');
+
+    // Carregar metas da API
+    _carregarMetasPublicas();
+  }
+
+  // Verifica permissões para gravação de áudio
+  Future<void> _verificarPermissoesMicrofone() async {
+    final audioService = Provider.of<AudioService>(context, listen: false);
+    final permissionGranted = await audioService.checkAndRequestPermissions();
+    if (!permissionGranted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Permissão de microfone necessária para gravação de áudio'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _carregarDadosNutricao() {
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+
+    // Configurar usuários padrão
+    nutricaoService.configurarUsuarios(DEFAULT_PACIENTE_ID, DEFAULT_NUTRI_ID);
+
+    // Carregar metas públicas primeiro
+    _carregarMetasPublicas();
+
+    // Carregar resumo diário da API real
+    nutricaoService.atualizarResumoDiario().then((_) {
+      // Atualizar interface com dados da API
+      _atualizarDadosComAPI();
+    });
+  }
+
+  /// Carregar metas definidas pela nutricionista (sem autenticação)
+  void _carregarMetasPublicas() async {
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+
+    try {
+      // Usar IDs fixos para teste - você pode modificar para usar IDs reais
+      final meta = await nutricaoService.buscarMetasPublicas(
+        pacienteIdOverride: DEFAULT_PACIENTE_ID, // ID do paciente
+        nutriIdOverride: DEFAULT_NUTRI_ID, // ID da nutricionista
+      );
+
+      if (meta != null) {
+        setState(() {
+          caloriesGoal = meta.caloriesGoal;
+          proteinGoal = meta.proteinGoal;
+          fatGoal = meta.fatGoal;
+          carbsGoal = meta.carbsGoal;
+        });
+        debugPrint(
+            '✅ Metas carregadas: ${meta.calorias} cal, ${meta.proteina}g prot');
+      } else {
+        debugPrint(
+            '⚠️ Usando metas padrão - nenhuma meta personalizada encontrada');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar metas: $e');
+      // Manter valores padrão em caso de erro
+    }
   }
 
   @override
@@ -112,247 +200,80 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         date.day == today.day;
   }
 
-  // Inicializa refeições padrão
+  // Inicializa refeições padrão (vazias - dados virão da API)
   void initializeMeals() {
     meals = [
       MealData(
         title: "Café da Manhã",
-        totalCalories: 630,
-        items: [
-          MealItemData(
-              name: "Pão Francês",
-              calories: 230,
-              protein: 6,
-              fat: 2,
-              carbs: 30),
-          MealItemData(
-              name: "Ovo", calories: 400, protein: 6, fat: 5, carbs: 0),
-        ],
+        totalCalories: 0,
+        items: [],
       ),
       MealData(
         title: "Almoço",
-        totalCalories: 475,
-        items: [
-          MealItemData(
-              name: "Arroz Branco Cozido",
-              calories: 375,
-              protein: 3,
-              fat: 0,
-              carbs: 30),
-          MealItemData(
-              name: "Feijão Cozido",
-              calories: 100,
-              protein: 7,
-              fat: 1,
-              carbs: 20),
-        ],
+        totalCalories: 0,
+        items: [],
       ),
       MealData(
         title: "Lanches",
-        totalCalories: 140,
-        items: [
-          MealItemData(
-              name: "Maçã", calories: 70, protein: 0, fat: 0, carbs: 18),
-          MealItemData(
-              name: "Iogurte", calories: 70, protein: 5, fat: 3, carbs: 12),
-        ],
+        totalCalories: 0,
+        items: [],
       ),
       MealData(
         title: "Janta",
-        totalCalories: 850,
-        items: [
-          MealItemData(
-              name: "Coca-Cola", calories: 150, protein: 0, fat: 0, carbs: 38),
-          MealItemData(
-              name: "Arroz Branco Cozido",
-              calories: 300,
-              protein: 3,
-              fat: 0,
-              carbs: 30),
-          MealItemData(
-              name: "Filé de Frango",
-              calories: 400,
-              protein: 20,
-              fat: 3,
-              carbs: 0),
-        ],
+        totalCalories: 0,
+        items: [],
       ),
     ];
   }
 
-  // Carrega refeições de acordo com a data
+  // Carrega refeições de acordo com a data (dados da API)
   void _loadMealsForDate(DateTime date) {
-    final dayOfMonth = date.day;
+    // Atualizar dados através da API
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+
+    // Carregar dados para a data selecionada
+    final dateString =
+        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    nutricaoService.atualizarResumoDiario(dateString);
+
+    // Carregar metas para a data específica
+    _carregarMetasParaData(dateString);
+
+    // Os dados são atualizados através do listener do Provider
+    // Limpar dados locais para evitar conflito
     setState(() {
-      if (dayOfMonth % 3 == 0) {
-        meals = [
-          MealData(
-            title: "Café da Manhã",
-            totalCalories: 450,
-            items: [
-              MealItemData(
-                  name: "Aveia com Banana",
-                  calories: 280,
-                  protein: 8,
-                  fat: 4,
-                  carbs: 50),
-              MealItemData(
-                  name: "Iogurte",
-                  calories: 170,
-                  protein: 10,
-                  fat: 8,
-                  carbs: 15),
-            ],
-          ),
-          MealData(
-            title: "Almoço",
-            totalCalories: 580,
-            items: [
-              MealItemData(
-                  name: "Frango Grelhado",
-                  calories: 280,
-                  protein: 35,
-                  fat: 10,
-                  carbs: 0),
-              MealItemData(
-                  name: "Salada Verde",
-                  calories: 80,
-                  protein: 4,
-                  fat: 2,
-                  carbs: 10),
-              MealItemData(
-                  name: "Batata Doce",
-                  calories: 220,
-                  protein: 2,
-                  fat: 0,
-                  carbs: 50),
-            ],
-          ),
-          MealData(
-            title: "Lanches",
-            totalCalories: 200,
-            items: [
-              MealItemData(
-                  name: "Mix de Castanhas",
-                  calories: 200,
-                  protein: 6,
-                  fat: 15,
-                  carbs: 8),
-            ],
-          ),
-          MealData(
-            title: "Janta",
-            totalCalories: 420,
-            items: [
-              MealItemData(
-                  name: "Omelete",
-                  calories: 320,
-                  protein: 20,
-                  fat: 25,
-                  carbs: 2),
-              MealItemData(
-                  name: "Torrada Integral",
-                  calories: 100,
-                  protein: 4,
-                  fat: 1,
-                  carbs: 20),
-            ],
-          ),
-        ];
-      } else if (dayOfMonth % 3 == 1) {
-        initializeMeals();
-      } else {
-        meals = [
-          MealData(
-            title: "Café da Manhã",
-            totalCalories: 380,
-            items: [
-              MealItemData(
-                  name: "Tapioca com Queijo",
-                  calories: 220,
-                  protein: 10,
-                  fat: 8,
-                  carbs: 25),
-              MealItemData(
-                  name: "Café com Leite",
-                  calories: 160,
-                  protein: 8,
-                  fat: 6,
-                  carbs: 12),
-            ],
-          ),
-          MealData(
-            title: "Almoço",
-            totalCalories: 650,
-            items: [
-              MealItemData(
-                  name: "Salmão Grelhado",
-                  calories: 300,
-                  protein: 30,
-                  fat: 18,
-                  carbs: 0),
-              MealItemData(
-                  name: "Arroz Integral",
-                  calories: 200,
-                  protein: 4,
-                  fat: 1,
-                  carbs: 40),
-              MealItemData(
-                  name: "Brócolis",
-                  calories: 50,
-                  protein: 3,
-                  fat: 0,
-                  carbs: 10),
-              MealItemData(
-                  name: "Abacate",
-                  calories: 100,
-                  protein: 1,
-                  fat: 10,
-                  carbs: 5),
-            ],
-          ),
-          MealData(
-            title: "Lanches",
-            totalCalories: 150,
-            items: [
-              MealItemData(
-                  name: "Maçã", calories: 80, protein: 0, fat: 0, carbs: 20),
-              MealItemData(
-                  name: "Whey Protein",
-                  calories: 70,
-                  protein: 18,
-                  fat: 0,
-                  carbs: 0),
-            ],
-          ),
-          MealData(
-            title: "Janta",
-            totalCalories: 480,
-            items: [
-              MealItemData(
-                  name: "Sopa de Legumes",
-                  calories: 180,
-                  protein: 8,
-                  fat: 5,
-                  carbs: 25),
-              MealItemData(
-                  name: "Peito de Peru",
-                  calories: 180,
-                  protein: 25,
-                  fat: 5,
-                  carbs: 5),
-              MealItemData(
-                  name: "Pão Integral",
-                  calories: 120,
-                  protein: 6,
-                  fat: 2,
-                  carbs: 20),
-            ],
-          ),
-        ];
-      }
-      calculateTotalCalories();
+      totalDailyCalories = 0;
+      proteinTotal = 0;
+      fatTotal = 0;
+      carbsTotal = 0;
+      initializeMeals(); // Reinicializar com dados vazios
     });
+  }
+
+  /// Carregar metas para uma data específica
+  void _carregarMetasParaData(String data) async {
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+
+    try {
+      final meta = await nutricaoService.buscarMetasPublicas(
+        pacienteIdOverride: 1, // ID do paciente
+        nutriIdOverride: 1, // ID da nutricionista
+        data: data,
+      );
+
+      if (meta != null) {
+        setState(() {
+          caloriesGoal = meta.caloriesGoal;
+          proteinGoal = meta.proteinGoal;
+          fatGoal = meta.fatGoal;
+          carbsGoal = meta.carbsGoal;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar metas para data $data: $e');
+    }
   }
 
   // Cálculo de calorias e macros totais do dia
@@ -441,23 +362,57 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     }
   }
 
-  // Controle de timers de gravação
-  void startRecordingTimer() {
-    recordingDuration = 0;
-    recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => recordingDuration++);
-    });
+  // Controle de timers de gravação  // Iniciar gravação de áudio real
+  Future<void> startRecordingTimer() async {
+    final audioService = Provider.of<AudioService>(context, listen: false);
+
+    // Iniciar gravação real
+    bool started = await audioService.startRecording();
+
+    if (!started) {
+      setState(() {
+        isRecording = false;
+        isLongPress = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível iniciar a gravação'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      // Atualizar UI com duração da gravação
+      recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) {
+          setState(() {
+            recordingDuration = audioService.recordingDuration.inSeconds;
+          });
+        }
+      });
+    }
   }
 
-  void stopRecordingTimer() {
+  // Parar gravação de áudio real
+  Future<void> stopRecordingTimer() async {
+    final audioService = Provider.of<AudioService>(context, listen: false);
+
+    // Parar timer e gravação
     recordingTimer?.cancel();
     recordingTimer = null;
+
+    final audioPath = await audioService.stopRecording();
+
+    if (audioPath != null) {
+      setState(() {
+        hasRecordedAudio = true;
+      });
+    }
   }
 
   String get formattedRecordingTime {
-    final m = (recordingDuration ~/ 60).toString().padLeft(2, '0');
-    final s = (recordingDuration % 60).toString().padLeft(2, '0');
-    return '$m:$s';
+    final audioService = Provider.of<AudioService>(context, listen: false);
+    return audioService.formattedDuration;
   }
 
   void showAddFoodModal(String mealTitle) {
@@ -473,16 +428,27 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   }
 
   void hideAddFoodModal() => setState(() => showRecordingModal = false);
+  Future<void> playRecordedAudio() async {
+    final audioService = Provider.of<AudioService>(context, listen: false);
 
-  void playRecordedAudio() {
-    // só visual por enquanto
+    // Reproduzir áudio real
     setState(() => isPlayingAudio = true);
-    Timer(Duration(seconds: recordingDuration), () {
-      if (mounted) setState(() => isPlayingAudio = false);
+    await audioService.playRecording();
+
+    // A mudança de estado é controlada pelo listener do audioService
+    audioService.addListener(() {
+      if (!audioService.isPlaying && mounted) {
+        setState(() => isPlayingAudio = false);
+      }
     });
   }
 
-  void deleteRecordedAudio() {
+  Future<void> deleteRecordedAudio() async {
+    final audioService = Provider.of<AudioService>(context, listen: false);
+
+    // Deletar arquivo de áudio
+    await audioService.deleteCurrentRecording();
+
     setState(() {
       hasRecordedAudio = false;
       recordingDuration = 0;
@@ -491,17 +457,128 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     });
   }
 
-  void submitRecordedAudio() => registerFoodFromAudio();
+  Future<void> submitRecordedAudio() async {
+    // Usar API real para processar o áudio
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+    final audioService = Provider.of<AudioService>(context, listen: false);
 
-  void registerFoodFromAudio() {
-    if (hasRecordedAudio) {
-      final foodNames = foodDatabase.keys.toList();
-      final randomIndex = DateTime.now().microsecond % foodNames.length;
-      addFoodToMeal(selectedMealTitle, foodNames[randomIndex]);
+    if (hasRecordedAudio && audioService.currentRecordingPath != null) {
+      setState(() => showRecordingModal = false);
+
+      // Mostrar indicador de carregamento
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      try {
+        // Usar o arquivo de áudio real gravado
+        final resultado = await nutricaoService.processarAudioRefeicao(
+          audioFilePath: audioService.currentRecordingPath!,
+          tipoRefeicao: selectedMealTitle.toLowerCase(),
+          observacoes: 'Gravado via app mobile',
+        );
+
+        // Remover indicador de carregamento
+        if (mounted) Navigator.of(context).pop();
+
+        if (resultado != null && resultado.status) {
+          // Sucesso - adicionar alimento à refeição atual
+          _adicionarAlimentoARefeicao(resultado);
+
+          setState(() {
+            hasRecordedAudio = false;
+            recordingDuration = 0;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Alimento "${resultado.alimentoExtraido?.nome}" registrado com sucesso via áudio!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Recarregar dados do resumo diário
+          _carregarDadosNutricao();
+        } else {
+          // Erro - mostrar mensagem
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Erro ao processar áudio: ${resultado?.error ?? nutricaoService.error ?? "Erro desconhecido"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+
+          setState(() => showRecordingModal = true); // Voltar ao modal
+        }
+      } catch (e) {
+        // Remover indicador de carregamento em caso de erro
+        if (mounted) Navigator.of(context).pop();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao processar áudio: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+
+        setState(() => showRecordingModal = true); // Voltar ao modal
+      }
+    }
+  }
+
+  /// Adiciona o alimento processado via áudio à refeição correspondente
+  void _adicionarAlimentoARefeicao(dynamic resultado) {
+    if (resultado.calculoMacros?.macros != null &&
+        resultado.alimentoExtraido != null) {
+      final macros = resultado.calculoMacros!.macros!;
+      final alimentoExtraido = resultado.alimentoExtraido!;
+
+      // Criar item de refeição com dados reais
+      final novoItem = MealItemData(
+        name: '${alimentoExtraido.nome} (${alimentoExtraido.quantidade}g)',
+        calories: macros.calorias.round(),
+        protein: macros.proteina.round(),
+        fat: macros.gordura.round(),
+        carbs: macros.carbo.round(),
+        isPlaceholder: false,
+      );
+
+      // Encontrar a refeição correspondente e adicionar o item
+      final mealIndex = meals.indexWhere((meal) =>
+          meal.title.toLowerCase() == selectedMealTitle.toLowerCase());
+
+      if (mealIndex != -1) {
+        setState(() {
+          meals[mealIndex].items.add(novoItem);
+          calculateTotalCalories();
+        });
+      }
+    }
+  }
+
+  // Atualizar dados das refeições com dados da API
+  void _atualizarDadosComAPI() {
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+    final resumo = nutricaoService.resumoAtual;
+
+    if (resumo != null && resumo.registroEncontrado) {
       setState(() {
-        showRecordingModal = false;
-        hasRecordedAudio = false;
-        recordingDuration = 0;
+        // Atualizar totais do dia com dados reais da API
+        totalDailyCalories = resumo.consumoAtual.calorias.round();
+        proteinTotal = resumo.consumoAtual.proteina.round();
+        fatTotal = resumo.consumoAtual.gordura.round();
+        carbsTotal = resumo.consumoAtual.carbo.round();
+
+        // Para dados detalhados das refeições, seria necessário uma API específica
+        // Por enquanto, mantemos as refeições vazias até que os dados sejam adicionados via áudio
       });
     }
   }
@@ -509,12 +586,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
           'Registro Unificado',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -541,7 +618,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         ],
       ),
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Stack(
           children: [
             SafeArea(
@@ -549,8 +626,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                 return ScrollConfiguration(
                   behavior: const _NoGlowScrollBehavior(),
                   child: SingleChildScrollView(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
                     child: ConstrainedBox(
                       constraints:
                           BoxConstraints(minHeight: constraints.maxHeight),
@@ -582,14 +659,17 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   Widget _buildDateSelector() {
     // Use selectedDate para definir o mês/ano exibido
     final startDate = DateTime(selectedDate.year, selectedDate.month, 1);
-    final totalDays = DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
+    final totalDays =
+        DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
 
     // Scroll to selected day only on first load
     if (!_initialScrollDone) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         const itemWidth = 60 + 12;
         final screenW = MediaQuery.of(context).size.width;
-        final offset = (itemWidth * (selectedDate.day - 1)) - (screenW / 2) + (itemWidth / 2);
+        final offset = (itemWidth * (selectedDate.day - 1)) -
+            (screenW / 2) +
+            (itemWidth / 2);
         if (offset > 0) _dateScrollController.jumpTo(offset);
         _initialScrollDone = true;
       });
@@ -1180,8 +1260,10 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                     builder: (ctx) {
                       return Dialog(
                         backgroundColor: Colors.white,
-                        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        insetPadding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 60),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: Column(
@@ -1190,7 +1272,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                             children: [
                               // Título e ícone de lixeira
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: Text(
@@ -1202,12 +1285,15 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.purple),
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.purple),
                                     onPressed: () {
                                       Navigator.of(ctx).pop();
-                                      final mi = meals.indexWhere((m) => m.items.contains(item));
+                                      final mi = meals.indexWhere(
+                                          (m) => m.items.contains(item));
                                       if (mi != -1) {
-                                        removeFoodFromMeal(meals[mi].title, meals[mi].items.indexOf(item));
+                                        removeFoodFromMeal(meals[mi].title,
+                                            meals[mi].items.indexOf(item));
                                       }
                                     },
                                   )
@@ -1232,7 +1318,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.grey.shade100),
+                                      border: Border.all(
+                                          color: Colors.grey.shade100),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.grey.withOpacity(0.08),
@@ -1259,7 +1346,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.grey.shade100),
+                                      border: Border.all(
+                                          color: Colors.grey.shade100),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.grey.withOpacity(0.08),
@@ -1270,7 +1358,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                     ),
                                     alignment: Alignment.center,
                                     child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           "G",
@@ -1282,7 +1371,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                           ),
                                         ),
                                         SizedBox(width: 4),
-                                        Icon(Icons.keyboard_arrow_down_rounded, size: 22, color: Color(0xFF7B6F72)),
+                                        Icon(Icons.keyboard_arrow_down_rounded,
+                                            size: 22, color: Color(0xFF7B6F72)),
                                       ],
                                     ),
                                   ),
@@ -1292,7 +1382,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
                               const Text(
                                 'Informação Nutricional',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 12),
 
@@ -1333,7 +1424,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                     },
                   );
                 },
-                child: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                child: const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.grey),
               ),
             ]),
           ]),
@@ -1342,62 +1434,62 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     );
   }
 
-Widget _buildInfoCard({
-  required String iconPath,
-  required String label,
-  required String value,
-}) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    margin: const EdgeInsets.only(bottom: 10),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.03),
-          blurRadius: 8,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Row(
-      children: [
-        // Texto + Ícone (esquerda)
-        Expanded(
-          child: Row(
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  height: 1.5,
-                  color: Color(0xFF1D1617), // ← cor dos nomes
+  Widget _buildInfoCard({
+    required String iconPath,
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Texto + Ícone (esquerda)
+          Expanded(
+            child: Row(
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                    color: Color(0xFF1D1617), // ← cor dos nomes
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              SvgPicture.asset(iconPath, width: 18, height: 18),
-            ],
+                const SizedBox(width: 6),
+                SvgPicture.asset(iconPath, width: 18, height: 18),
+              ],
+            ),
           ),
-        ),
 
-        // Valor à direita (ex: 500 cal)
-        Text(
-          value,
-          style: const TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            height: 1.5,
-            color: Color(0xFF7B6F72), // ← cor dos valores
+          // Valor à direita (ex: 500 cal)
+          Text(
+            value,
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1.5,
+              color: Color(0xFF7B6F72), // ← cor dos valores
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   Widget _buildNutrientBadge(String text, Color color) {
     return Container(
@@ -1417,8 +1509,7 @@ Widget _buildInfoCard({
         const SizedBox(width: 8),
         const Expanded(
             child: Text('Macros Totais',
-                style: TextStyle(
-                    fontSize: 20, fontWeight: FontWeight.bold))),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
@@ -1431,8 +1522,7 @@ Widget _buildInfoCard({
                     offset: const Offset(0, 2))
               ]),
           child: const Row(children: [
-            Icon(Icons.insights_rounded,
-                color: Color(0xff92A3FD), size: 16),
+            Icon(Icons.insights_rounded, color: Color(0xff92A3FD), size: 16),
             SizedBox(width: 5),
             Text('Progresso diário',
                 style: TextStyle(
@@ -1770,24 +1860,6 @@ Widget _buildInfoCard({
   String _getWeekdayAbbr(int w) {
     const days = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
     return days[w - 1];
-  }
-
-  String _getMonthName(int m) {
-    const months = [
-      "Janeiro",
-      "Fevereiro",
-      "Março",
-      "Abril",
-      "Maio",
-      "Junho",
-      "Julho",
-      "Agosto",
-      "Setembro",
-      "Outubro",
-      "Novembro",
-      "Dezembro"
-    ];
-    return months[m - 1];
   }
 
   Widget _getMealIcon(String title) {

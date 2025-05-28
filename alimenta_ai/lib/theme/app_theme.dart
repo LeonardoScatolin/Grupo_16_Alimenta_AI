@@ -9,8 +9,6 @@ class AppTheme {
       primary: Color(0xff92A3FD), // Cor principal do app
       secondary: Color(0xff9DCEFF), // Cor secundária do app
       surface: Colors.white,
-      background: Colors.white,
-      onBackground: Colors.black87,
       onSurface: Colors.black87,
       error: Color(0xFFB00020),
       onError: Colors.white,
@@ -64,8 +62,6 @@ class AppTheme {
       primary: Color(0xff92A3FD),
       secondary: Color(0xff9DCEFF),
       surface: Color(0xFF1E1E1E),
-      background: Color(0xFF121212),
-      onBackground: Colors.white,
       onSurface: Colors.white,
     ),
     appBarTheme: const AppBarTheme(

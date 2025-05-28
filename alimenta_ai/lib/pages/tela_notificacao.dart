@@ -27,7 +27,7 @@ class NotificacoesPage extends StatelessWidget {
       title: Text(
         'Notificações',
         style: TextStyle(
-          color: Theme.of(context).colorScheme.onBackground,
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
@@ -70,7 +70,7 @@ class NotificacoesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: appbar(context),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -129,7 +129,7 @@ class NotificationItem extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 3),

@@ -2,7 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../services/nutricao_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -381,7 +383,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ), // Conteúdo principal
             SafeArea(
-              child: SingleChildScrollView( // Add ScrollView
+              child: SingleChildScrollView(
+                // Add ScrollView
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
@@ -438,7 +441,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               onPressed: () {},
                               style: TextButton.styleFrom(
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
                               ),
                               child: const Text(
                                 'Esqueceu a senha?',
@@ -465,7 +469,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 isLoading: _isLoading,
                                 onPressed: _handleLogin,
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF6E55E3), Color(0xFF5D42D9)],
+                                  colors: [
+                                    Color(0xFF6E55E3),
+                                    Color(0xFF5D42D9)
+                                  ],
                                 ),
                               ),
                             );
@@ -631,48 +638,64 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   // Method to handle login with API
   Future<void> _handleLogin() async {
-    // Basic validation
+    // Validação básica
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       _showSnackBar('Por favor, preencha todos os campos', isError: true);
       return;
     }
 
-    // Show loading indicator
+    // Mostrar loading
     setState(() {
       _isLoading = true;
     });
 
-    // Button animation
+    // Animação do botão
     _buttonController.forward().then((_) => _buttonController.reverse());
 
     try {
-      // Call login API
+      debugPrint('🚀 Iniciando processo de login...');
+
+      // Fazer login via AuthService
       final result = await _authService.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
+        tipo: 'paciente',
       );
 
-      // Hide loading indicator
-      setState(() {
-        _isLoading = false;
-      });
+      debugPrint('📋 Resultado do login: $result');
 
-      // Handle login result
-      if (result['success']) {
-        _showSnackBar('Login realizado com sucesso!');
-        // Navigate to home page after successful login
-        Future.delayed(const Duration(milliseconds: 500), () {
-          Navigator.pushNamed(context, '/home');
-        });
+      if (result['success'] == true) {
+        debugPrint('✅ Login bem-sucedido!');
+
+        final user = result['user'];
+        // Configurar o NutricaoService com os IDs
+        if (mounted) {
+          final nutricaoService =
+              Provider.of<NutricaoService>(context, listen: false);
+          nutricaoService.configurarUsuarios(user['id'], user['nutri_id'] ?? 1);
+
+          // Atualizar dados imediatamente após configurar
+          await nutricaoService.atualizarResumoDiario();
+
+          // Navegar para o dashboard - ROTA CORRETA
+          Navigator.pushReplacementNamed(
+              context, '/dashboard'); // Mudança aqui!
+
+          _showSnackBar('Bem-vindo, ${user['name']}!');
+        }
       } else {
-        _showSnackBar(result['message'], isError: true);
+        debugPrint('❌ Login falhou: ${result['message']}');
+        _showSnackBar(result['message'] ?? 'Erro no login', isError: true);
       }
     } catch (e) {
-      // Hide loading indicator and show error
-      setState(() {
-        _isLoading = false;
-      });
-      _showSnackBar('Erro ao fazer login. Tente novamente.', isError: true);
+      debugPrint('💥 Erro inesperado no login: $e');
+      _showSnackBar('Erro inesperado. Tente novamente.', isError: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

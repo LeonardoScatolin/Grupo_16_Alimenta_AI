@@ -19,12 +19,12 @@ class _ProfilePageState extends State<ProfilePage> {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             title: Text(
               'Perfil',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
               IconButton(
                 icon: SvgPicture.asset(
                   'assets/icons/settings.svg',
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                   width: 24,
                   height: 24,
                 ),
@@ -46,7 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           body: SingleChildScrollView(
             child: Container(
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
@@ -692,7 +692,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: Text(
                           themeProvider.isDarkMode ? 'Tema Escuro' : 'Tema Claro',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onBackground,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         trailing: Switch(

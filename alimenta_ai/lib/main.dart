@@ -1,26 +1,31 @@
 import 'package:alimenta_ai/pages/login.dart';
 import 'package:alimenta_ai/pages/dashboard.dart';
-import 'package:alimenta_ai/pages/tela_notificacao.dart';
 import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:alimenta_ai/pages/registro_unificado.dart';
 import 'package:alimenta_ai/pages/profile.dart';
 import 'package:alimenta_ai/pages/weight_history.dart';
+import 'package:alimenta_ai/pages/debug_test.dart';
 import 'package:alimenta_ai/theme/app_theme.dart';
 import 'package:alimenta_ai/theme/theme_provider.dart';
+import 'package:alimenta_ai/services/nutricao_service.dart';
+import 'package:alimenta_ai/services/audio_service.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final themeProvider = ThemeProvider();
   while (!themeProvider.isInitialized) {
     await Future.delayed(const Duration(milliseconds: 50));
   }
-  
   runApp(
-    ChangeNotifierProvider.value(
-      value: themeProvider,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider(create: (_) => NutricaoService()),
+        ChangeNotifierProvider(create: (_) => AudioService()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -37,17 +42,22 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          themeMode:
+              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           initialRoute: '/intro',
           routes: {
-            '/intro': (context) => const WelcomeScreen(),
+            '/': (context) => const WelcomeScreen(),
             '/login': (context) => const LoginPage(),
-            '/home': (context) => const DashboardPage(),
-            '/registra-alimento': (context) => const RegistroUnificadoPage(),
-            '/notificacao': (context) => const NotificacoesPage(),
-            '/refeicao': (context) => const RegistroUnificadoPage(),
+            '/dashboard': (context) =>
+                const DashboardPage(), // Certifique-se que existe
+            '/home': (context) =>
+                const DashboardPage(), // Alias            '/registro': (context) => const RegistroUnificadoPage(),
+            '/registra-alimento': (context) =>
+                const RegistroUnificadoPage(), // Usando a nova tela unificada
             '/profile': (context) => const ProfilePage(),
             '/weight-history': (context) => const WeightHistoryPage(),
+            '/notifications': (context) => const WeightHistoryPage(),
+            '/debug': (context) => const DebugTestPage(),
           },
         );
       },

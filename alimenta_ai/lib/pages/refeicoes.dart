@@ -11,12 +11,12 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
           'Refeições',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -38,7 +38,7 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -48,33 +48,33 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
                 title: "Café da Manhã",
                 totalCalories: 630,
                 items: [
-                  MealItem(name: "Pão Francês", calories: 230),
-                  MealItem(name: "Ovo", calories: 400),
+                  const MealItem(name: "Pão Francês", calories: 230),
+                  const MealItem(name: "Ovo", calories: 400),
                 ],
               ),
               _buildMealCard(
                 title: "Almoço",
                 totalCalories: 475,
                 items: [
-                  MealItem(name: "Arroz Branco Cozido", calories: 375),
-                  MealItem(name: "Feijão Cozido", calories: 100),
+                  const MealItem(name: "Arroz Branco Cozido", calories: 375),
+                  const MealItem(name: "Feijão Cozido", calories: 100),
                 ],
               ),
               _buildMealCard(
                 title: "Lanches",
                 totalCalories: 140,
                 items: [
-                  MealItem(name: "Maçã", calories: 70),
-                  MealItem(name: "Iogurte", calories: 70),
+                  const MealItem(name: "Maçã", calories: 70),
+                  const MealItem(name: "Iogurte", calories: 70),
                 ],
               ),
               _buildMealCard(
                 title: "Janta",
                 totalCalories: 120,
                 items: [
-                  MealItem(name: "Coca-Cola", calories: 150),
-                  MealItem(name: "Arroz Branco Cozido", calories: 300),
-                  MealItem(name: "Filé de Frango", calories: 400),
+                  const MealItem(name: "Coca-Cola", calories: 150),
+                  const MealItem(name: "Arroz Branco Cozido", calories: 300),
+                  const MealItem(name: "Filé de Frango", calories: 400),
                 ],
               ),
               const SizedBox(height: 30),
@@ -95,7 +95,7 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
                 onPressed: () {},
-                child: Text('Botão'),
+                child: const Text('Botão'),
               ),
               const SizedBox(height: 20),
               // Exemplo de ícone com cor primária
@@ -118,7 +118,7 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
                 width: double.infinity,
               ),
               Container(
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
                 child: Card(
                   color: Theme.of(context).colorScheme.surface,
                   child: Padding(
@@ -276,7 +276,7 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -303,7 +303,7 @@ class _RefeicoesPageState extends State<RefeicoesPage> {
           ...items.map((item) => item),
           const SizedBox(height: 10),
           Divider(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
           ),
         ],
       ),

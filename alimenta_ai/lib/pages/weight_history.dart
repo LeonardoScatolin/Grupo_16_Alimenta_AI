@@ -111,12 +111,12 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
             final isWeightLoss = weightDifference < 0;
 
             return Scaffold(
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               appBar: AppBar(
                 title: Text(
                   'Histórico de Peso',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -135,7 +135,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
                     ),
                     child: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: Theme.of(context).colorScheme.onBackground,
+                      color: Theme.of(context).colorScheme.onSurface,
                       size: 20,
                     ),
                   ),
@@ -322,18 +322,18 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 15),
             TextFormField(
               controller: _weightController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              style: TextStyle(color: Theme.of(context).colorScheme.onBackground),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: 'Digite seu peso atual (em kg)',
                 hintStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                 ),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surface,
@@ -396,7 +396,7 @@ class _WeightHistoryPageState extends State<WeightHistoryPage> {
             child: Text(
               'Nenhum registro de peso ainda. Adicione um!',
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 16,
               ),
             ),
