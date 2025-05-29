@@ -611,7 +611,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Método para alternar o tema
-  void _toggleTheme() {
+  void toggleTheme() {
     context.read<ThemeProvider>().toggleTheme();
   }
 
