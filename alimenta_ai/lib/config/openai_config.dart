@@ -1,8 +1,7 @@
 class OpenAIConfig {
   // TODO: Configure sua API key da OpenAI aqui
   // Você pode obter uma API key em: https://platform.openai.com/api-keys
-  static const String apiKey =
-      '';
+  static const String apiKey = ""
   // Configurações do Whisper
   static const String model = 'gpt-4o-mini-transcribe';
   static const String language = 'pt'; // Português
