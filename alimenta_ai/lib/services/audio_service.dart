@@ -11,20 +11,21 @@ class AudioService extends ChangeNotifier {
   final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _player = AudioPlayer();
   final OpenAIService _openAIService = OpenAIService();
-
   bool _isRecording = false;
   bool _isPlaying = false;
   bool _isTranscribing = false;
   String? _currentRecordingPath;
   String? _lastTranscription;
+  Map<String, dynamic>? _lastFoodSearchResult; // 🆕 Resultado da última busca
   Duration _recordingDuration = Duration.zero;
-
   // Getters
   bool get isRecording => _isRecording;
   bool get isPlaying => _isPlaying;
   bool get isTranscribing => _isTranscribing;
   String? get currentRecordingPath => _currentRecordingPath;
   String? get lastTranscription => _lastTranscription;
+  Map<String, dynamic>? get lastFoodSearchResult =>
+      _lastFoodSearchResult; // 🆕 Getter para resultado da busca
   Duration get recordingDuration => _recordingDuration;
 
   /// Verificar e solicitar permissões de microfone
@@ -156,7 +157,46 @@ class AudioService extends ChangeNotifier {
 
       if (transcription != null && transcription.isNotEmpty) {
         _lastTranscription = transcription;
-        debugPrint('✅ Transcrição concluída: $transcription');
+        debugPrint(
+            '✅ Transcrição concluída: $transcription'); // 🎯 BUSCAR ALIMENTOS AUTOMATICAMENTE APÓS TRANSCRIÇÃO
+        debugPrint('🔍 =================================');
+        debugPrint('🔍 INICIANDO BUSCA AUTOMÁTICA...');
+        debugPrint('🔍 Transcrição recebida: "$transcription"');
+        debugPrint('🔍 =================================');
+
+        try {
+          final searchResult =
+              await buscarAlimentosPorTranscricao(transcription);
+
+          debugPrint('🔍 =================================');
+          debugPrint('🔍 RESULTADO DA BUSCA AUTOMÁTICA:');
+          if (searchResult != null) {
+            debugPrint('🔍 Status: ${searchResult['status']}');
+            if (searchResult['status'] == true) {
+              final alimentos = searchResult['alimentos'] as List?;
+              debugPrint(
+                  '✅ Busca automática concluída: ${alimentos?.length ?? 0} alimentos encontrados');
+              if (alimentos != null && alimentos.isNotEmpty) {
+                debugPrint('✅ Primeiro alimento: ${alimentos[0]['nome']}');
+              }
+              // Salvar resultado para acesso posterior
+              _lastFoodSearchResult = searchResult;
+            } else {
+              debugPrint('❌ Busca retornou status false');
+              debugPrint(
+                  '❌ Erro: ${searchResult['error'] ?? 'Erro desconhecido'}');
+            }
+          } else {
+            debugPrint('❌ Busca automática falhou - resultado nulo');
+          }
+          debugPrint('🔍 =================================');
+        } catch (searchError) {
+          debugPrint('❌ =================================');
+          debugPrint('❌ ERRO NA BUSCA AUTOMÁTICA:');
+          debugPrint('❌ Tipo: ${searchError.runtimeType}');
+          debugPrint('❌ Mensagem: $searchError');
+          debugPrint('❌ =================================');
+        }
       } else {
         debugPrint('❌ Falha na transcrição - resultado vazio');
       }
@@ -477,45 +517,77 @@ class AudioService extends ChangeNotifier {
   Future<Map<String, dynamic>?> buscarAlimentosPorTranscricao(
       String textoTranscrito) async {
     try {
-      debugPrint(
-          '🔍 Buscando alimentos para: "$textoTranscrito"'); // URL do backend local (ajustar conforme necessário)
+      debugPrint('🔍 =================================');
+      debugPrint('🔍 INICIANDO BUSCA DE ALIMENTOS');
+      debugPrint('🔍 Texto transcrito: "$textoTranscrito"');
+      debugPrint('🔍 =================================');
+
+      // URL do backend local (ajustar conforme necessário)
       const String backendUrl = 'http://localhost:3333';
+      final String url = '$backendUrl/alimento/buscar-por-transcricao';
+
+      debugPrint('🌐 URL da requisição: $url');
 
       final dio = Dio();
       dio.options.connectTimeout = const Duration(seconds: 10);
       dio.options.receiveTimeout = const Duration(seconds: 30);
 
+      // Dados da requisição
+      final requestData = {
+        'texto_transcrito': textoTranscrito,
+        'limite': 10,
+      };
+
+      debugPrint('📦 Dados da requisição: $requestData');
+      debugPrint('⏱️ Enviando requisição POST...');
+
       // Fazer requisição POST para a nova rota
       final response = await dio.post(
-        '$backendUrl/alimento/buscar-por-transcricao',
-        data: {
-          'texto_transcrito': textoTranscrito,
-          'limite': 10,
-        },
+        url,
+        data: requestData,
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),
       );
 
+      debugPrint('📡 Status da resposta: ${response.statusCode}');
+      debugPrint('📡 Headers da resposta: ${response.headers}');
+
       if (response.statusCode == 200) {
         final result = response.data as Map<String, dynamic>;
+        debugPrint('✅ Busca concluída com sucesso!');
         debugPrint(
-            '✅ Busca concluída: ${result['alimentos']?.length ?? 0} alimentos encontrados');
+            '✅ Alimentos encontrados: ${result['alimentos']?.length ?? 0}');
+        debugPrint('✅ Dados completos: $result');
         return result;
       } else {
-        debugPrint('❌ Erro na busca: ${response.statusCode}');
+        debugPrint('❌ Erro na busca - Status: ${response.statusCode}');
+        debugPrint('❌ Resposta: ${response.data}');
         return null;
       }
     } on DioException catch (e) {
-      debugPrint('❌ Erro de conexão na busca:');
-      debugPrint('Tipo: ${e.type}');
-      debugPrint('Mensagem: ${e.message}');
+      debugPrint('❌ =================================');
+      debugPrint('❌ ERRO DE CONEXÃO DIO:');
+      debugPrint('❌ Tipo: ${e.type}');
+      debugPrint('❌ Mensagem: ${e.message}');
+      debugPrint('❌ URL: ${e.requestOptions.uri}');
+      debugPrint('❌ Método: ${e.requestOptions.method}');
+      debugPrint('❌ Headers: ${e.requestOptions.headers}');
+      debugPrint('❌ Data: ${e.requestOptions.data}');
       if (e.response != null) {
-        debugPrint('Response: ${e.response?.data}');
+        debugPrint('❌ Response Status: ${e.response?.statusCode}');
+        debugPrint('❌ Response Data: ${e.response?.data}');
+        debugPrint('❌ Response Headers: ${e.response?.headers}');
       }
+      debugPrint('❌ =================================');
       return null;
     } catch (e) {
-      debugPrint('❌ Erro inesperado na busca: $e');
+      debugPrint('❌ =================================');
+      debugPrint('❌ ERRO INESPERADO:');
+      debugPrint('❌ Tipo: ${e.runtimeType}');
+      debugPrint('❌ Mensagem: $e');
+      debugPrint('❌ Stack trace: ${StackTrace.current}');
+      debugPrint('❌ =================================');
       return null;
     }
   }
