@@ -158,7 +158,17 @@ class AlimentaAPIService {
     try {
       debugPrint('📄 Processando arquivo base64: $audioFilePath');
 
-      // Verificar se o arquivo existe antes de tentar lê-lo
+      // Para web, não podemos processar arquivos locais diretamente
+      if (kIsWeb) {
+        debugPrint('❌ Processamento de áudio via base64 não suportado na web');
+        return {
+          'success': false,
+          'error':
+              'Processamento de áudio não suportado na plataforma web. Use em dispositivo móvel ou desktop.'
+        };
+      }
+
+      // Verificar se o arquivo existe antes de tentar lê-lo (apenas plataformas nativas)
       final file = File(audioFilePath);
       if (!await file.exists()) {
         debugPrint('❌ Arquivo não encontrado: $audioFilePath');

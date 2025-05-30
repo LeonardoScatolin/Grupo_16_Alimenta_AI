@@ -5,6 +5,7 @@ import 'package:alimenta_ai/pages/registro_unificado.dart';
 import 'package:alimenta_ai/pages/profile.dart';
 import 'package:alimenta_ai/pages/weight_history.dart';
 import 'package:alimenta_ai/pages/debug_test.dart';
+import 'package:alimenta_ai/pages/audio_transcription_page.dart';
 import 'package:alimenta_ai/theme/app_theme.dart';
 import 'package:alimenta_ai/theme/theme_provider.dart';
 import 'package:alimenta_ai/services/nutricao_service.dart';
@@ -53,10 +54,10 @@ class MyApp extends StatelessWidget {
             '/home': (context) =>
                 const DashboardPage(), // Alias            '/registro': (context) => const RegistroUnificadoPage(),
             '/registra-alimento': (context) =>
-                const RegistroUnificadoPage(), // Usando a nova tela unificada
-            '/profile': (context) => const ProfilePage(),
+                const RegistroUnificadoPage(), // Usando a nova tela unificada            '/profile': (context) => const ProfilePage(),
             '/weight-history': (context) => const WeightHistoryPage(),
             '/notifications': (context) => const WeightHistoryPage(),
+            '/audio-transcription': (context) => const AudioTranscriptionPage(),
             '/debug': (context) => const DebugTestPage(),
           },
         );
