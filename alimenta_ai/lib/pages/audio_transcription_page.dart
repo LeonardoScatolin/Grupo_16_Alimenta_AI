@@ -15,6 +15,11 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
   Map<String, dynamic>? _systemHealth;
   List<String> _storedFiles = [];
 
+  // Novos estados para busca de alimentos
+  bool _isSearchingFood = false;
+  Map<String, dynamic>? _foodSearchResult;
+  String? _lastSearchText;
+
   @override
   void initState() {
     super.initState();
@@ -360,32 +365,56 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
                                 ),
                               ),
                             ),
-                          ),
-
-                          // Botões de ação na transcrição
+                          ), // Botões de ação na transcrição
                           if (audioService.lastTranscription != null) ...[
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    // Aqui você pode enviar a transcrição para o backend
-                                    _sendTranscriptionToBackend(
-                                        audioService.lastTranscription!);
-                                  },
-                                  icon: const Icon(Icons.send),
-                                  label: const Text('Enviar para Backend'),
+                                // Botão para buscar alimentos
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: _isSearchingFood
+                                        ? null
+                                        : () {
+                                            _searchFoodFromTranscription(
+                                                audioService);
+                                          },
+                                    icon: _isSearchingFood
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                                strokeWidth: 2))
+                                        : const Icon(Icons.search),
+                                    label: Text(_isSearchingFood
+                                        ? 'Buscando...'
+                                        : 'Buscar Alimentos'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                                 TextButton.icon(
                                   onPressed: () {
                                     audioService.clearTranscription();
+                                    setState(() {
+                                      _foodSearchResult = null;
+                                      _lastSearchText = null;
+                                    });
                                   },
                                   icon: const Icon(Icons.clear),
                                   label: const Text('Limpar'),
                                 ),
                               ],
                             ),
+                          ],
+
+                          // Resultados da busca de alimentos
+                          if (_foodSearchResult != null) ...[
+                            const SizedBox(height: 16),
+                            _buildFoodSearchResults(),
                           ],
                         ],
                       ),
@@ -463,19 +492,308 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
         ],
       ),
     );
+  } // Método para enviar transcrição para o backend (não usado atualmente)
+  // void _sendTranscriptionToBackend(String transcription) {
+  //   debugPrint('📤 Enviando transcrição para backend: $transcription');
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text(
+  //           'Transcrição enviada: ${transcription.substring(0, transcription.length > 50 ? 50 : transcription.length)}...'),
+  //       backgroundColor: Colors.green,
+  //     ),
+  //   );
+  // }
+
+  /// Buscar alimentos baseado na transcrição
+  Future<void> _searchFoodFromTranscription(AudioService audioService) async {
+    if (audioService.lastTranscription == null) return;
+
+    setState(() {
+      _isSearchingFood = true;
+      _lastSearchText = audioService.lastTranscription;
+    });
+
+    try {
+      final result = await audioService.transcribeAndSearchFood();
+
+      setState(() {
+        _foodSearchResult = result;
+        _isSearchingFood = false;
+      });
+
+      if (result != null && result['status'] == true) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Encontrados ${result['alimentos']?.length ?? 0} alimentos!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result?['error'] ?? 'Erro ao buscar alimentos'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isSearchingFood = false;
+        _foodSearchResult = {
+          'status': false,
+          'error': 'Erro inesperado: $e',
+        };
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro inesperado: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
-  // Método para enviar transcrição para o backend
-  void _sendTranscriptionToBackend(String transcription) {
-    // TODO: Implementar envio para o backend
-    debugPrint('📤 Enviando transcrição para backend: $transcription');
+  /// Widget para exibir resultados da busca de alimentos
+  Widget _buildFoodSearchResults() {
+    if (_foodSearchResult == null) return const SizedBox.shrink();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            'Transcrição enviada: ${transcription.substring(0, transcription.length > 50 ? 50 : transcription.length)}...'),
-        backgroundColor: Colors.green,
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.restaurant, color: Colors.green),
+                const SizedBox(width: 8),
+                const Text(
+                  'Alimentos Encontrados',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_lastSearchText != null) ...[
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, size: 16, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Busca: "$_lastSearchText"',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (_foodSearchResult!['status'] == true) ...[
+              if (_foodSearchResult!['alimentos'] != null &&
+                  _foodSearchResult!['alimentos'].isNotEmpty) ...[
+                Text(
+                  '${_foodSearchResult!['alimentos'].length} alimento(s) encontrado(s):',
+                  style: TextStyle(
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Lista de alimentos
+                Container(
+                  height: 200,
+                  child: ListView.builder(
+                    itemCount: _foodSearchResult!['alimentos'].length,
+                    itemBuilder: (context, index) {
+                      final alimento = _foodSearchResult!['alimentos'][index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Colors.green.shade100,
+                            child: Text(
+                              '${index + 1}',
+                              style: TextStyle(
+                                color: Colors.green.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            alimento['nome'] ?? 'Nome não disponível',
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (alimento['calorias'] != null)
+                                Text('Calorias: ${alimento['calorias']} kcal'),
+                              if (alimento['categoria'] != null)
+                                Text('Categoria: ${alimento['categoria']}'),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.arrow_forward_ios),
+                          onTap: () {
+                            _showFoodDetails(alimento);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info, color: Colors.orange.shade700),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child:
+                            Text('Nenhum alimento encontrado para esta busca.'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ] else ...[
+              // Erro na busca
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error, color: Colors.red.shade700),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _foodSearchResult!['error'] ?? 'Erro desconhecido',
+                        style: TextStyle(color: Colors.red.shade700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
+    );
+  }
+
+  /// Mostrar detalhes de um alimento
+  void _showFoodDetails(Map<String, dynamic> alimento) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(alimento['nome'] ?? 'Alimento'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (alimento['categoria'] != null) ...[
+                _buildDetailRow('Categoria', alimento['categoria']),
+                const SizedBox(height: 8),
+              ],
+              if (alimento['calorias'] != null) ...[
+                _buildDetailRow('Calorias', '${alimento['calorias']} kcal'),
+                const SizedBox(height: 8),
+              ],
+              if (alimento['proteinas'] != null) ...[
+                _buildDetailRow('Proteínas', '${alimento['proteinas']} g'),
+                const SizedBox(height: 8),
+              ],
+              if (alimento['carboidratos'] != null) ...[
+                _buildDetailRow(
+                    'Carboidratos', '${alimento['carboidratos']} g'),
+                const SizedBox(height: 8),
+              ],
+              if (alimento['gordura'] != null) ...[
+                _buildDetailRow('Gordura', '${alimento['gordura']} g'),
+                const SizedBox(height: 8),
+              ],
+              if (alimento['fibra'] != null) ...[
+                _buildDetailRow('Fibra', '${alimento['fibra']} g'),
+                const SizedBox(height: 8),
+              ],
+              if (alimento['codigo'] != null) ...[
+                _buildDetailRow('Código TACO', alimento['codigo']),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fechar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // Aqui você pode implementar ação para adicionar o alimento
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${alimento['nome']} selecionado'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            child: const Text('Selecionar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Helper para construir linhas de detalhes
+  Widget _buildDetailRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 80,
+          child: Text(
+            '$label:',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: Text(value),
+        ),
+      ],
     );
   }
 }

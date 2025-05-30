@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:alimenta_ai/services/openai_service.dart';
+import 'package:dio/dio.dart';
 
 class AudioService extends ChangeNotifier {
   final AudioRecorder _recorder = AudioRecorder();
@@ -448,23 +449,116 @@ class AudioService extends ChangeNotifier {
 
       // Verificar acesso ao armazenamento
       if (!kIsWeb) {
-        final files = await getStoredAudioFiles();
-        result['stored_files_count'] = files.length;
-        result['storage_accessible'] = true;
+        try {
+          final files = await getStoredAudioFiles();
+          result['stored_files_count'] = files.length;
+          result['storage_accessible'] = true;
 
-        // Verificar arquivo atual
-        if (_currentRecordingPath != null) {
-          result['current_recording_exists'] =
-              await _ensureAudioFileExists(_currentRecordingPath!);
+          // Verificar se a gravação atual existe
+          if (_currentRecordingPath != null) {
+            result['current_recording_exists'] =
+                await _ensureAudioFileExists(_currentRecordingPath!);
+          }
+        } catch (e) {
+          result['storage_error'] = e.toString();
         }
+      } else {
+        result['storage_accessible'] =
+            true; // Na web consideramos sempre acessível
       }
-
-      debugPrint('🏥 Diagnóstico do sistema de áudio: $result');
     } catch (e) {
-      debugPrint('❌ Erro no diagnóstico: $e');
-      result['error'] = e.toString();
+      result['system_error'] = e.toString();
     }
 
     return result;
+  }
+
+  /// 🎯 NOVA FUNÇÃO: Buscar alimentos no backend usando texto transcrito
+  Future<Map<String, dynamic>?> buscarAlimentosPorTranscricao(
+      String textoTranscrito) async {
+    try {
+      debugPrint(
+          '🔍 Buscando alimentos para: "$textoTranscrito"'); // URL do backend local (ajustar conforme necessário)
+      const String backendUrl = 'http://localhost:3333';
+
+      final dio = Dio();
+      dio.options.connectTimeout = const Duration(seconds: 10);
+      dio.options.receiveTimeout = const Duration(seconds: 30);
+
+      // Fazer requisição POST para a nova rota
+      final response = await dio.post(
+        '$backendUrl/alimento/buscar-por-transcricao',
+        data: {
+          'texto_transcrito': textoTranscrito,
+          'limite': 10,
+        },
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final result = response.data as Map<String, dynamic>;
+        debugPrint(
+            '✅ Busca concluída: ${result['alimentos']?.length ?? 0} alimentos encontrados');
+        return result;
+      } else {
+        debugPrint('❌ Erro na busca: ${response.statusCode}');
+        return null;
+      }
+    } on DioException catch (e) {
+      debugPrint('❌ Erro de conexão na busca:');
+      debugPrint('Tipo: ${e.type}');
+      debugPrint('Mensagem: ${e.message}');
+      if (e.response != null) {
+        debugPrint('Response: ${e.response?.data}');
+      }
+      return null;
+    } catch (e) {
+      debugPrint('❌ Erro inesperado na busca: $e');
+      return null;
+    }
+  }
+
+  /// 🎯 Transcrever e buscar alimentos automaticamente
+  Future<Map<String, dynamic>?> transcribeAndSearchFood() async {
+    try {
+      // Se não há transcrição disponível, tentar transcrever primeiro
+      if (_lastTranscription == null && _currentRecordingPath != null) {
+        await _transcribeCurrentRecording();
+      }
+
+      // Se ainda não há transcrição, retornar erro
+      if (_lastTranscription == null || _lastTranscription!.isEmpty) {
+        debugPrint('❌ Nenhuma transcrição disponível para busca');
+        return {
+          'status': false,
+          'error': 'Nenhuma transcrição disponível. Grave um áudio primeiro.',
+        };
+      }
+
+      // Buscar alimentos baseado na transcrição
+      final result = await buscarAlimentosPorTranscricao(_lastTranscription!);
+
+      if (result != null) {
+        return {
+          'status': true,
+          'transcricao_usada': _lastTranscription,
+          ...result,
+        };
+      } else {
+        return {
+          'status': false,
+          'error': 'Erro ao buscar alimentos no backend',
+          'transcricao_usada': _lastTranscription,
+        };
+      }
+    } catch (e) {
+      debugPrint('❌ Erro no fluxo transcrever e buscar: $e');
+      return {
+        'status': false,
+        'error': 'Erro inesperado: $e',
+      };
+    }
   }
 }
