@@ -17,8 +17,9 @@ class AudioService extends ChangeNotifier {
   String? _currentRecordingPath;
   String? _lastTranscription;
   Map<String, dynamic>? _lastFoodSearchResult; // 🆕 Resultado da última busca
-  Duration _recordingDuration = Duration.zero;
-  // Getters
+  String?
+      _currentMealType; // 🆕 Tipo de refeição atual (Café da Manhã, Almoço, etc.)
+  Duration _recordingDuration = Duration.zero; // Getters
   bool get isRecording => _isRecording;
   bool get isPlaying => _isPlaying;
   bool get isTranscribing => _isTranscribing;
@@ -26,6 +27,8 @@ class AudioService extends ChangeNotifier {
   String? get lastTranscription => _lastTranscription;
   Map<String, dynamic>? get lastFoodSearchResult =>
       _lastFoodSearchResult; // 🆕 Getter para resultado da busca
+  String? get currentMealType =>
+      _currentMealType; // 🆕 Getter para tipo de refeição atual
   Duration get recordingDuration => _recordingDuration;
 
   /// Verificar e solicitar permissões de microfone
@@ -637,5 +640,53 @@ class AudioService extends ChangeNotifier {
         'error': 'Erro inesperado: $e',
       };
     }
+  }
+
+  /// 🎯 Definir o tipo de refeição atual (para associar áudio gravado à refeição correta)
+  void setCurrentMealType(String? mealType) {
+    _currentMealType = mealType;
+    debugPrint('🍽️ Tipo de refeição definido: $_currentMealType');
+    notifyListeners();
+  }
+
+  /// 🎯 Limpar dados da sessão de gravação anterior
+  void clearSession() {
+    _lastTranscription = null;
+    _lastFoodSearchResult = null;
+    _currentMealType = null;
+    debugPrint('🧹 Sessão de gravação limpa');
+    notifyListeners();
+  }
+
+  /// 🎯 Converter resultado da busca em dados estruturados para a interface
+  List<Map<String, dynamic>>? getStructuredFoodData() {
+    if (_lastFoodSearchResult == null ||
+        _lastFoodSearchResult!['status'] != true ||
+        _lastFoodSearchResult!['alimentos'] == null) {
+      return null;
+    }
+
+    final alimentos = _lastFoodSearchResult!['alimentos'] as List;
+    return alimentos.map((alimento) {
+      return {
+        'id': alimento['id'],
+        'nome': alimento['nome'],
+        'calorias': alimento['calorias'] ?? 0,
+        'proteinas': alimento['proteinas'] ?? 0.0,
+        'carboidratos': alimento['carboidratos'] ?? 0.0,
+        'gordura': alimento['gordura'] ?? 0.0,
+        'categoria': alimento['categoria'] ?? 'Não informado',
+        'codigo': alimento['codigo'] ?? '',
+        'quantidade_sugerida': 100, // Quantidade padrão em gramas
+        'transcricao_origem': _lastTranscription,
+        'tipo_refeicao': _currentMealType,
+      };
+    }).toList();
+  }
+
+  /// 🎯 Obter o primeiro alimento encontrado (mais relevante)
+  Map<String, dynamic>? getPrimaryFoodData() {
+    final foods = getStructuredFoodData();
+    return foods?.isNotEmpty == true ? foods!.first : null;
   }
 }

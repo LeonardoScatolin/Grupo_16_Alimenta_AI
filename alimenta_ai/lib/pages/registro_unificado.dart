@@ -417,6 +417,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   }
 
   void showAddFoodModal(String mealTitle) {
+    final audioService = Provider.of<AudioService>(context, listen: false);
+
+    // Configurar o tipo de refeição no AudioService
+    audioService.setCurrentMealType(mealTitle);
+
     setState(() {
       showRecordingModal = true;
       selectedMealTitle = mealTitle;
@@ -459,9 +464,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   }
 
   Future<void> submitRecordedAudio() async {
-    // Usar API real para processar o áudio
-    final nutricaoService =
-        Provider.of<NutricaoService>(context, listen: false);
     final audioService = Provider.of<AudioService>(context, listen: false);
 
     if (hasRecordedAudio && audioService.currentRecordingPath != null) {
@@ -477,89 +479,82 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       );
 
       try {
-        // Usar o arquivo de áudio real gravado
-        final resultado = await nutricaoService.processarAudioRefeicao(
-          audioFilePath: audioService.currentRecordingPath!,
-          tipoRefeicao: selectedMealTitle.toLowerCase(),
-          observacoes: 'Gravado via app mobile',
-        );
+        // 🎯 NOVO FLUXO: Usar dados já obtidos pelo AudioService
+        final foodData = audioService.getPrimaryFoodData();
 
-        // Remover indicador de carregamento
-        if (mounted) Navigator.of(context).pop();
+        if (foodData != null) {
+          debugPrint(
+              '🍎 Alimento encontrado pelo AudioService: ${foodData['nome']}');
 
-        if (resultado != null && resultado.status) {
-          // Sucesso - adicionar alimento à refeição atual
-          _adicionarAlimentoARefeicao(resultado);
-
-          setState(() {
-            hasRecordedAudio = false;
-            recordingDuration = 0;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Alimento "${resultado.alimentoExtraido?.nome}" registrado com sucesso via áudio!'),
-              backgroundColor: Colors.green,
-            ),
+          // Criar item de refeição com dados reais do backend
+          final novoItem = MealItemData(
+            name: '${foodData['nome']} (${foodData['quantidade_sugerida']}g)',
+            calories: (foodData['calorias'] as num).round(),
+            protein: (foodData['proteinas'] as num).round(),
+            fat: (foodData['gordura'] as num).round(),
+            carbs: (foodData['carboidratos'] as num).round(),
+            isPlaceholder: false,
           );
 
-          // Recarregar dados do resumo diário
-          _carregarDadosNutricao();
+          // Encontrar a refeição correspondente e adicionar o item
+          final mealIndex = meals.indexWhere((meal) =>
+              meal.title.toLowerCase() == selectedMealTitle.toLowerCase());
+
+          if (mealIndex != -1) {
+            setState(() {
+              meals[mealIndex].items.add(novoItem);
+
+              // Recalcular totais da refeição
+              meals[mealIndex].totalCalories = meals[mealIndex]
+                  .items
+                  .fold(0, (sum, item) => sum + item.calories);
+
+              // Atualizar totais diários
+              totalDailyCalories += novoItem.calories;
+              proteinTotal += novoItem.protein;
+              fatTotal += novoItem.fat;
+              carbsTotal += novoItem.carbs;
+            });
+
+            // Limpar dados de gravação
+            setState(() {
+              hasRecordedAudio = false;
+              recordingDuration = 0;
+            });
+
+            // Limpar sessão do AudioService
+            audioService.clearSession();
+
+            // Remover indicador de carregamento
+            if (mounted) Navigator.of(context).pop();
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    '✅ ${foodData['nome']} adicionado ao ${selectedMealTitle}!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            debugPrint(
+                '✅ Alimento adicionado com sucesso à refeição $selectedMealTitle');
+          } else {
+            throw Exception('Refeição não encontrada: $selectedMealTitle');
+          }
         } else {
-          // Erro - mostrar mensagem
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Erro ao processar áudio: ${resultado?.error ?? nutricaoService.error ?? "Erro desconhecido"}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-
-          setState(() => showRecordingModal = true); // Voltar ao modal
+          throw Exception('Nenhum alimento encontrado na busca');
         }
       } catch (e) {
-        // Remover indicador de carregamento em caso de erro
+        // Remover indicador de carregamento
         if (mounted) Navigator.of(context).pop();
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao processar áudio: $e'),
+            content: Text('❌ Erro ao adicionar alimento: $e'),
             backgroundColor: Colors.red,
           ),
         );
-
+        debugPrint('❌ Erro ao processar alimento: $e');
         setState(() => showRecordingModal = true); // Voltar ao modal
-      }
-    }
-  }
-
-  /// Adiciona o alimento processado via áudio à refeição correspondente
-  void _adicionarAlimentoARefeicao(dynamic resultado) {
-    if (resultado.calculoMacros?.macros != null &&
-        resultado.alimentoExtraido != null) {
-      final macros = resultado.calculoMacros!.macros!;
-      final alimentoExtraido = resultado.alimentoExtraido!;
-
-      // Criar item de refeição com dados reais
-      final novoItem = MealItemData(
-        name: '${alimentoExtraido.nome} (${alimentoExtraido.quantidade}g)',
-        calories: macros.calorias.round(),
-        protein: macros.proteina.round(),
-        fat: macros.gordura.round(),
-        carbs: macros.carbo.round(),
-        isPlaceholder: false,
-      );
-
-      // Encontrar a refeição correspondente e adicionar o item
-      final mealIndex = meals.indexWhere((meal) =>
-          meal.title.toLowerCase() == selectedMealTitle.toLowerCase());
-
-      if (mealIndex != -1) {
-        setState(() {
-          meals[mealIndex].items.add(novoItem);
-          calculateTotalCalories();
-        });
       }
     }
   }
