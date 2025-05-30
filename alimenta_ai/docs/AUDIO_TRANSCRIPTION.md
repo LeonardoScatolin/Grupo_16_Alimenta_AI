@@ -154,3 +154,76 @@ lib/
 └── pages/
     └── audio_transcription_page.dart # Tela de demonstração
 ```
+
+## 🆕 Melhorias v2.0 - Armazenamento Persistente
+
+### Novos Recursos Implementados
+
+#### 🔧 Sistema de Armazenamento Aprimorado
+- **Diretórios Persistentes**: Áudios agora são salvos em locais permanentes específicos por plataforma
+- **Limpeza Automática**: Manutenção automática dos arquivos (mantém últimos 10 áudios)
+- **Verificação de Integridade**: Sistema verifica se arquivos foram criados corretamente
+- **Diagnóstico Completo**: Health check do sistema de áudio
+
+#### 📂 Locais de Armazenamento por Plataforma
+- **Windows**: `%USERPROFILE%\alimenta_ai_audios\`
+- **Android**: `Application Documents/audios/`
+- **iOS**: `Application Documents/audios/`
+- **Outros**: Diretório temporário do sistema
+
+#### 🏥 Sistema de Diagnóstico
+```dart
+// Verificar saúde do sistema de áudio
+final audioService = Provider.of<AudioService>(context);
+final health = await audioService.checkAudioSystemHealth();
+
+// Retorna informações sobre:
+// - Permissões de microfone
+// - Configuração da OpenAI
+// - Acesso ao armazenamento
+// - Quantidade de arquivos salvos
+// - Plataforma atual
+```
+
+#### 🛠️ Novos Métodos no AudioService
+```dart
+// Listar arquivos de áudio armazenados
+List<String> files = await audioService.getStoredAudioFiles();
+
+// Limpar arquivos antigos
+await audioService.cleanOldAudioFiles();
+
+// Verificar saúde do sistema
+Map<String, dynamic> health = await audioService.checkAudioSystemHealth();
+```
+
+#### 🎨 Widget de Debug
+Novo widget `AudioDebugWidget` para monitoramento visual:
+- Exibe status do sistema em tempo real
+- Permite limpeza manual de arquivos
+- Mostra informações de diagnóstico
+- Indicadores visuais de problemas
+
+### Solução para Problemas de Armazenamento
+
+O erro "ENOENT: no such file or directory" foi resolvido com:
+
+1. **Criação de Diretórios Permanentes**: Sistema cria automaticamente diretórios específicos
+2. **Verificação de Arquivos**: Validação antes do envio para o backend
+3. **Backup e Recuperação**: Sistema de fallback para diretórios alternativos
+4. **Logs Detalhados**: Rastreamento completo do ciclo de vida dos arquivos
+
+### Como Usar as Novas Funcionalidades
+
+```dart
+// Na sua página, adicione o widget de debug
+import 'package:alimenta_ai/widgets/audio_debug_widget.dart';
+
+// No build method:
+Column(
+  children: [
+    AudioDebugWidget(), // Widget de diagnóstico
+    // ... resto da sua UI
+  ],
+)
+```

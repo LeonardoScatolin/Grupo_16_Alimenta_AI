@@ -149,11 +149,12 @@ class OpenAIService {
   /// Atualizar a API key (para configuração dinâmica)
   void updateApiKey(String newApiKey) {
     _apiKey = newApiKey;
-    _dio.options.headers['Authorization'] = 'Bearer $newApiKey';
-    debugPrint('🔑 API Key atualizada');
+    _dio.options.headers['Authorization'] = 'Bearer $_apiKey';
+    debugPrint('🔑 API Key atualizada no OpenAI Service');
   }
 
   /// Verificar se a API key está configurada
-  bool get isApiKeyConfigured =>
-      OpenAIConfig.isConfigured && _apiKey.isNotEmpty;
+  bool get isApiKeyConfigured {
+    return _apiKey.isNotEmpty && _apiKey != 'YOUR_OPENAI_API_KEY';
+  }
 }

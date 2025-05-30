@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +12,26 @@ class AudioTranscriptionPage extends StatefulWidget {
 }
 
 class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
+  Map<String, dynamic>? _systemHealth;
+  List<String> _storedFiles = [];
+
   @override
   void initState() {
     super.initState();
     // Configure sua API key da OpenAI aqui ou no arquivo de configuração
     // context.read<AudioService>().setOpenAIApiKey('sua_api_key_aqui');
+    _checkSystemHealth();
+  }
+
+  Future<void> _checkSystemHealth() async {
+    final audioService = context.read<AudioService>();
+    final health = await audioService.checkAudioSystemHealth();
+    final files = await audioService.getStoredAudioFiles();
+
+    setState(() {
+      _systemHealth = health;
+      _storedFiles = files;
+    });
   }
 
   @override
@@ -69,6 +85,85 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
                 ),
 
                 const SizedBox(height: 8),
+
+                // Informações do sistema de áudio
+                if (_systemHealth != null)
+                  Card(
+                    color: Colors.blue.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Estado do Sistema de Áudio',
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                _systemHealth!['permissions']
+                                    ? Icons.check_circle
+                                    : Icons.error,
+                                color: _systemHealth!['permissions']
+                                    ? Colors.green
+                                    : Colors.red,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                  'Permissões: ${_systemHealth!['permissions'] ? 'OK' : 'Negadas'}'),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                _systemHealth!['openai_configured']
+                                    ? Icons.check_circle
+                                    : Icons.warning,
+                                color: _systemHealth!['openai_configured']
+                                    ? Colors.green
+                                    : Colors.orange,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                  'OpenAI: ${_systemHealth!['openai_configured'] ? 'Configurado' : 'Pendente'}'),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.folder,
+                                color: Colors.blue.shade700,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                  'Áudios armazenados: ${_storedFiles.length}'),
+                              const SizedBox(width: 8),
+                              if (_storedFiles.isNotEmpty)
+                                TextButton(
+                                  onPressed: () => _showStoredFiles(),
+                                  child: const Text('Ver lista'),
+                                ),
+                              TextButton(
+                                onPressed: () => _checkSystemHealth(),
+                                child: const Text('Atualizar'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
 
                 // Aviso específico para web
                 if (kIsWeb)
@@ -301,6 +396,71 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showStoredFiles() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Áudios Armazenados'),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: _storedFiles.isEmpty
+              ? const Center(child: Text('Nenhum áudio armazenado'))
+              : ListView.builder(
+                  itemCount: _storedFiles.length,
+                  itemBuilder: (context, index) {
+                    final filePath = _storedFiles[index];
+                    final fileName = filePath.split('/').last.split('\\').last;
+
+                    return ListTile(
+                      leading: const Icon(Icons.audiotrack),
+                      title: Text(fileName),
+                      subtitle: Text(filePath),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () async {
+                          try {
+                            await File(filePath).delete();
+                            await _checkSystemHealth();
+                            if (mounted) {
+                              Navigator.of(context).pop();
+                              _showStoredFiles();
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Erro ao deletar: $e')),
+                            );
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fechar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final audioService = context.read<AudioService>();
+              await audioService.cleanOldAudioFiles();
+              await _checkSystemHealth();
+              if (mounted) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Limpeza realizada!')),
+                );
+              }
+            },
+            child: const Text('Limpar Antigos'),
+          ),
+        ],
       ),
     );
   }

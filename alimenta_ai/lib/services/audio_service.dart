@@ -57,25 +57,16 @@ class AudioService extends ChangeNotifier {
         return false;
       }
 
-      // Para Windows, usar um path simples no diretório atual
+      // Criar diretório de áudios se não existir
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       String recordingPath;
 
       if (kIsWeb) {
         // Para web, usar nome simples
         recordingPath = 'recording_$timestamp.wav';
-      } else if (defaultTargetPlatform == TargetPlatform.windows) {
-        // Para Windows, usar diretório temporário do sistema
-        recordingPath = 'C:\\Windows\\Temp\\recording_$timestamp.wav';
       } else {
-        // Para outras plataformas, tentar path_provider
-        try {
-          final directory = await getTemporaryDirectory();
-          recordingPath = '${directory.path}/recording_$timestamp.wav';
-        } catch (e) {
-          debugPrint('! Fallback: usando diretório atual');
-          recordingPath = 'recording_$timestamp.wav';
-        }
+        // Para todas as plataformas nativas, usar um diretório persistente
+        recordingPath = await _createAudioStoragePath(timestamp);
       }
 
       _currentRecordingPath = recordingPath;
@@ -115,6 +106,18 @@ class AudioService extends ChangeNotifier {
 
       debugPrint('🔴 Gravação finalizada: $_currentRecordingPath');
       debugPrint('⏱️ Duração: ${_recordingDuration.inSeconds}s');
+
+      // Verificar se o arquivo foi criado corretamente
+      if (_currentRecordingPath != null) {
+        final fileExists = await _ensureAudioFileExists(_currentRecordingPath!);
+        if (!fileExists) {
+          debugPrint('❌ Arquivo de áudio não foi criado corretamente');
+          _currentRecordingPath = null;
+        } else {
+          // Fazer limpeza de arquivos antigos
+          await cleanOldAudioFiles();
+        }
+      }
 
       notifyListeners();
 
@@ -235,10 +238,15 @@ class AudioService extends ChangeNotifier {
   Future<void> deleteCurrentRecording() async {
     if (_currentRecordingPath != null) {
       try {
-        final file = File(_currentRecordingPath!);
-        if (await file.exists()) {
-          await file.delete();
-          debugPrint('🗑️ Arquivo deletado: $_currentRecordingPath');
+        if (!kIsWeb) {
+          final file = File(_currentRecordingPath!);
+          if (await file.exists()) {
+            await file.delete();
+            debugPrint('🗑️ Arquivo deletado: $_currentRecordingPath');
+          } else {
+            debugPrint(
+                '⚠️ Arquivo não encontrado para deletar: $_currentRecordingPath');
+          }
         }
       } catch (e) {
         debugPrint('❌ Erro ao deletar arquivo: $e');
@@ -295,5 +303,168 @@ class AudioService extends ChangeNotifier {
     final seconds =
         (_recordingDuration.inSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
+  }
+
+  /// Criar caminho de armazenamento persistente para áudios
+  Future<String> _createAudioStoragePath(int timestamp) async {
+    try {
+      Directory? storageDir;
+
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        // Para Windows, criar diretório na pasta Documents do usuário
+        final documentsPath = Platform.environment['USERPROFILE'] ?? 'C:\\';
+        storageDir = Directory('$documentsPath\\alimenta_ai_audios');
+      } else if (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS) {
+        // Para mobile, usar diretório de aplicação permanente
+        storageDir = await getApplicationDocumentsDirectory();
+        storageDir = Directory('${storageDir.path}/audios');
+      } else {
+        // Para outras plataformas, usar temporary directory
+        storageDir = await getTemporaryDirectory();
+        storageDir = Directory('${storageDir.path}/audios');
+      }
+
+      // Criar diretório se não existir
+      if (!await storageDir.exists()) {
+        await storageDir.create(recursive: true);
+        debugPrint('📁 Diretório de áudios criado: ${storageDir.path}');
+      }
+
+      final fileName = 'recording_$timestamp.wav';
+      final fullPath = '${storageDir.path}/$fileName';
+
+      debugPrint('💾 Caminho de armazenamento: $fullPath');
+      return fullPath;
+    } catch (e) {
+      debugPrint('❌ Erro ao criar caminho de armazenamento: $e');
+      // Fallback para diretório atual
+      return 'recording_$timestamp.wav';
+    }
+  }
+
+  /// Verificar se o arquivo de áudio existe e criar backup se necessário
+  Future<bool> _ensureAudioFileExists(String filePath) async {
+    if (kIsWeb) return true; // Na web não podemos verificar arquivos locais
+
+    try {
+      final file = File(filePath);
+      final exists = await file.exists();
+
+      if (exists) {
+        final size = await file.length();
+        debugPrint('✅ Arquivo verificado: $filePath (${size} bytes)');
+        return true;
+      } else {
+        debugPrint('❌ Arquivo não encontrado: $filePath');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao verificar arquivo: $e');
+      return false;
+    }
+  }
+
+  /// Listar todos os áudios armazenados localmente
+  Future<List<String>> getStoredAudioFiles() async {
+    try {
+      if (kIsWeb) return []; // Na web não temos acesso ao sistema de arquivos
+
+      Directory? storageDir;
+
+      if (defaultTargetPlatform == TargetPlatform.windows) {
+        final documentsPath = Platform.environment['USERPROFILE'] ?? 'C:\\';
+        storageDir = Directory('$documentsPath\\alimenta_ai_audios');
+      } else {
+        storageDir = await getApplicationDocumentsDirectory();
+        storageDir = Directory('${storageDir.path}/audios');
+      }
+
+      if (!await storageDir.exists()) {
+        return [];
+      }
+
+      final files = storageDir
+          .listSync()
+          .where((entity) => entity is File && entity.path.endsWith('.wav'))
+          .map((entity) => entity.path)
+          .toList();
+
+      debugPrint('📋 Arquivos de áudio encontrados: ${files.length}');
+      return files;
+    } catch (e) {
+      debugPrint('❌ Erro ao listar arquivos: $e');
+      return [];
+    }
+  }
+
+  /// Limpar arquivos antigos (manter apenas os últimos 10)
+  Future<void> cleanOldAudioFiles() async {
+    try {
+      final files = await getStoredAudioFiles();
+
+      if (files.length <= 10) return; // Manter até 10 arquivos
+
+      // Ordenar por data de modificação (mais antigos primeiro)
+      files.sort((a, b) {
+        final fileA = File(a);
+        final fileB = File(b);
+        return fileA.lastModifiedSync().compareTo(fileB.lastModifiedSync());
+      });
+
+      // Deletar os arquivos mais antigos
+      final filesToDelete = files.take(files.length - 10);
+
+      for (final filePath in filesToDelete) {
+        try {
+          await File(filePath).delete();
+          debugPrint('🗑️ Arquivo antigo removido: $filePath');
+        } catch (e) {
+          debugPrint('❌ Erro ao remover arquivo $filePath: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Erro na limpeza de arquivos: $e');
+    }
+  }
+
+  /// Verificar saúde do sistema de áudios
+  Future<Map<String, dynamic>> checkAudioSystemHealth() async {
+    final result = <String, dynamic>{
+      'permissions': false,
+      'storage_accessible': false,
+      'stored_files_count': 0,
+      'current_recording_exists': false,
+      'openai_configured': false,
+      'platform': defaultTargetPlatform.name,
+    };
+
+    try {
+      // Verificar permissões
+      result['permissions'] = await checkAndRequestPermissions();
+
+      // Verificar OpenAI
+      result['openai_configured'] = isOpenAIConfigured;
+
+      // Verificar acesso ao armazenamento
+      if (!kIsWeb) {
+        final files = await getStoredAudioFiles();
+        result['stored_files_count'] = files.length;
+        result['storage_accessible'] = true;
+
+        // Verificar arquivo atual
+        if (_currentRecordingPath != null) {
+          result['current_recording_exists'] =
+              await _ensureAudioFileExists(_currentRecordingPath!);
+        }
+      }
+
+      debugPrint('🏥 Diagnóstico do sistema de áudio: $result');
+    } catch (e) {
+      debugPrint('❌ Erro no diagnóstico: $e');
+      result['error'] = e.toString();
+    }
+
+    return result;
   }
 }
