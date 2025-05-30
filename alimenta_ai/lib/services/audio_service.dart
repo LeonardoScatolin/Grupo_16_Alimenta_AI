@@ -520,12 +520,17 @@ class AudioService extends ChangeNotifier {
       debugPrint('🔍 =================================');
       debugPrint('🔍 INICIANDO BUSCA DE ALIMENTOS');
       debugPrint('🔍 Texto transcrito: "$textoTranscrito"');
-      debugPrint('🔍 =================================');
-
-      // URL do backend local (ajustar conforme necessário)
-      const String backendUrl = 'http://localhost:3333';
+      debugPrint(
+          '🔍 ================================='); // URL do backend - detectar plataforma automaticamente
+      String backendUrl;
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        backendUrl = 'http://10.0.2.2:3333'; // Para Android Emulator
+      } else {
+        backendUrl = 'http://127.0.0.1:3333'; // Para Windows/iOS/Desktop
+      }
       final String url = '$backendUrl/alimento/buscar-por-transcricao';
 
+      debugPrint('🌐 Plataforma: ${defaultTargetPlatform.name}');
       debugPrint('🌐 URL da requisição: $url');
 
       final dio = Dio();
