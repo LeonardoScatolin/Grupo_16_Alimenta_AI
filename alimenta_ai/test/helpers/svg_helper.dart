@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'dart:ui' as ui;
 
 class MockAssetBundle extends Fake implements AssetBundle {
   @override
@@ -22,15 +23,9 @@ class MockAssetBundle extends Fake implements AssetBundle {
 
 void mockSvgAssets() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMessageHandler('flutter/assets', (message) async {
     return null;
   });
-}
-    PictureProvider.debugDecodedCallback = (_, __) => 
-        Future<PictureInfo>.value(PictureInfo(
-          picture: Picture(),
-          viewport: const Rect.fromLTRB(0, 0, 100, 100),
-        ));
-  }
 }
