@@ -54,7 +54,8 @@ class MyApp extends StatelessWidget {
             '/home': (context) =>
                 const DashboardPage(), // Alias            '/registro': (context) => const RegistroUnificadoPage(),
             '/registra-alimento': (context) =>
-                const RegistroUnificadoPage(), // Usando a nova tela unificada            '/profile': (context) => const ProfilePage(),
+                const RegistroUnificadoPage(), // Usando a nova tela unificada            
+            '/profile': (context) => const ProfilePage(),
             '/weight-history': (context) => const WeightHistoryPage(),
             '/notifications': (context) => const WeightHistoryPage(),
             '/audio-transcription': (context) => const AudioTranscriptionPage(),

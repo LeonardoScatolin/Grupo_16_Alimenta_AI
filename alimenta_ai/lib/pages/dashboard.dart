@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../services/weight_service.dart';
 import '../services/nutricao_service.dart';
+import '../services/user_service.dart';  // Nova importação
 import 'package:alimenta_ai/pages/weight_history.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _progressAnimation;
-  @override
+  String _userName = 'Usuário'; // Nome padrão caso não carregue  @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
@@ -33,10 +34,27 @@ class _DashboardPageState extends State<DashboardPage>
 
     _animationController.forward();
 
+    // Carregar o nome do usuário logado
+    _loadUserName();
+
     // Carregar dados do dia atual quando o dashboard inicializar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _carregarDadosDiarios();
     });
+  }
+
+  // Método para carregar o nome do usuário
+  void _loadUserName() async {
+    try {
+      final userName = await UserService.getUserName();
+      if (userName != null) {
+        setState(() {
+          _userName = userName;
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar nome do usuário: $e');
+    }
   }
 
   void _carregarDadosDiarios() {
@@ -119,10 +137,9 @@ class _DashboardPageState extends State<DashboardPage>
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-        ),
-        const SizedBox(height: 5),
+        ),        const SizedBox(height: 5),
         Text(
-          'Silvio Santos',
+          _userName,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w500,

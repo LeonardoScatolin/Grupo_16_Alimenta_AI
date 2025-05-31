@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/nutricao_service.dart';
+import '../services/user_service.dart';  // Nova importação
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -662,12 +663,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         tipo: 'paciente',
       );
 
-      debugPrint('📋 Resultado do login: $result');
-
-      if (result['success'] == true) {
+      debugPrint('📋 Resultado do login: $result');      if (result['success'] == true) {
         debugPrint('✅ Login bem-sucedido!');
 
         final user = result['user'];
+        
+        // Salvar dados do usuário
+        await UserService.saveUserData(
+          userId: user['id'],
+          userName: user['name'] ?? 'Usuário',
+          userEmail: user['email'] ?? '',
+          additionalData: user,
+        );
+        
         // Configurar o NutricaoService com os IDs
         if (mounted) {
           final nutricaoService =

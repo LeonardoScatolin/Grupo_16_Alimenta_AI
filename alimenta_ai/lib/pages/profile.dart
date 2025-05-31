@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:alimenta_ai/theme/theme_provider.dart';
+import 'package:alimenta_ai/services/user_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -12,7 +13,27 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _notificationsEnabled = true;
-  String _currentLanguage = 'pt_BR';
+  String _currentLanguage = 'pt_BR';  String _userName = 'Usuário'; // Nome padrão caso não carregue
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  // Método para carregar o nome do usuário
+  void _loadUserName() async {
+    try {
+      final userName = await UserService.getUserName();
+      if (userName != null) {
+        setState(() {
+          _userName = userName;
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar nome do usuário: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,12 +132,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
-
-              // Nome do usuário
-              const Text(
-                'Silvio Santos',
-                style: TextStyle(
+              const SizedBox(height: 15),              // Nome do usuário
+              Text(
+                _userName,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
