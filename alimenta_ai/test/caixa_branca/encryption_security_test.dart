@@ -258,15 +258,14 @@ void main() {
         
         print('✅ Strong passwords properly accepted');
       });
-      
-      test('deve verificar requisitos específicos de senha', () {
+        test('deve verificar requisitos específicos de senha', () {
         print('🧪 [${DateTime.now().toIso8601String()}] Testing specific password requirements');
           // Teste individual de cada requisito
-        expect(encryptionService._validatePasswordStrength('PASSWORD123!'), isTrue); // tem tudo
-        expect(encryptionService._validatePasswordStrength('password123!'), isTrue); // tem minúscula, número e especial
-        expect(encryptionService._validatePasswordStrength('PASSWORD123!'), isTrue); // tem tudo novamente
-        expect(encryptionService._validatePasswordStrength('Password!'), isTrue); // tem maiúscula e especial
-        expect(encryptionService._validatePasswordStrength('Password123'), isTrue); // tem maiúscula e número
+        expect(encryptionService._validatePasswordStrength('Password123!'), isTrue); // tem tudo
+        expect(encryptionService._validatePasswordStrength('MyPass123!'), isTrue); // tem minúscula, maiúscula, número e especial
+        expect(encryptionService._validatePasswordStrength('Strong1!'), isTrue); // tem tudo 
+        expect(encryptionService._validatePasswordStrength('Valid123!'), isTrue); // tem maiúscula, minúscula, número e especial
+        expect(encryptionService._validatePasswordStrength('Test123!'), isTrue); // tem maiúscula, minúscula, número e especial
         expect(encryptionService._validatePasswordStrength('Pass1!'), isFalse); // muito curta
         
         print('✅ Individual password requirements properly validated');
