@@ -38,17 +38,17 @@ void main() {
       ));
 
       expect(find.text('Home Page'), findsOneWidget);
-      print('✅ [SUCESSO] Página inicial carregada');      // Navigate to second page
+      print('✅ [SUCESSO] Página inicial carregada');
+
+      // Navigate to second page
       await tester.tap(find.text('Go to Second'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Second Page Content'), findsOneWidget);
+      await tester.pumpAndSettle();      expect(find.text('Second Page Content'), findsOneWidget);
       expect(find.text('Home Page'), findsNothing);
-      print('✅ [SUCESSO] Navegação para segunda página');      // Navigate back
-      await tester.tap(find.byIcon(Icons.arrow_back));
-      await tester.pumpAndSettle();
+      print('✅ [SUCESSO] Navegação para segunda página');
 
-      expect(find.text('Home Page'), findsOneWidget);
+      // Navigate back
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();      expect(find.text('Home Page'), findsOneWidget);
       expect(find.text('Second Page Content'), findsNothing);
       print('✅ [SUCESSO] Navegação de volta');
     });
@@ -66,7 +66,9 @@ void main() {
       ));
 
       expect(find.text('Home Page'), findsOneWidget);
-      print('✅ [SUCESSO] Rota inicial carregada');      // Navigate using named route
+      print('✅ [SUCESSO] Rota inicial carregada');
+
+      // Navigate using named route
       await tester.tap(find.text('Go to Third'));
       await tester.pumpAndSettle();
 
@@ -135,7 +137,9 @@ void main() {
       await tester.tap(find.text('Custom Transition'));
       await tester.pump(); // Start animation
       await tester.pump(Duration(milliseconds: 150)); // Mid animation
-      await tester.pumpAndSettle(); // Complete animation      expect(find.text('Second Page Content'), findsOneWidget);
+      await tester.pumpAndSettle(); // Complete animation
+
+      expect(find.text('Second Page Content'), findsOneWidget);
       print('✅ [SUCESSO] Transição customizada executada');
     });
 
@@ -252,7 +256,9 @@ void main() {
       await tester.tap(find.byType(Hero));
       await tester.pump(); // Start hero animation
       await tester.pump(Duration(milliseconds: 150)); // Mid animation
-      await tester.pumpAndSettle(); // Complete animation      expect(find.text('Hero Detail Content'), findsOneWidget);
+      await tester.pumpAndSettle(); // Complete animation
+
+      expect(find.text('Hero Detail Content'), findsOneWidget);
       print('✅ [SUCESSO] Hero animation executada');
     });
 
@@ -304,13 +310,11 @@ void main() {
         routes: {
           '/swipe-target': (context) => TestSwipeTargetPage(),
         },
-      ));      // Encontrar o widget para fazer swipe
-      final gestureWidget = find.text('Swipe me right');
-      expect(gestureWidget, findsOneWidget);
+      ));      // Swipe to navigate
+      await tester.fling(find.text('Swipe me right'), Offset(300, 0), 600);
+      await tester.pumpAndSettle();
 
-      // Simular um gesto de swipe rápido para a direita
-      await tester.fling(gestureWidget, Offset(300, 0), 1000); // 1000 pixels/second
-      await tester.pumpAndSettle();expect(find.text('Swipe Target Content'), findsOneWidget);
+      expect(find.text('Swipe Target Content'), findsOneWidget);
       print('✅ [SUCESSO] Navegação por gesto executada');
     });
   });
@@ -346,7 +350,7 @@ class TestSecondPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Second Page Header')),
+      appBar: AppBar(title: Text('Second Page')),
       body: Center(child: Text('Second Page Content')),
     );
   }
@@ -356,7 +360,7 @@ class TestThirdPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Third Page Header')),
+      appBar: AppBar(title: Text('Third Page')),
       body: Center(child: Text('Third Page Content')),
     );
   }
@@ -493,7 +497,7 @@ class TestHeroDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Hero Detail Header')),
+      appBar: AppBar(title: Text('Hero Detail')),
       body: Center(
         child: Hero(
           tag: 'hero-tag',
@@ -536,7 +540,7 @@ class TestSwipeTargetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Swipe Target Header')),
+      appBar: AppBar(title: Text('Swipe Target')),
       body: Center(child: Text('Swipe Target Content')),
     );
   }

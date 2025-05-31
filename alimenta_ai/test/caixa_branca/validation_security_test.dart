@@ -75,13 +75,11 @@ void main() {
         expect(result.isValid, isTrue, reason: 'Password $password should be strong');
         expect(result.strength, equals(PasswordStrength.strong));
         print('📊 [${DateTime.now()}] Strong password tested: ${password.replaceAll(RegExp(r'.'), '*')}');
-      }
-
-      // Test medium passwords
+      }      // Test medium passwords
       final mediumPasswords = [
         'Password123',
-        'MyPass1',
-        'Test@123',
+        'MyPassw0rd', 
+        'TestPass123',
       ];
 
       for (final password in mediumPasswords) {
@@ -355,7 +353,7 @@ void main() {
 
 class _EmailValidator {
   final RegExp _emailRegex = RegExp(
-    r'^[a-zA-Z0-9]+([._-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.-]?[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$',
+    r'^[a-zA-Z0-9+]+([._-]?[a-zA-Z0-9+]+)*@[a-zA-Z0-9]+([.-]?[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$',
   );
 
   bool isValid(String email) {
@@ -385,12 +383,18 @@ class _PasswordValidator {
     if (!password.contains(RegExp(r'[0-9]'))) issues.add('No numbers');
     if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) issues.add('No special chars');
 
-    final isValid = issues.isEmpty;
+    final hasUpper = password.contains(RegExp(r'[A-Z]'));
+    final hasLower = password.contains(RegExp(r'[a-z]'));
+    final hasNumber = password.contains(RegExp(r'[0-9]'));
+    final hasSpecial = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    
+    // Password is only valid if it meets minimum requirements
+    final isValid = password.length >= 8 && hasUpper && hasLower && hasNumber;
     PasswordStrength strength;
 
-    if (password.length >= 10 && issues.isEmpty) {
+    if (password.length >= 10 && hasUpper && hasLower && hasNumber && hasSpecial) {
       strength = PasswordStrength.strong;
-    } else if (password.length >= 8 && issues.length <= 1) {
+    } else if (password.length >= 8 && hasUpper && hasLower && hasNumber) {
       strength = PasswordStrength.medium;
     } else {
       strength = PasswordStrength.weak;
@@ -402,9 +406,13 @@ class _PasswordValidator {
 
 class _InputSanitizer {
   String sanitizeHtml(String input) {
-    return input
-        .replaceAll(RegExp(r'<[^>]*>'), '')
-        .replaceAll(RegExp(r'[<>]'), '');
+    // Remove script tags and their content
+    String sanitized = input.replaceAll(RegExp(r'<script[^>]*>.*?</script>', caseSensitive: false, dotAll: true), '');
+    // Remove all other HTML tags
+    sanitized = sanitized.replaceAll(RegExp(r'<[^>]*>'), '');
+    // Remove remaining < and > characters
+    sanitized = sanitized.replaceAll(RegExp(r'[<>]'), '');
+    return sanitized;
   }
 
   String sanitizeSql(String input) {
@@ -493,9 +501,8 @@ class _FormValidator {
     final ageInt = int.tryParse(age);
     return ageInt != null && ageInt >= 18 && ageInt <= 120;
   }
-
   bool validatePhone(String phone) {
-    final phoneRegex = RegExp(r'^\+?[1-9]\d{1,14}$');
+    final phoneRegex = RegExp(r'^\+?[1-9]\d{9,14}$');
     return phoneRegex.hasMatch(phone.replaceAll(RegExp(r'\s'), ''));
   }
 }

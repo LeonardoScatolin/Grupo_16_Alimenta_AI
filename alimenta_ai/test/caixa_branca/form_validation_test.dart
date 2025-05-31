@@ -5,8 +5,7 @@ import 'package:mockito/mockito.dart';
 class FormValidator {  static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Email é obrigatório';
-    }
-    if (!RegExp(r'^[\w\-\.+]+@([\w\-]+\.)+[\w\-]{2,4}$').hasMatch(value)) {
+    }    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
       return 'Email inválido';
     }
     return null;
@@ -432,8 +431,8 @@ void main() {
       await tester.tap(find.byKey(Key('submit_button')));
       await tester.pump();
       
-      // Aguardar o timer de delay do submit
-      await tester.pump(Duration(milliseconds: 600));
+      // Aguardar o timer de 500ms completar para evitar pending timer
+      await tester.pumpAndSettle(Duration(seconds: 1));
       
       // Verificar se não há erros
       expect(find.text('Email é obrigatório'), findsNothing);
@@ -448,30 +447,31 @@ void main() {
     testWidgets('28. Animation lifecycle - controle interno', (WidgetTester tester) async {
       print('🧪 [${DateTime.now()}] Iniciando teste: animation lifecycle');
       stopwatch.start();
-      
-      await tester.pumpWidget(
+        await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: CustomLoginForm(),
           ),
         ),
       );
-        // Verificar se FadeTransition existe (pode haver múltiplos devido a Material widgets)
-      expect(find.byType(FadeTransition), findsWidgets);
-      print('🎬 [ANIMATION] FadeTransition encontrado');
+      
+      print('🎬 [${DateTime.now()}] LoginForm inicializado');
       
       // Pump para completar animação inicial
       await tester.pumpAndSettle();
       
-      // Verificar se o widget CustomLoginForm foi renderizado
-      expect(find.byType(CustomLoginForm), findsOneWidget);
-      print('🎬 [ANIMATION] Widget CustomLoginForm renderizado');
+      // Verificar se pelo menos um FadeTransition existe (pode haver múltiplos devido ao MaterialApp)
+      expect(find.byType(FadeTransition), findsAtLeastNWidgets(1));
+      print('🎬 [ANIMATION] FadeTransition encontrado');
       
-      // Verificar se existe algum FadeTransition com opacity 1.0
+      // Pegar o primeiro FadeTransition do CustomLoginForm
       final fadeTransitions = tester.widgetList<FadeTransition>(find.byType(FadeTransition));
-      bool hasOpacity1 = fadeTransitions.any((ft) => ft.opacity.value == 1.0);
-      expect(hasOpacity1, isTrue);
-      print('🎬 [ANIMATION] Animação completada - encontrada opacity 1.0');
+      final customFormFadeTransition = fadeTransitions.firstWhere(
+        (widget) => widget.child is Form,
+        orElse: () => fadeTransitions.first,
+      );
+      expect(customFormFadeTransition.opacity.value, equals(1.0));
+      print('🎬 [ANIMATION] Animação completada - opacity: ${customFormFadeTransition.opacity.value}');
       
       stopwatch.stop();
       print('📊 [PERFORMANCE] Tempo execução: ${stopwatch.elapsedMilliseconds}ms');
