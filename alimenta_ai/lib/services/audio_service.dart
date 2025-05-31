@@ -660,13 +660,29 @@ class AudioService extends ChangeNotifier {
 
   /// 🎯 Converter resultado da busca em dados estruturados para a interface
   List<Map<String, dynamic>>? getStructuredFoodData() {
-    if (_lastFoodSearchResult == null ||
-        _lastFoodSearchResult!['status'] != true ||
-        _lastFoodSearchResult!['alimentos'] == null) {
+    debugPrint('🔍 DEBUG getStructuredFoodData:');
+    debugPrint('🔍   _lastFoodSearchResult: $_lastFoodSearchResult');
+
+    if (_lastFoodSearchResult == null) {
+      debugPrint('🔍   ❌ _lastFoodSearchResult é null');
+      return null;
+    }
+
+    debugPrint('🔍   Status: ${_lastFoodSearchResult!['status']}');
+
+    if (_lastFoodSearchResult!['status'] != true) {
+      debugPrint('🔍   ❌ Status não é true');
+      return null;
+    }
+
+    if (_lastFoodSearchResult!['alimentos'] == null) {
+      debugPrint('🔍   ❌ Campo alimentos é null');
       return null;
     }
 
     final alimentos = _lastFoodSearchResult!['alimentos'] as List;
+    debugPrint('🔍   ✅ Encontrados ${alimentos.length} alimentos');
+
     return alimentos.map((alimento) {
       return {
         'id': alimento['id'],
@@ -688,5 +704,30 @@ class AudioService extends ChangeNotifier {
   Map<String, dynamic>? getPrimaryFoodData() {
     final foods = getStructuredFoodData();
     return foods?.isNotEmpty == true ? foods!.first : null;
+  }
+
+  /// 🎯 Buscar alimentos usando a transcrição já disponível (sem retranscrever)
+  Future<Map<String, dynamic>?> searchFoodFromExistingTranscription() async {
+    if (_lastTranscription == null || _lastTranscription!.isEmpty) {
+      debugPrint('❌ Nenhuma transcrição disponível para busca');
+      return null;
+    }
+
+    try {
+      debugPrint(
+          '🔍 Buscando alimentos para transcrição existente: $_lastTranscription');
+      final result = await buscarAlimentosPorTranscricao(_lastTranscription!);
+
+      if (result != null) {
+        _lastFoodSearchResult = result;
+        debugPrint('✅ Busca de alimentos concluída com sucesso');
+        notifyListeners();
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('❌ Erro ao buscar alimentos: $e');
+      return null;
+    }
   }
 }

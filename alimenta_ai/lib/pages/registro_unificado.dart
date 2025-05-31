@@ -477,10 +477,31 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           child: CircularProgressIndicator(),
         ),
       );
-
       try {
-        // 🎯 NOVO FLUXO: Usar dados já obtidos pelo AudioService
+        // 🔄 PRIMEIRO: Aguardar a transcrição ser concluída (se ainda não foi)
+        if (audioService.isTranscribing) {
+          debugPrint('⏳ Aguardando transcrição ser concluída...');
+          // Aguardar até que a transcrição termine
+          while (audioService.isTranscribing) {
+            await Future.delayed(const Duration(milliseconds: 100));
+          }
+          debugPrint('✅ Transcrição concluída!');
+        } // 🔄 SEGUNDO: Se não há resultado de busca, tentar realizar a busca agora
+        if (audioService.lastFoodSearchResult == null &&
+            audioService.lastTranscription != null) {
+          debugPrint('🔍 Realizando busca adicional...');
+          await audioService.searchFoodFromExistingTranscription();
+        }
+
+        // 🎯 TERCEIRO: Usar dados já obtidos pelo AudioService
         final foodData = audioService.getPrimaryFoodData();
+
+        // 🐛 DEBUG: Verificar estado dos dados
+        debugPrint('🔍 DEBUG: foodData = $foodData');
+        debugPrint(
+            '🔍 DEBUG: lastFoodSearchResult = ${audioService.lastFoodSearchResult}');
+        debugPrint(
+            '🔍 DEBUG: lastTranscription = ${audioService.lastTranscription}');
 
         if (foodData != null) {
           debugPrint(
