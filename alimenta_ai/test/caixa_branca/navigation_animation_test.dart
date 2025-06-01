@@ -30,10 +30,10 @@ void main() {
       
       await tester.pumpWidget(MaterialApp(
         navigatorKey: navigatorKey,
-        home: TestHomePage(),
+        home: const TestHomePage(),
         routes: {
-          '/second': (context) => TestSecondPage(),
-          '/third': (context) => TestThirdPage(),
+          '/second': (context) => const TestSecondPage(),
+          '/third': (context) => const TestThirdPage(),
         },
       ));
 
@@ -59,9 +59,9 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         initialRoute: '/',
         routes: {
-          '/': (context) => TestHomePage(),
-          '/second': (context) => TestSecondPage(),
-          '/third': (context) => TestThirdPage(),
+          '/': (context) => const TestHomePage(),
+          '/second': (context) => const TestSecondPage(),
+          '/third': (context) => const TestThirdPage(),
         },
       ));
 
@@ -88,7 +88,7 @@ void main() {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TestArgumentPage(),
+                      builder: (context) => const TestArgumentPage(),
                       settings: const RouteSettings(arguments: {'id': 123, 'name': 'Test User'}),
                     ),
                   );
@@ -112,11 +112,11 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Page Transitions');
       
       await tester.pumpWidget(MaterialApp(
-        home: TestHomePage(),
+        home: const TestHomePage(),
         onGenerateRoute: (settings) {
           if (settings.name == '/custom') {
             return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => TestSecondPage(),
+              pageBuilder: (context, animation, secondaryAnimation) => const TestSecondPage(),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 print('🎭 [TRANSITION] Animation value: ${animation.value}');
                 return SlideTransition(
@@ -210,7 +210,7 @@ void main() {
     testWidgets('🎯 Teste de Tween Animations', (WidgetTester tester) async {
       print('🧪 [${DateTime.now()}] Iniciando teste: Tween Animations');
       
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(const MaterialApp(
         home: TestTweenWidget(),
       ));
 
@@ -243,9 +243,9 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Hero Animations');
       
       await tester.pumpWidget(MaterialApp(
-        home: TestHeroPage(),
+        home: const TestHeroPage(),
         routes: {
-          '/hero-detail': (context) => TestHeroDetailPage(),
+          '/hero-detail': (context) => const TestHeroDetailPage(),
         },
       ));
 
@@ -273,9 +273,9 @@ void main() {
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
-                    builder: (context) => SizedBox(
+                    builder: (context) => const SizedBox(
                       height: 200,
-                      child: const Center(child: Text('Modal Content')),
+                      child: Center(child: Text('Modal Content')),
                     ),
                   );
                 },
@@ -306,9 +306,9 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Gesture Navigation');
       
       await tester.pumpWidget(MaterialApp(
-        home: TestGestureNavPage(),
+        home: const TestGestureNavPage(),
         routes: {
-          '/swipe-target': (context) => TestSwipeTargetPage(),
+          '/swipe-target': (context) => const TestSwipeTargetPage(),
         },
       ));      // Swipe to navigate
       await tester.fling(find.text('Swipe me right'), const Offset(300, 0), 600);

@@ -307,9 +307,9 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Responsive Build');
       
       // Teste para layout mobile (largura < 600)
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(const MaterialApp(
         home: MediaQuery(
-          data: const MediaQueryData(size: Size(400, 800)),
+          data: MediaQueryData(size: Size(400, 800)),
           child: ResponsiveTestWidget(),
         ),
       ));
@@ -319,9 +319,9 @@ void main() {
       print('✅ [SUCESSO] Layout mobile detectado');
 
       // Teste para layout tablet (600 <= largura < 1200)
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(const MaterialApp(
         home: MediaQuery(
-          data: const MediaQueryData(size: Size(800, 1200)),
+          data: MediaQueryData(size: Size(800, 1200)),
           child: ResponsiveTestWidget(),
         ),
       ));
@@ -331,9 +331,9 @@ void main() {
       print('✅ [SUCESSO] Layout tablet detectado');
 
       // Teste para layout desktop (largura >= 1200)
-      await tester.pumpWidget(MaterialApp(
+      await tester.pumpWidget(const MaterialApp(
         home: MediaQuery(
-          data: const MediaQueryData(size: Size(1400, 1000)),
+          data: MediaQueryData(size: Size(1400, 1000)),
           child: ResponsiveTestWidget(),
         ),
       ));

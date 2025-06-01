@@ -2,8 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'dart:convert';
-import 'dart:io';
 
 @GenerateMocks([Dio])
 import 'detailed_api_test.mocks.dart';

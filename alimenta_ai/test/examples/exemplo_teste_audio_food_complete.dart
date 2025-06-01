@@ -176,7 +176,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider(
             create: (_) => AudioFoodProvider(audioService),
-            child: AudioFoodRegistrationScreen(),
+            child: const AudioFoodRegistrationScreen(),
           ),
         ),
       );
@@ -250,7 +250,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider(
             create: (_) => AudioFoodProvider(audioService),
-            child: AudioFoodRegistrationScreen(),
+            child: const AudioFoodRegistrationScreen(),
           ),
         ),
       );

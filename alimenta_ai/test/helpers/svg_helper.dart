@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'dart:ui' as ui;
 
 class MockAssetBundle extends Fake implements AssetBundle {
   @override

@@ -4,7 +4,6 @@ import 'package:mockito/annotations.dart';
 import 'package:dio/dio.dart';
 import 'package:record/record.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 
 // Gerando mocks para as dependências

@@ -18,6 +18,7 @@ class _DashboardPageState extends State<DashboardPage>
   late AnimationController _animationController;
   late Animation<double> _progressAnimation;
   String _userName = 'Usuário'; // Nome padrão caso não carregue  @override
+  @override
   void initState() {
     super.initState();
     _animationController = AnimationController(

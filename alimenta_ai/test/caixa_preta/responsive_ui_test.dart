@@ -24,7 +24,7 @@ void main() {
           await tester.pumpWidget(MaterialApp(
             home: MediaQuery(
               data: MediaQueryData(size: Size(width.toDouble(), 800)),
-              child: ResponsiveTestApp(),
+              child: const ResponsiveTestApp(),
             ),
           ));
 
@@ -62,7 +62,7 @@ void main() {
         
         await tester.binding.setSurfaceSize(const Size(320, 600));
         
-        await tester.pumpWidget(MaterialApp(
+        await tester.pumpWidget(const MaterialApp(
           home: OverflowTestWidget(),
         ));
 

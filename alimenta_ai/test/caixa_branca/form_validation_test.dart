@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
 class FormValidator {  static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {

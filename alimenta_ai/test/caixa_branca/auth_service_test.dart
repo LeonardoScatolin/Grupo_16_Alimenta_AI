@@ -8,8 +8,6 @@ import 'dart:io';
 import 'auth_service_test.mocks.dart';
 
 // Gerar mocks: flutter packages pub run build_runner build
-@GenerateMocks([http.Client, SharedPreferences])
-import 'auth_service_test.mocks.dart';
 
 class AuthService {
   final http.Client httpClient;

@@ -3,7 +3,6 @@ import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:async';
 
 @GenerateMocks([http.Client])
 import 'api_service_test.mocks.dart';

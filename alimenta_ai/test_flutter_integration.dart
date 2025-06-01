@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 void main() async {
   print('🧪 Testando integração Flutter com API de persistência...\n');
 
-  final String baseUrl = 'http://127.0.0.1:3333';
+  const String baseUrl = 'http://127.0.0.1:3333';
 
   try {
     // Teste 1: Verificar se API está rodando

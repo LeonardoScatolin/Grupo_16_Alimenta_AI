@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
 
 // Mock da classe AudioService para integração
 class MockAudioServiceProvider extends ChangeNotifier {  bool _isRecording = false;

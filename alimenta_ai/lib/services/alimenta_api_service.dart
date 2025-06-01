@@ -550,9 +550,7 @@ class AlimentaAPIService {
       debugPrint('🔍 Buscando alimentos detalhados para paciente $pacienteId');
       
       final dataParam = data ?? _formatDate(DateTime.now());
-      debugPrint('📅 Data da busca: $dataParam');
-
-      final url = '$baseUrl/alimentos-detalhados/data/$pacienteId?data=$dataParam';
+      debugPrint('📅 Data da busca: $dataParam');      final url = '$baseUrl/alimentos-detalhados/data/$pacienteId?data=$dataParam';
       debugPrint('🌐 URL da requisição: $url');
 
       final response = await http.get(
