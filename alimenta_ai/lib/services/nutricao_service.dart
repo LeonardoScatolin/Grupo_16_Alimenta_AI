@@ -178,7 +178,6 @@ class NutricaoService extends ChangeNotifier {
       final result = await _apiService.obterResumoDiario(_pacienteId!, data);
       debugPrint('📄 Resposta completa da API: $result');
       debugPrint('📄 Tipo do campo data: ${result['data']?.runtimeType}');
-
       if (result['success']) {
         final apiData = result['data'];
         debugPrint('📋 Dados recebidos do campo data: $apiData');
@@ -186,6 +185,7 @@ class NutricaoService extends ChangeNotifier {
 
         // Tentar criar o ResumoDiario com logs detalhados
         try {
+          debugPrint('API data received for ResumoDiario.fromJson: $apiData');
           _resumoAtual = ResumoDiario.fromJson(apiData);
           debugPrint('✅ ResumoDiario criado com sucesso');
           debugPrint('✅ Meta calorias: ${_resumoAtual?.metaDiaria.calorias}');
@@ -395,6 +395,9 @@ class NutricaoService extends ChangeNotifier {
       final result = await _apiService.removerAlimentoDetalhado(registroId);
 
       if (result['success']) {
+        // Atraso estratégico opcional caso o backend precise de tempo para atualizar
+        // await Future.delayed(const Duration(milliseconds: 700));
+
         // Atualizar resumo automaticamente
         await atualizarResumoDiario();
         _setLoading(false);

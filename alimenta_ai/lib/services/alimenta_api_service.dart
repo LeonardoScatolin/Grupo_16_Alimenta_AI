@@ -265,6 +265,8 @@ class AlimentaAPIService {
       final response =
           await http.get(Uri.parse(url), headers: _headersWithAuth);
 
+      debugPrint(
+          'Raw response from obterResumoDiario for patient $pacienteId, date $data: ${response.body}');
       return _handleResponse(response);
     } catch (e) {
       return _handleError(e);
@@ -365,7 +367,7 @@ class AlimentaAPIService {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/alimentos-detalhados/$registroId'),
-        headers: _headers,
+        headers: _headersWithAuth,
       );
 
       return _handleResponse(response);
