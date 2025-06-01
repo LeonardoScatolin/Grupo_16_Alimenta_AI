@@ -158,10 +158,10 @@ class NutricaoService extends ChangeNotifier {
       return [];
     }
   }
+
   // ===============================================
   // 📊 RESUMO E ESTATÍSTICAS
   // ===============================================
-
   /// Obter resumo diário (meta vs consumo)
   Future<void> atualizarResumoDiario([String? data]) async {
     if (_pacienteId == null) {
@@ -170,7 +170,8 @@ class NutricaoService extends ChangeNotifier {
       return;
     }
 
-    debugPrint('🔄 Atualizando resumo diário para paciente $_pacienteId');
+    debugPrint(
+        '🔄 Atualizando resumo diário para paciente $_pacienteId (nutri: $_nutriId)');
     _setLoading(true);
     _error = null;
 
@@ -178,43 +179,56 @@ class NutricaoService extends ChangeNotifier {
       final result = await _apiService.obterResumoDiario(_pacienteId!, data);
       debugPrint('📄 Resposta completa da API: $result');
       debugPrint('📄 Tipo do campo data: ${result['data']?.runtimeType}');
+
       if (result['success']) {
         final apiData = result['data'];
         debugPrint('📋 Dados recebidos do campo data: $apiData');
         debugPrint('📋 Estrutura do JSON: ${apiData?.keys?.toList()}');
+        debugPrint('API data received for ResumoDiario.fromJson: $apiData');
 
         // Tentar criar o ResumoDiario com logs detalhados
         try {
-          debugPrint('API data received for ResumoDiario.fromJson: $apiData');
           _resumoAtual = ResumoDiario.fromJson(apiData);
           debugPrint('✅ ResumoDiario criado com sucesso');
           debugPrint('✅ Meta calorias: ${_resumoAtual?.metaDiaria.calorias}');
+          debugPrint('✅ Meta proteina: ${_resumoAtual?.metaDiaria.proteina}');
           debugPrint(
               '✅ Consumo calorias: ${_resumoAtual?.consumoAtual.calorias}');
 
           // Verificar se as metas estão zeradas ou ausentes - implementar fallback
-          if (_resumoAtual != null &&
-              (_resumoAtual!.metaDiaria.calorias == 0 ||
-                  _resumoAtual!.metaDiaria.proteina == 0)) {
+          if (_resumoAtual != null) {
+            final metaCalorias = _resumoAtual!.metaDiaria.calorias;
+            final metaProteina = _resumoAtual!.metaDiaria.proteina;
+
             debugPrint(
-                '⚠️ Metas ausentes no resumo. Buscando metas públicas...');
-            await _aplicarFallbackMetas(data);
+                '🔍 Verificando metas - Calorias: $metaCalorias, Proteína: $metaProteina');
+            if (metaCalorias <= 0 || metaProteina <= 0) {
+              debugPrint(
+                  '⚠️ Metas ausentes ou zeradas no resumo. Aplicando fallback...');
+              // Verificar se temos os IDs necessários para o fallback
+              if (_nutriId != null) {
+                await _aplicarFallbackMetas(data);
+              } else {
+                debugPrint('❌ Nutri ID não configurado - usando metas padrão');
+                _aplicarMetasPadrao();
+              }
+            } else {
+              debugPrint('✅ Metas válidas encontradas no resumo');
+            }
           }
         } catch (parseError) {
           debugPrint('💥 Erro ao fazer parse do ResumoDiario: $parseError');
           debugPrint('💥 Stack trace: ${parseError.toString()}');
           _error = 'Erro ao processar dados da API: $parseError';
         }
-
-        _setLoading(false);
       } else {
         _error = result['error'] ?? 'Erro ao obter resumo';
         debugPrint('❌ Erro na API: $_error');
-        _setLoading(false);
       }
     } catch (e) {
       _error = 'Erro inesperado: $e';
       debugPrint('💥 Erro inesperado: $e');
+    } finally {
       _setLoading(false);
     }
   }
@@ -223,28 +237,88 @@ class NutricaoService extends ChangeNotifier {
   Future<void> _aplicarFallbackMetas(String? data) async {
     try {
       debugPrint('🔄 Aplicando fallback de metas...');
-      final metasPublicas = await buscarMetasPublicas(data: data);
+      debugPrint('🔍 Paciente ID: $_pacienteId, Nutri ID: $_nutriId');
 
-      if (metasPublicas != null && _resumoAtual != null) {
-        // Recriar o _resumoAtual com as metas obtidas separadamente
-        _resumoAtual = ResumoDiario(
-          data: _resumoAtual!.data,
-          metaDiaria: metasPublicas,
-          consumoAtual: _resumoAtual!.consumoAtual,
-          restante: _resumoAtual!.restante,
-          percentualAtingido: _resumoAtual!.percentualAtingido,
-          registroEncontrado: _resumoAtual!.registroEncontrado,
-        );
+      // Usar uma chamada direta à API sem afetar o loading state principal
+      if (_pacienteId == null || _nutriId == null) {
+        debugPrint('❌ IDs não configurados para buscar metas');
+        return;
+      }
 
-        debugPrint('✅ Fallback de metas aplicado com sucesso');
-        debugPrint(
-            '✅ Nova meta calorias: ${_resumoAtual!.metaDiaria.calorias}');
-        notifyListeners();
+      final response = await _apiService.buscarMetasPublicas(
+        pacienteId: _pacienteId!,
+        nutriId: _nutriId!,
+        data: data,
+      );
+
+      debugPrint('📄 Resposta da API de metas: $response');
+
+      if (response['success'] == true && response['meta'] != null) {
+        try {
+          final metasPublicas = MetaDiaria.fromJson(response['meta']);
+          debugPrint(
+              '✅ Metas obtidas do fallback: ${metasPublicas.calorias} cal');
+
+          if (_resumoAtual != null) {
+            // Criar uma nova instância de MetaDiaria com as metas corretas
+            final novaMetaDiaria = MetaDiaria(
+              proteina: metasPublicas.proteina,
+              carbo: metasPublicas.carbo,
+              gordura: metasPublicas.gordura,
+              calorias: metasPublicas.calorias,
+            );
+
+            // Recriar o _resumoAtual com as metas obtidas separadamente
+            _resumoAtual = ResumoDiario(
+              data: _resumoAtual!.data,
+              metaDiaria: novaMetaDiaria,
+              consumoAtual: _resumoAtual!.consumoAtual,
+              restante: _resumoAtual!.restante,
+              percentualAtingido: _resumoAtual!.percentualAtingido,
+              registroEncontrado: _resumoAtual!.registroEncontrado,
+            );
+
+            debugPrint('✅ Fallback de metas aplicado com sucesso');
+            debugPrint(
+                '✅ Nova meta calorias: ${_resumoAtual!.metaDiaria.calorias}');
+            notifyListeners();
+          }
+        } catch (parseError) {
+          debugPrint('❌ Erro ao parsear metas do fallback: $parseError');
+        }
       } else {
-        debugPrint('⚠️ Fallback de metas falhou - metas não encontradas');
+        debugPrint(
+            '⚠️ Fallback de metas falhou - resposta: ${response['error'] ?? 'sem dados'}');
       }
     } catch (e) {
       debugPrint('❌ Erro no fallback de metas: $e');
+      debugPrint('❌ Stack trace: ${e.toString()}');
+    }
+  }
+
+  /// Aplicar metas padrão quando não é possível obter do servidor
+  void _aplicarMetasPadrao() {
+    if (_resumoAtual != null) {
+      debugPrint('🔄 Aplicando metas padrão...');
+
+      final metasPadrao = MetaDiaria(
+        proteina: 150.0, // 150g proteína
+        carbo: 300.0, // 300g carboidratos
+        gordura: 80.0, // 80g gordura
+        calorias: 2500.0, // 2500 kcal
+      );
+
+      _resumoAtual = ResumoDiario(
+        data: _resumoAtual!.data,
+        metaDiaria: metasPadrao,
+        consumoAtual: _resumoAtual!.consumoAtual,
+        restante: _resumoAtual!.restante,
+        percentualAtingido: _resumoAtual!.percentualAtingido,
+        registroEncontrado: _resumoAtual!.registroEncontrado,
+      );
+
+      debugPrint('✅ Metas padrão aplicadas: ${metasPadrao.calorias} cal');
+      notifyListeners();
     }
   }
 
@@ -497,7 +571,6 @@ class NutricaoService extends ChangeNotifier {
   // ===============================================
   // 📊 METAS NUTRICIONAIS
   // ===============================================
-
   /// Buscar metas sem necessidade de autenticação
   Future<MetaDiaria?> buscarMetasPublicas({
     int? pacienteIdOverride,
@@ -505,12 +578,16 @@ class NutricaoService extends ChangeNotifier {
     String? data,
   }) async {
     try {
+      debugPrint('🔄 Iniciando busca de metas públicas...');
       _setLoading(true);
       _error = null;
 
       // Usar IDs fornecidos ou os configurados no serviço
       final pId = pacienteIdOverride ?? _pacienteId;
       final nId = nutriIdOverride ?? _nutriId;
+
+      debugPrint(
+          '🔍 IDs para busca - Paciente: $pId, Nutri: $nId, Data: $data');
 
       if (pId == null || nId == null) {
         throw Exception('IDs de paciente e nutricionista são obrigatórios');
@@ -522,18 +599,30 @@ class NutricaoService extends ChangeNotifier {
         data: data,
       );
 
+      debugPrint('📄 Resposta completa da API de metas: $response');
+      debugPrint(
+          '📄 Success: ${response['success']}, Meta: ${response['meta']}');
+
       if (response['success'] == true && response['meta'] != null) {
-        final meta = MetaDiaria.fromJson(response['meta']);
-        debugPrint(
-            '✅ Metas carregadas: ${meta.calorias} cal, ${meta.proteina}g prot');
-        return meta;
+        try {
+          final meta = MetaDiaria.fromJson(response['meta']);
+          debugPrint(
+              '✅ Metas parseadas com sucesso: ${meta.calorias} cal, ${meta.proteina}g prot');
+          return meta;
+        } catch (parseError) {
+          debugPrint('❌ Erro ao parsear MetaDiaria: $parseError');
+          debugPrint('❌ Dados recebidos: ${response['meta']}');
+          _error = 'Erro ao processar dados das metas: $parseError';
+          return null;
+        }
       } else {
         _error = response['error'] ?? 'Erro ao buscar metas';
+        debugPrint('❌ Falha na busca de metas: $_error');
         return null;
       }
     } catch (e) {
       _error = 'Erro ao buscar metas: $e';
-      debugPrint('❌ Erro ao buscar metas: $e');
+      debugPrint('❌ Erro geral ao buscar metas: $e');
       return null;
     } finally {
       _setLoading(false);
