@@ -131,7 +131,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       }
     }
   }
-
   void _carregarDadosNutricao() async {
     final nutricaoService =
         Provider.of<NutricaoService>(context, listen: false);
@@ -146,14 +145,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     final dateString =
         "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
-    // Garantir que dados iniciem zerados
-    setState(() {
-      totalDailyCalories = 0;
-      proteinTotal = 0;
-      fatTotal = 0;
-      carbsTotal = 0;
-      initializeMeals(); // Reinicializar com dados vazios
-    });    // Carregar alimentos persistidos
+    // Carregar alimentos persistidos (só na inicialização da página)
     await _loadDetailedFoodsForDate(dateString);
 
     // NÃO carregar resumo da API pois pode sobrescrever os dados já carregados
@@ -244,18 +236,25 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   void _loadMealsForDate(DateTime date) async {
     // Carregar dados para a data selecionada
     final dateString =
-        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";    debugPrint('🗓️ Carregando dados para a data: $dateString');
 
-    debugPrint('🗓️ Carregando dados para a data: $dateString');
-
-    // Limpar dados locais primeiro
-    setState(() {
-      totalDailyCalories = 0;
-      proteinTotal = 0;
-      fatTotal = 0;
-      carbsTotal = 0;
-      initializeMeals(); // Reinicializar com dados vazios
-    });
+    // Só limpar dados se for uma mudança real de data
+    bool isDifferentDate = dateString != 
+        "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+    
+    if (isDifferentDate) {
+      debugPrint('📅 Mudança de data detectada - limpando dados locais');
+      // Limpar dados locais primeiro só quando necessário
+      setState(() {
+        totalDailyCalories = 0;
+        proteinTotal = 0;
+        fatTotal = 0;
+        carbsTotal = 0;
+        initializeMeals(); // Reinicializar com dados vazios
+      });
+    } else {
+      debugPrint('📅 Mesma data - mantendo dados existentes');
+    }
 
     // 1° Passo: Carregar metas para a data específica ANTES dos alimentos
     _carregarMetasParaData(dateString);
@@ -289,16 +288,19 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           '- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
       debugPrint(
           '- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
-      if (alimentosAgrupados.isNotEmpty) {
-        debugPrint(
+      if (alimentosAgrupados.isNotEmpty) {        debugPrint(
             '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}');
 
         // Atualizar as meals com os alimentos carregados
         setState(() {
-          // Primeiro, limpar todos os itens das refeições
-          for (var meal in meals) {
-            meal.items.clear();
-            meal.totalCalories = 0;
+          // Só limpar se realmente existem dados para carregar do backend
+          // Isso evita limpar dados locais recém-adicionados quando o backend está vazio
+          if (alimentosAgrupados.isNotEmpty) {
+            // Primeiro, limpar todos os itens das refeições
+            for (var meal in meals) {
+              meal.items.clear();
+              meal.totalCalories = 0;
+            }
           }
 
           // Adicionar alimentos carregados
@@ -703,7 +705,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               proteinTotal += novoItem.protein;
               fatTotal += novoItem.fat;
               carbsTotal += novoItem.carbs;
-            }); // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
+            });            // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
             try {
               await _salvarAlimentoNoBackend(
                 nomeAlimento: foodData['nome'],
@@ -716,13 +718,23 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               );
               debugPrint('✅ Alimento salvo no backend com sucesso!');
 
-              // 🔄 RECARREGAR DADOS DO BACKEND PARA GARANTIR PERSISTÊNCIA VISUAL
-              final dateString =
-                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-              await _loadDetailedFoodsForDate(dateString);
+              // ⚠️ NÃO RECARREGAR - Os dados já estão na UI e foram salvos no backend
+              // O reload pode causar perda de dados se o backend ainda não retornou
+              // await _loadDetailedFoodsForDate(dateString);
             } catch (e) {
               debugPrint('⚠️ Erro ao salvar no backend: $e');
-              // Continuar mesmo se der erro no backend (dados já estão na UI)
+              // Se deu erro, remover da UI também
+              setState(() {
+                meals[mealIndex].items.removeLast();
+                meals[mealIndex].totalCalories = meals[mealIndex]
+                    .items
+                    .fold(0, (sum, item) => sum + item.calories);
+                totalDailyCalories -= novoItem.calories;
+                proteinTotal -= novoItem.protein;
+                fatTotal -= novoItem.fat;
+                carbsTotal -= novoItem.carbs;
+              });
+              rethrow; // Re-throw para mostrar erro ao usuário
             }
 
             // Limpar dados de gravação
