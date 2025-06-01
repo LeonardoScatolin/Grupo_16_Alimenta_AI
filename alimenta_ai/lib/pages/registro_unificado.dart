@@ -293,17 +293,13 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
       if (alimentosAgrupados.isNotEmpty) {
         debugPrint(
-            '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}');
-
-        // Mapear os tipos de refeição para corresponder aos nomes das meals
+            '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}'); // Mapear os tipos de refeição para corresponder aos nomes das meals
         final Map<String, String> mapeamentoRefeicoes = {
-          'Café da Manhã': 'Café da Manhã',
-          'Almoço': 'Almoço',
-          'Lanche da Manhã': 'Lanches',
-          'Lanche da Tarde': 'Lanches',
-          'Jantar': 'Janta',
-          'Ceia': 'Lanches',
-          'Outro': 'Lanches',
+          'cafe_manha': 'Café da Manhã',
+          'almoco': 'Almoço',
+          'lanches': 'Lanches',
+          'janta': 'Janta',
+          'outro': 'Lanches', // Mapear 'outro' para Lanches também
         };
 
         // Atualizar as meals com os alimentos carregados
@@ -312,16 +308,21 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           for (var meal in meals) {
             meal.items.clear();
             meal.totalCalories = 0;
-          }
-
-          // Adicionar alimentos carregados
+          } // Adicionar alimentos carregados
           alimentosAgrupados.forEach((tipoRefeicaoOriginal, alimentos) {
             final tipoRefeicaoMapeado =
                 mapeamentoRefeicoes[tipoRefeicaoOriginal] ?? 'Lanches';
 
+            debugPrint(
+                '🍽️ Processando: $tipoRefeicaoOriginal -> $tipoRefeicaoMapeado (${alimentos.length} alimentos)');
+
             // Encontrar a meal correspondente
             final mealIndex =
                 meals.indexWhere((meal) => meal.title == tipoRefeicaoMapeado);
+
+            debugPrint(
+                '📍 Meal encontrada no índice: $mealIndex para "$tipoRefeicaoMapeado"');
+
             if (mealIndex != -1) {
               // Converter RegistroAlimentoDetalhado para MealItemData
               final itensConvertidos = alimentos.map((alimento) {
@@ -335,18 +336,33 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                   registroId: alimento.id, // Salvar ID para permitir remoção
                 );
               }).toList();
-
               meals[mealIndex].items.addAll(itensConvertidos);
+
+              debugPrint(
+                  '✅ Adicionados ${itensConvertidos.length} itens à "${meals[mealIndex].title}"');
 
               // Recalcular total de calorias da refeição
               meals[mealIndex].totalCalories = meals[mealIndex]
                   .items
                   .fold(0, (sum, item) => sum + item.calories);
-            }
-          });
 
-          // Recalcular totais gerais
+              debugPrint(
+                  '📊 "${meals[mealIndex].title}" agora tem ${meals[mealIndex].items.length} itens e ${meals[mealIndex].totalCalories} kcal');
+            } else {
+              debugPrint('❌ ERRO: Meal "$tipoRefeicaoMapeado" não encontrada!');
+            }
+          }); // Recalcular totais gerais
           calculateTotalCalories();
+
+          // Debug: Verificar estado final das meals
+          debugPrint('📊 Estado final das refeições:');
+          for (var meal in meals) {
+            debugPrint(
+                '  ${meal.title}: ${meal.items.length} itens, ${meal.totalCalories} cal');
+            for (var item in meal.items) {
+              debugPrint('    - ${item.name} (${item.calories} cal)');
+            }
+          }
         });
 
         debugPrint(
@@ -810,10 +826,21 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   Future<String?> _getStoredUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString('user_id');
+      String? userId = prefs.getString('user_id');
+
+      // Fallback para usuário padrão se não encontrar
+      if (userId == null || userId.isEmpty) {
+        debugPrint(
+            '⚠️ user_id não encontrado, usando padrão: $DEFAULT_PACIENTE_ID');
+        return DEFAULT_PACIENTE_ID.toString();
+      }
+
+      debugPrint('✅ user_id encontrado: $userId');
+      return userId;
     } catch (e) {
       debugPrint('❌ Erro ao obter user_id: $e');
-      return null;
+      debugPrint('🔄 Usando user_id padrão: $DEFAULT_PACIENTE_ID');
+      return DEFAULT_PACIENTE_ID.toString();
     }
   }
 
