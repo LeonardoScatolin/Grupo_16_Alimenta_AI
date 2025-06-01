@@ -140,16 +140,28 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     // Carregar metas públicas primeiro
     _carregarMetasPublicas();
 
-    // Carregar resumo diário da API real
-    nutricaoService.atualizarResumoDiario().then((_) {
-      // Atualizar interface com dados da API
-      _atualizarDadosComAPI();
-    });
-
-    // Carregar alimentos detalhados para a data atual
+    // Carregar alimentos detalhados para a data atual PRIMEIRO
     final dateString =
         "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+
+    // Garantir que dados iniciem zerados
+    setState(() {
+      totalDailyCalories = 0;
+      proteinTotal = 0;
+      fatTotal = 0;
+      carbsTotal = 0;
+      initializeMeals(); // Reinicializar com dados vazios
+    });
+
+    // Carregar alimentos persistidos
     await _loadDetailedFoodsForDate(dateString);
+
+    // Carregar resumo diário da API real (mas sem sobrescrever os dados já calculados)
+    nutricaoService.atualizarResumoDiario().then((_) {
+      // Não atualizar dados automaticamente, pois já foram calculados pelos alimentos
+      debugPrint(
+          '✅ Resumo da API carregado, mas mantendo dados calculados dos alimentos');
+    });
   }
 
   /// Carregar metas definidas pela nutricionista (sem autenticação)
@@ -265,9 +277,17 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         Provider.of<NutricaoService>(context, listen: false);
 
     try {
+      debugPrint('🔍 Iniciando carregamento de alimentos para $dateString...');
+
       // Buscar alimentos detalhados para a data agrupados por refeição
       final alimentosAgrupados =
           await nutricaoService.obterAlimentosPorData(dateString);
+
+      debugPrint('📊 Resultado da busca:');
+      debugPrint(
+          '- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
+      debugPrint(
+          '- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
 
       if (alimentosAgrupados.isNotEmpty) {
         debugPrint(
@@ -330,10 +350,33 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         debugPrint(
             '✅ Carregados ${alimentosAgrupados.values.expand((x) => x).length} alimentos para $dateString');
       } else {
-        debugPrint('ℹ️ Nenhum alimento encontrado para $dateString');
+        debugPrint(
+            'ℹ️ Nenhum alimento encontrado para $dateString - mantendo dados zerados');
+        // Garantir que os dados ficam zerados quando não há alimentos
+        setState(() {
+          for (var meal in meals) {
+            meal.items.clear();
+            meal.totalCalories = 0;
+          }
+          totalDailyCalories = 0;
+          proteinTotal = 0;
+          fatTotal = 0;
+          carbsTotal = 0;
+        });
       }
     } catch (e) {
       debugPrint('❌ Erro ao carregar alimentos detalhados: $e');
+      // Em caso de erro, garantir que dados ficam zerados
+      setState(() {
+        for (var meal in meals) {
+          meal.items.clear();
+          meal.totalCalories = 0;
+        }
+        totalDailyCalories = 0;
+        proteinTotal = 0;
+        fatTotal = 0;
+        carbsTotal = 0;
+      });
     }
   }
 
@@ -692,26 +735,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         debugPrint('❌ Erro ao processar alimento: $e');
         setState(() => showRecordingModal = true); // Voltar ao modal
       }
-    }
-  }
-
-  // Atualizar dados das refeições com dados da API
-  void _atualizarDadosComAPI() {
-    final nutricaoService =
-        Provider.of<NutricaoService>(context, listen: false);
-    final resumo = nutricaoService.resumoAtual;
-
-    if (resumo != null && resumo.registroEncontrado) {
-      setState(() {
-        // Atualizar totais do dia com dados reais da API
-        totalDailyCalories = resumo.consumoAtual.calorias.round();
-        proteinTotal = resumo.consumoAtual.proteina.round();
-        fatTotal = resumo.consumoAtual.gordura.round();
-        carbsTotal = resumo.consumoAtual.carbo.round();
-
-        // Para dados detalhados das refeições, seria necessário uma API específica
-        // Por enquanto, mantemos as refeições vazias até que os dados sejam adicionados via áudio
-      });
     }
   }
 

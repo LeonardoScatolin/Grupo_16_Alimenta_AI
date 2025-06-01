@@ -548,16 +548,60 @@ class NutricaoService extends ChangeNotifier {
       notifyListeners();
       return {};
     }
-
     try {
       final result =
           await _apiService.obterAlimentosDetalhados(_pacienteId!, data);
 
       if (result['success']) {
-        final List<dynamic> alimentosJson = result['data'] ?? [];
+        List<dynamic> alimentosJson = [];
+
+        // A API pode retornar os dados em formatos diferentes
+        if (result['data'] is List) {
+          // Formato simples: lista direta
+          alimentosJson = result['data'];
+        } else if (result['data'] is Map) {
+          // Formato complexo: objeto com estrutura aninhada
+          final dataMap = result['data'] as Map<String, dynamic>;
+
+          // Verificar se há alimentos agrupados por refeição
+          if (dataMap.containsKey('alimentos')) {
+            final alimentosPorRefeicao =
+                dataMap['alimentos'] as Map<String, dynamic>;
+
+            // Juntar todos os alimentos de todas as refeições
+            for (final entry in alimentosPorRefeicao.entries) {
+              if (entry.value is List) {
+                alimentosJson.addAll(entry.value as List);
+              }
+            }
+          } else {
+            // Tentar encontrar uma lista de alimentos no nível raiz
+            for (final value in dataMap.values) {
+              if (value is List) {
+                alimentosJson.addAll(value);
+                break;
+              }
+            }
+          }
+        }
+
+        debugPrint(
+            '🔍 Processando ${alimentosJson.length} alimentos encontrados');
+
         final List<RegistroAlimentoDetalhado> alimentos = alimentosJson
-            .map((json) => RegistroAlimentoDetalhado.fromJson(json))
+            .map((json) {
+              try {
+                return RegistroAlimentoDetalhado.fromJson(json);
+              } catch (e) {
+                debugPrint('❌ Erro ao processar alimento: $e\nJSON: $json');
+                return null;
+              }
+            })
+            .where((alimento) => alimento != null)
+            .cast<RegistroAlimentoDetalhado>()
             .toList();
+
+        debugPrint('✅ ${alimentos.length} alimentos processados com sucesso');
 
         // Agrupar por tipo de refeição
         final Map<String, List<RegistroAlimentoDetalhado>> alimentosAgrupados =
@@ -571,6 +615,8 @@ class NutricaoService extends ChangeNotifier {
           alimentosAgrupados[tipoRefeicao]!.add(alimento);
         }
 
+        debugPrint(
+            '📊 Alimentos agrupados: ${alimentosAgrupados.keys.toList()}');
         return alimentosAgrupados;
       } else {
         _error = result['error'] ?? 'Erro ao buscar alimentos';

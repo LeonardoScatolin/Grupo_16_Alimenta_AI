@@ -633,24 +633,38 @@ class RegistroAlimentoDetalhado {
     required this.dataRegistro,
     required this.createdAt,
   });
-
   factory RegistroAlimentoDetalhado.fromJson(Map<String, dynamic> json) {
     return RegistroAlimentoDetalhado(
-      id: json['id'] ?? 0,
+      id: json['registro_id'] ?? json['id'] ?? 0,
       pacienteId: json['paciente_id'] ?? 0,
       nutriId: json['nutri_id'] ?? 0,
-      nomeAlimento: json['nome_alimento'] ?? '',
-      quantidade: (json['quantidade'] ?? 0).toDouble(),
+      nomeAlimento: json['alimento_nome'] ?? json['nome_alimento'] ?? '',
+      quantidade: double.tryParse(json['quantidade_gramas']?.toString() ??
+              json['quantidade']?.toString() ??
+              '0') ??
+          0.0,
       tipoRefeicao: json['tipo_refeicao'] ?? '',
-      calorias: (json['calorias'] ?? 0).toDouble(),
-      proteinas: (json['proteinas'] ?? 0).toDouble(),
-      carboidratos: (json['carboidratos'] ?? 0).toDouble(),
-      gorduras: (json['gorduras'] ?? 0).toDouble(),
+      calorias: double.tryParse(json['calorias_item']?.toString() ??
+              json['calorias']?.toString() ??
+              '0') ??
+          0.0,
+      proteinas: double.tryParse(json['proteinas_item']?.toString() ??
+              json['proteinas']?.toString() ??
+              '0') ??
+          0.0,
+      carboidratos: double.tryParse(json['carboidratos_item']?.toString() ??
+              json['carboidratos']?.toString() ??
+              '0') ??
+          0.0,
+      gorduras: double.tryParse(json['gordura_item']?.toString() ??
+              json['gorduras']?.toString() ??
+              '0') ??
+          0.0,
       observacoes: json['observacoes'],
-      dataRegistro: DateTime.parse(
-          json['data_registro'] ?? DateTime.now().toIso8601String()),
-      createdAt: DateTime.parse(
-          json['created_at'] ?? DateTime.now().toIso8601String()),
+      dataRegistro: DateTime.tryParse(
+              json['data_consumo'] ?? json['data_registro'] ?? '') ??
+          DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
     );
   }
 
@@ -674,21 +688,29 @@ class RegistroAlimentoDetalhado {
 
   // Método para obter nome amigável do tipo de refeição
   String get tipoRefeicaoAmigavel {
-    switch (tipoRefeicao) {
+    final tipo = tipoRefeicao.toLowerCase().trim();
+    switch (tipo) {
+      case 'café da manhã':
       case 'cafe_manha':
+      case 'cafe da manha':
         return 'Café da Manhã';
+      case 'almoço':
       case 'almoco':
         return 'Almoço';
       case 'jantar':
-        return 'Jantar';
+      case 'janta':
+        return 'Janta';
+      case 'lanche da manhã':
       case 'lanche_manha':
-        return 'Lanche da Manhã';
+        return 'Lanches';
+      case 'lanche da tarde':
       case 'lanche_tarde':
-        return 'Lanche da Tarde';
+      case 'lanche':
+        return 'Lanches';
       case 'ceia':
-        return 'Ceia';
+        return 'Lanches';
       default:
-        return 'Outro';
+        return 'Lanches';
     }
   }
 }
