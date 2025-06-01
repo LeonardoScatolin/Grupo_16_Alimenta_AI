@@ -116,7 +116,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: _buildHeaders com token');
       stopwatch.start();
       
-      final token = 'test_token_123';
+      const token = 'test_token_123';
       final headers = apiService._buildHeaders(token);
       
       stopwatch.stop();
@@ -223,12 +223,12 @@ void main() {
       
       when(mockHttpClient.get(any, headers: anyNamed('headers')))
           .thenAnswer((_) async {
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 2));
         return http.Response('{"data": "delayed"}', 200);
       });
       
       final future = apiService.getUserData('123', 'token');
-      final result = await future.timeout(Duration(seconds: 3));
+      final result = await future.timeout(const Duration(seconds: 3));
       
       stopwatch.stop();
       print('📊 [PERFORMANCE] Tempo execução: ${stopwatch.elapsedMilliseconds}ms');

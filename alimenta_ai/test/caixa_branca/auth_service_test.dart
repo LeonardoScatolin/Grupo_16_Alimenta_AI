@@ -82,8 +82,8 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: _generateTokenHash');
       stopwatch.start();
       
-      final email = 'test@test.com';
-      final password = 'password123';
+      const email = 'test@test.com';
+      const password = 'password123';
       final expectedHash = base64Encode('$email:$password'.codeUnits);
       
       // Acessando método privado através de reflexão para caixa branca
@@ -196,7 +196,7 @@ void main() {
         any,
         headers: anyNamed('headers'),
         body: anyNamed('body'),
-      )).thenThrow(SocketException('Connection timeout'));
+      )).thenThrow(const SocketException('Connection timeout'));
       
       bool exceptionCaught = false;
       try {

@@ -19,7 +19,7 @@ class CacheService {
   
   // Método interno para iniciar timer de limpeza
   void _startCleanupTimer() {
-    _cleanupTimer = Timer.periodic(Duration(minutes: 5), (timer) {
+    _cleanupTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _cleanupExpiredEntries();
     });
   }
@@ -190,7 +190,7 @@ void main() {
     
     setUp(() {
       print('🧪 [${DateTime.now().toIso8601String()}] Setting up cache tests');
-      cacheService = CacheService(maxSize: 5, defaultTtl: Duration(seconds: 1));
+      cacheService = CacheService(maxSize: 5, defaultTtl: const Duration(seconds: 1));
     });
     
     tearDown(() {
@@ -228,14 +228,14 @@ void main() {
         print('🧪 [${DateTime.now().toIso8601String()}] Testing expired entries cleanup');
         
         // Adiciona entradas com TTL curto
-        cacheService.put('key1', 'value1', ttl: Duration(milliseconds: 100));
-        cacheService.put('key2', 'value2', ttl: Duration(milliseconds: 100));
-        cacheService.put('key3', 'value3', ttl: Duration(seconds: 10));
+        cacheService.put('key1', 'value1', ttl: const Duration(milliseconds: 100));
+        cacheService.put('key2', 'value2', ttl: const Duration(milliseconds: 100));
+        cacheService.put('key3', 'value3', ttl: const Duration(seconds: 10));
         
         expect(cacheService._cache.length, equals(3));
         
         // Espera expiração
-        await Future.delayed(Duration(milliseconds: 150));
+        await Future.delayed(const Duration(milliseconds: 150));
         
         // Força limpeza manual
         cacheService._cleanupExpiredEntries();
@@ -251,11 +251,11 @@ void main() {
       test('deve preservar entradas não expiradas na limpeza', () async {
         print('🧪 [${DateTime.now().toIso8601String()}] Testing preservation of non-expired entries');
         
-        cacheService.put('valid1', 'data1', ttl: Duration(hours: 1));
-        cacheService.put('valid2', 'data2', ttl: Duration(hours: 1));
-        cacheService.put('expired', 'data', ttl: Duration(milliseconds: 50));
+        cacheService.put('valid1', 'data1', ttl: const Duration(hours: 1));
+        cacheService.put('valid2', 'data2', ttl: const Duration(hours: 1));
+        cacheService.put('expired', 'data', ttl: const Duration(milliseconds: 50));
         
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         cacheService._cleanupExpiredEntries();
         
         expect(cacheService.containsKey('valid1'), isTrue);
@@ -298,13 +298,13 @@ void main() {
         cacheService.put('old5', 'value5');
         
         // Simula delay para diferenciação de timestamps
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
         
         // Acessa algumas entradas para atualizar lastAccessed
         cacheService.get('old1');
         cacheService.get('old3');
         
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
         
         // Adiciona nova entrada que deve remover as menos recentemente acessadas
         cacheService.put('new1', 'newValue');
@@ -325,9 +325,9 @@ void main() {
         cacheService.put('data1', 'small');
         cacheService.put('data2', 'medium data string');
         cacheService.put('data3', 'large data string with more content');
-        cacheService.put('expired', 'temp', ttl: Duration(milliseconds: 50));
+        cacheService.put('expired', 'temp', ttl: const Duration(milliseconds: 50));
         
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         
         final stats = cacheService._generateStats();
         
@@ -410,7 +410,7 @@ void main() {
         print('🧪 [${DateTime.now().toIso8601String()}] Testing different data types');
         
         // Usar um cache maior para este teste específico
-        final largeCacheService = CacheService(maxSize: 10, defaultTtl: Duration(minutes: 30));
+        final largeCacheService = CacheService(maxSize: 10, defaultTtl: const Duration(minutes: 30));
         
         largeCacheService.put('string', 'text');
         largeCacheService.put('int', 42);
@@ -433,11 +433,11 @@ void main() {
       test('deve remover entradas expiradas no acesso', () async {
         print('🧪 [${DateTime.now().toIso8601String()}] Testing expired entry removal on access');
         
-        cacheService.put('temp', 'data', ttl: Duration(milliseconds: 100));
+        cacheService.put('temp', 'data', ttl: const Duration(milliseconds: 100));
         
         expect(cacheService.containsKey('temp'), isTrue);
         
-        await Future.delayed(Duration(milliseconds: 150));
+        await Future.delayed(const Duration(milliseconds: 150));
         
         expect(cacheService.get('temp'), isNull);
         expect(cacheService.containsKey('temp'), isFalse);

@@ -117,7 +117,7 @@ class _CustomLoginFormState extends State<CustomLoginForm> with TickerProviderSt
         _isLoading = true;
       });
       
-      await Future.delayed(Duration(milliseconds: 500)); // Simula delay
+      await Future.delayed(const Duration(milliseconds: 500)); // Simula delay
       
       widget.onSubmit?.call(_emailController.text, _passwordController.text);
       
@@ -136,37 +136,37 @@ class _CustomLoginFormState extends State<CustomLoginForm> with TickerProviderSt
         child: Column(
           children: [
             TextFormField(
-              key: Key('email_field'),
+              key: const Key('email_field'),
               controller: _emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email),
               ),
               validator: FormValidator.validateEmail,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextFormField(
-              key: Key('password_field'),
+              key: const Key('password_field'),
               controller: _passwordController,
               obscureText: _isObscure,
               decoration: InputDecoration(
                 labelText: 'Senha',
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock),
                 suffixIcon: IconButton(
-                  key: Key('toggle_password'),
+                  key: const Key('toggle_password'),
                   icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
                   onPressed: _togglePasswordVisibility,
                 ),
               ),
               validator: FormValidator.validatePassword,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
-              key: Key('submit_button'),
+              key: const Key('submit_button'),
               onPressed: _isLoading ? null : _submitForm,
               child: _isLoading 
-                ? CircularProgressIndicator()
-                : Text('Entrar'),
+                ? const CircularProgressIndicator()
+                : const Text('Entrar'),
             ),
           ],
         ),
@@ -363,10 +363,10 @@ void main() {
       );
       
       // Verificar estado inicial
-      expect(find.byKey(Key('email_field')), findsOneWidget);
-      expect(find.byKey(Key('password_field')), findsOneWidget);      expect(find.byKey(Key('submit_button')), findsOneWidget);
+      expect(find.byKey(const Key('email_field')), findsOneWidget);
+      expect(find.byKey(const Key('password_field')), findsOneWidget);      expect(find.byKey(const Key('submit_button')), findsOneWidget);
         // Verificar se password está obscuro inicialmente
-      expect(find.byKey(Key('password_field')), findsOneWidget);
+      expect(find.byKey(const Key('password_field')), findsOneWidget);
       print('🔒 [STATE] Password field encontrado');
       
       stopwatch.stop();
@@ -379,22 +379,22 @@ void main() {
       stopwatch.start();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomLoginForm(),
           ),
         ),
       );
         // Verificar estado inicial (obscuro)
-      expect(find.byKey(Key('password_field')), findsOneWidget);
+      expect(find.byKey(const Key('password_field')), findsOneWidget);
       print('🔒 [STATE] Password inicialmente obscuro');
       
       // Tocar no ícone para alternar
-      await tester.tap(find.byKey(Key('toggle_password')));
+      await tester.tap(find.byKey(const Key('toggle_password')));
       await tester.pump();
       
       // Verificar se mudou para visível
-      expect(find.byKey(Key('password_field')), findsOneWidget);
+      expect(find.byKey(const Key('password_field')), findsOneWidget);
       print('👁️ [STATE] Password agora visível');
       
       stopwatch.stop();
@@ -407,7 +407,7 @@ void main() {
       stopwatch.start();
       
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomLoginForm(),
           ),
@@ -415,7 +415,7 @@ void main() {
       );
       
       // Tentar submeter form vazio
-      await tester.tap(find.byKey(Key('submit_button')));
+      await tester.tap(find.byKey(const Key('submit_button')));
       await tester.pump();
       
       // Verificar se erros de validação aparecem
@@ -424,15 +424,15 @@ void main() {
       print('❌ [VALIDATION] Erros exibidos para campos vazios');
       
       // Preencher com dados válidos
-      await tester.enterText(find.byKey(Key('email_field')), 'test@test.com');
-      await tester.enterText(find.byKey(Key('password_field')), 'Password123');
+      await tester.enterText(find.byKey(const Key('email_field')), 'test@test.com');
+      await tester.enterText(find.byKey(const Key('password_field')), 'Password123');
       await tester.pump();
         // Submeter novamente
-      await tester.tap(find.byKey(Key('submit_button')));
+      await tester.tap(find.byKey(const Key('submit_button')));
       await tester.pump();
       
       // Aguardar o timer de 500ms completar para evitar pending timer
-      await tester.pumpAndSettle(Duration(seconds: 1));
+      await tester.pumpAndSettle(const Duration(seconds: 1));
       
       // Verificar se não há erros
       expect(find.text('Email é obrigatório'), findsNothing);
@@ -448,7 +448,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: animation lifecycle');
       stopwatch.start();
         await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomLoginForm(),
           ),
@@ -497,12 +497,12 @@ void main() {
       );
       
       // Preencher formulário
-      await tester.enterText(find.byKey(Key('email_field')), 'test@test.com');
-      await tester.enterText(find.byKey(Key('password_field')), 'Password123');
+      await tester.enterText(find.byKey(const Key('email_field')), 'test@test.com');
+      await tester.enterText(find.byKey(const Key('password_field')), 'Password123');
       
       // Submeter e verificar loading state
-      await tester.tap(find.byKey(Key('submit_button')));
-      await tester.pump(Duration(milliseconds: 100));
+      await tester.tap(find.byKey(const Key('submit_button')));
+      await tester.pump(const Duration(milliseconds: 100));
       
       // Durante loading, botão deve mostrar CircularProgressIndicator
       expect(find.byType(CircularProgressIndicator), findsOneWidget);

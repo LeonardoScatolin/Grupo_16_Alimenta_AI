@@ -116,27 +116,27 @@ void main() {
       final sanitizer = _InputSanitizer();
 
       // Test HTML injection prevention
-      final htmlInput = '<script>alert("xss")</script>Hello World';
+      const htmlInput = '<script>alert("xss")</script>Hello World';
       final sanitizedHtml = sanitizer.sanitizeHtml(htmlInput);
       expect(sanitizedHtml, equals('Hello World'));
       expect(sanitizedHtml, isNot(contains('<script>')));
       print('📊 [${DateTime.now()}] HTML sanitization: "$htmlInput" → "$sanitizedHtml"');
 
       // Test SQL injection prevention
-      final sqlInput = "'; DROP TABLE users; --";
+      const sqlInput = "'; DROP TABLE users; --";
       final sanitizedSql = sanitizer.sanitizeSql(sqlInput);
       expect(sanitizedSql, isNot(contains('DROP TABLE')));
       expect(sanitizedSql, isNot(contains(';')));
       print('📊 [${DateTime.now()}] SQL sanitization: "$sqlInput" → "$sanitizedSql"');
 
       // Test whitespace normalization
-      final whitespaceInput = '  Multiple   Spaces   Here  ';
+      const whitespaceInput = '  Multiple   Spaces   Here  ';
       final normalizedWhitespace = sanitizer.normalizeWhitespace(whitespaceInput);
       expect(normalizedWhitespace, equals('Multiple Spaces Here'));
       print('📊 [${DateTime.now()}] Whitespace normalization: "$whitespaceInput" → "$normalizedWhitespace"');
 
       // Test special character handling
-      final specialCharsInput = 'Test@#\$%^&*(){}[]|\\:";\'<>?,./`~';
+      const specialCharsInput = 'Test@#\$%^&*(){}[]|\\:";\'<>?,./`~';
       final sanitizedSpecial = sanitizer.sanitizeSpecialChars(specialCharsInput);
       expect(sanitizedSpecial.length, lessThan(specialCharsInput.length));
       print('📊 [${DateTime.now()}] Special chars sanitization: "${specialCharsInput.substring(0, 10)}..." → "$sanitizedSpecial"');
@@ -154,7 +154,7 @@ void main() {
       final encryptor = _DataEncryptor();
 
       // Test string encryption
-      final originalText = 'Sensitive user data that needs protection';
+      const originalText = 'Sensitive user data that needs protection';
       final encryptedText = encryptor.encrypt(originalText);
       expect(encryptedText, isNot(equals(originalText)));
       expect(encryptedText.length, greaterThan(originalText.length));

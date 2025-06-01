@@ -571,11 +571,11 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.restaurant, color: Colors.green),
-                const SizedBox(width: 8),
-                const Text(
+                Icon(Icons.restaurant, color: Colors.green),
+                SizedBox(width: 8),
+                Text(
                   'Alimentos Encontrados',
                   style: TextStyle(
                     fontSize: 18,
@@ -623,7 +623,7 @@ class _AudioTranscriptionPageState extends State<AudioTranscriptionPage> {
                 const SizedBox(height: 8),
 
                 // Lista de alimentos
-                Container(
+                SizedBox(
                   height: 200,
                   child: ListView.builder(
                     itemCount: _foodSearchResult!['alimentos'].length,

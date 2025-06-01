@@ -189,7 +189,7 @@ void main() {
       print('📊 [${DateTime.now()}] High contrast elements rendered');      // Test text size scaling
       await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
         'flutter/settings',
-        StandardMethodCodec().encodeSuccessEnvelope({
+        const StandardMethodCodec().encodeSuccessEnvelope({
           'textScaleFactor': 1.5,
         }),
         (data) {},
@@ -230,15 +230,15 @@ void main() {
 
       expect(smallButtonSize.width, greaterThanOrEqualTo(44.0));
       expect(smallButtonSize.height, greaterThanOrEqualTo(44.0));
-      print('📊 [${DateTime.now()}] Small button meets minimum touch target size: ${smallButtonSize}');
+      print('📊 [${DateTime.now()}] Small button meets minimum touch target size: $smallButtonSize');
 
       expect(normalButtonSize.width, greaterThanOrEqualTo(44.0));
       expect(normalButtonSize.height, greaterThanOrEqualTo(44.0));
-      print('📊 [${DateTime.now()}] Normal button meets minimum touch target size: ${normalButtonSize}');
+      print('📊 [${DateTime.now()}] Normal button meets minimum touch target size: $normalButtonSize');
 
       expect(iconButtonSize.width, greaterThanOrEqualTo(44.0));
       expect(iconButtonSize.height, greaterThanOrEqualTo(44.0));
-      print('📊 [${DateTime.now()}] Icon button meets minimum touch target size: ${iconButtonSize}');
+      print('📊 [${DateTime.now()}] Icon button meets minimum touch target size: $iconButtonSize');
 
       // Test touch target spacing
       final button1Center = tester.getCenter(find.byKey(const Key('spaced_button_1')));
@@ -325,7 +325,7 @@ void main() {
       print('📊 [${DateTime.now()}] Default animation working');      // Simulate reduced motion preference
       await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
         'flutter/settings',
-        StandardMethodCodec().encodeSuccessEnvelope({
+        const StandardMethodCodec().encodeSuccessEnvelope({
           'accessibilityFeatures': {
             'disableAnimations': true,
           },
@@ -513,7 +513,7 @@ class _FocusIndicatorTestWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text('This is a modal dialog with focus trap.'),
-                    TextField(),
+                    const TextField(),
                     ElevatedButton(onPressed: () {}, child: const Text('Action')),
                   ],
                 ),
@@ -651,7 +651,7 @@ class _VoiceControlTestWidget extends StatelessWidget {
           Semantics(
             label: 'Custom action widget',
             customSemanticsActions: {
-              CustomSemanticsAction(label: 'Custom Action'): () {},
+              const CustomSemanticsAction(label: 'Custom Action'): () {},
             },
             child: Container(
               key: const Key('custom_action_widget'),

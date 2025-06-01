@@ -17,8 +17,8 @@ class DetailedAPIService {
     required this.baseUrl,
   }) {
     dio.options.baseUrl = baseUrl;
-    dio.options.connectTimeout = Duration(seconds: 30);
-    dio.options.receiveTimeout = Duration(seconds: 30);
+    dio.options.connectTimeout = const Duration(seconds: 30);
+    dio.options.receiveTimeout = const Duration(seconds: 30);
     
     // Interceptors para logs
     dio.interceptors.add(LogInterceptor(

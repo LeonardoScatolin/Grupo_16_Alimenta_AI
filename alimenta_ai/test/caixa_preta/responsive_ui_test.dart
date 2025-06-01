@@ -60,7 +60,7 @@ void main() {
       testWidgets('📱 Mobile Overflow Handling', (WidgetTester tester) async {
         print('🧪 [${DateTime.now()}] Iniciando teste: Mobile Overflow');
         
-        await tester.binding.setSurfaceSize(Size(320, 600));
+        await tester.binding.setSurfaceSize(const Size(320, 600));
         
         await tester.pumpWidget(MaterialApp(
           home: OverflowTestWidget(),
@@ -73,7 +73,7 @@ void main() {
         expect(scrollable, findsOneWidget);
         
         // Test scrolling
-        await tester.drag(scrollable, Offset(0, -200));
+        await tester.drag(scrollable, const Offset(0, -200));
         await tester.pumpAndSettle();
         
         print('✅ [SUCESSO] Overflow tratado corretamente em mobile');
@@ -86,6 +86,8 @@ void main() {
 
 // Helper Widgets for Mobile Testing
 class ResponsiveTestApp extends StatelessWidget {
+  const ResponsiveTestApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -99,21 +101,21 @@ class ResponsiveTestApp extends StatelessWidget {
 
   Widget _buildMobileLayout() {
     return Scaffold(
-      appBar: AppBar(title: Text('Mobile Layout')),
+      appBar: AppBar(title: const Text('Mobile Layout')),
       drawer: Drawer(
         child: ListView(
-          children: [
+          children: const [
             DrawerHeader(child: Text('Menu')),
             ListTile(title: Text('Menu Item 1')),
             ListTile(title: Text('Menu Item 2')),
           ],
         ),
       ),
-      body: Center(child: Text('Mobile Content')),
+      body: const Center(child: Text('Mobile Content')),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         onTap: (index) {},
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         ],
@@ -123,16 +125,18 @@ class ResponsiveTestApp extends StatelessWidget {
 }
 
 class OverflowTestWidget extends StatelessWidget {
+  const OverflowTestWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mobile Overflow Test')),
+      appBar: AppBar(title: const Text('Mobile Overflow Test')),
       body: SingleChildScrollView(
         child: Column(
           children: List.generate(20, (index) => 
             Container(
               height: 100,
-              margin: EdgeInsets.all(8),
+              margin: const EdgeInsets.all(8),
               color: Colors.blue[100],
               child: Center(child: Text('Mobile Item $index')),
             ),

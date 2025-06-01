@@ -2,10 +2,10 @@ import 'package:alimenta_ai/pages/login.dart';
 import 'package:alimenta_ai/pages/dashboard.dart';
 import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:alimenta_ai/pages/registro_unificado.dart';
-import 'package:alimenta_ai/pages/profile.dart';
 import 'package:alimenta_ai/pages/weight_history.dart';
 import 'package:alimenta_ai/pages/debug_test.dart';
 import 'package:alimenta_ai/pages/audio_transcription_page.dart';
+import 'package:alimenta_ai/pages/profile.dart';
 import 'package:alimenta_ai/theme/app_theme.dart';
 import 'package:alimenta_ai/theme/theme_provider.dart';
 import 'package:alimenta_ai/services/nutricao_service.dart';
@@ -45,16 +45,15 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode:
               themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          initialRoute: '/intro',
+          initialRoute: '/',
           routes: {
             '/': (context) => const WelcomeScreen(),
             '/login': (context) => const LoginPage(),
-            '/dashboard': (context) =>
-                const DashboardPage(), // Certifique-se que existe
-            '/home': (context) =>
-                const DashboardPage(), // Alias            '/registro': (context) => const RegistroUnificadoPage(),
+            '/dashboard': (context) => const DashboardPage(),
+            '/home': (context) => const DashboardPage(), // Alias
+            '/registro': (context) => const RegistroUnificadoPage(),
             '/registra-alimento': (context) =>
-                const RegistroUnificadoPage(), // Usando a nova tela unificada            
+                const RegistroUnificadoPage(), // Usando a nova tela unificada
             '/profile': (context) => const ProfilePage(),
             '/weight-history': (context) => const WeightHistoryPage(),
             '/notifications': (context) => const WeightHistoryPage(),

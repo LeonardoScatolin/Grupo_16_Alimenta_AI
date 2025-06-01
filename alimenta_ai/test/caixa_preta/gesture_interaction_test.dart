@@ -30,7 +30,7 @@ void main() {
                   width: 100,
                   height: 100,
                   color: Colors.blue,
-                  child: Center(child: Text('Tap Me')),
+                  child: const Center(child: Text('Tap Me')),
                 ),
               ),
             ),
@@ -65,7 +65,7 @@ void main() {
                   width: 100,
                   height: 100,
                   color: Colors.red,
-                  child: Center(child: Text('Double Tap')),
+                  child: const Center(child: Text('Double Tap')),
                 ),
               ),
             ),
@@ -73,7 +73,7 @@ void main() {
         ));
 
         await tester.tap(find.text('Double Tap'));
-        await tester.pump(Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
         await tester.tap(find.text('Double Tap'));
         await tester.pumpAndSettle();
         
@@ -98,7 +98,7 @@ void main() {
                   width: 100,
                   height: 100,
                   color: Colors.green,
-                  child: Center(child: Text('Long Press')),
+                  child: const Center(child: Text('Long Press')),
                 ),
               ),
             ),
@@ -131,14 +131,14 @@ void main() {
                   width: 200,
                   height: 100,
                   color: Colors.purple,
-                  child: Center(child: Text('Swipe Left')),
+                  child: const Center(child: Text('Swipe Left')),
                 ),
               ),
             ),
           ),
         ));
 
-        await tester.drag(find.text('Swipe Left'), Offset(-100, 0));
+        await tester.drag(find.text('Swipe Left'), const Offset(-100, 0));
         expect(lastSwipe, equals('left'));
         print('✅ [SUCESSO] Swipe left detectado');
       });
@@ -162,14 +162,14 @@ void main() {
                   width: 200,
                   height: 100,
                   color: Colors.orange,
-                  child: Center(child: Text('Swipe Right')),
+                  child: const Center(child: Text('Swipe Right')),
                 ),
               ),
             ),
           ),
         ));
 
-        await tester.drag(find.text('Swipe Right'), Offset(100, 0));
+        await tester.drag(find.text('Swipe Right'), const Offset(100, 0));
         expect(lastSwipe, equals('right'));
         print('✅ [SUCESSO] Swipe right detectado');
       });
@@ -193,14 +193,14 @@ void main() {
                   width: 100,
                   height: 200,
                   color: Colors.cyan,
-                  child: Center(child: Text('Swipe Up')),
+                  child: const Center(child: Text('Swipe Up')),
                 ),
               ),
             ),
           ),
         ));
 
-        await tester.drag(find.text('Swipe Up'), Offset(0, -100));
+        await tester.drag(find.text('Swipe Up'), const Offset(0, -100));
         expect(lastSwipe, equals('up'));
         print('✅ [SUCESSO] Swipe up detectado');
       });
@@ -224,14 +224,14 @@ void main() {
                   width: 100,
                   height: 200,
                   color: Colors.pink,
-                  child: Center(child: Text('Swipe Down')),
+                  child: const Center(child: Text('Swipe Down')),
                 ),
               ),
             ),
           ),
         ));
 
-        await tester.drag(find.text('Swipe Down'), Offset(0, 100));
+        await tester.drag(find.text('Swipe Down'), const Offset(0, 100));
         expect(lastSwipe, equals('down'));
         print('✅ [SUCESSO] Swipe down detectado');
       });
@@ -257,7 +257,7 @@ void main() {
                     width: 100,
                     height: 100,
                     color: Colors.teal,
-                    child: Center(child: Text('Pinch Me')),
+                    child: const Center(child: Text('Pinch Me')),
                   ),
                 ),
               ),
@@ -270,12 +270,12 @@ void main() {
         final pointer1 = TestPointer(1);
         final pointer2 = TestPointer(2);
         
-        await tester.sendEventToBinding(pointer1.down(center + Offset(-10, 0)));
-        await tester.sendEventToBinding(pointer2.down(center + Offset(10, 0)));
+        await tester.sendEventToBinding(pointer1.down(center + const Offset(-10, 0)));
+        await tester.sendEventToBinding(pointer2.down(center + const Offset(10, 0)));
         await tester.pump();
         
-        await tester.sendEventToBinding(pointer1.move(center + Offset(-20, 0)));
-        await tester.sendEventToBinding(pointer2.move(center + Offset(20, 0)));
+        await tester.sendEventToBinding(pointer1.move(center + const Offset(-20, 0)));
+        await tester.sendEventToBinding(pointer2.move(center + const Offset(20, 0)));
         await tester.pump();
         
         await tester.sendEventToBinding(pointer1.up());
@@ -305,7 +305,7 @@ void main() {
                     width: 100,
                     height: 100,
                     color: Colors.amber,
-                    child: Center(child: Text('Zoom Out')),
+                    child: const Center(child: Text('Zoom Out')),
                   ),
                 ),
               ),
@@ -320,12 +320,12 @@ void main() {
         final pointer1 = TestPointer(1);
         final pointer2 = TestPointer(2);
         
-        await tester.sendEventToBinding(pointer1.down(center + Offset(-20, 0)));
-        await tester.sendEventToBinding(pointer2.down(center + Offset(20, 0)));
+        await tester.sendEventToBinding(pointer1.down(center + const Offset(-20, 0)));
+        await tester.sendEventToBinding(pointer2.down(center + const Offset(20, 0)));
         await tester.pump();
         
-        await tester.sendEventToBinding(pointer1.move(center + Offset(-10, 0)));
-        await tester.sendEventToBinding(pointer2.move(center + Offset(10, 0)));
+        await tester.sendEventToBinding(pointer1.move(center + const Offset(-10, 0)));
+        await tester.sendEventToBinding(pointer2.move(center + const Offset(10, 0)));
         await tester.pump();
         
         await tester.sendEventToBinding(pointer1.up());
@@ -354,7 +354,7 @@ void main() {
         print('📜 [SCROLL] Estado inicial verificado');
         
         // Scroll down to test scrolling functionality
-        await tester.drag(find.byType(ListView), Offset(0, -500));
+        await tester.drag(find.byType(ListView), const Offset(0, -500));
         await tester.pumpAndSettle();
         
         // Verify that we can scroll (the position should change)
@@ -371,7 +371,7 @@ void main() {
             body: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: 50,
-              itemBuilder: (context, index) => Container(
+              itemBuilder: (context, index) => SizedBox(
                 width: 100,
                 child: Center(child: Text('H$index')),
               ),
@@ -382,7 +382,7 @@ void main() {
         print('📜 [SCROLL] Estado inicial horizontal verificado');
         
         // Scroll right
-        await tester.drag(find.byType(ListView), Offset(-1000, 0));
+        await tester.drag(find.byType(ListView), const Offset(-1000, 0));
         await tester.pumpAndSettle();
         
         expect(find.text('H0'), findsNothing);
@@ -397,7 +397,7 @@ void main() {
           home: Scaffold(
             body: ListView.builder(
               itemCount: 100,
-              itemBuilder: (context, index) => Container(
+              itemBuilder: (context, index) => SizedBox(
                 height: 80,
                 child: Center(child: Text('M$index')),
               ),
@@ -406,9 +406,9 @@ void main() {
         ));
 
         // Fast scroll with momentum
-        await tester.fling(find.byType(ListView), Offset(0, -500), 1000);
+        await tester.fling(find.byType(ListView), const Offset(0, -500), 1000);
         await tester.pump(); // Start animation
-        await tester.pump(Duration(milliseconds: 100)); // Mid animation
+        await tester.pump(const Duration(milliseconds: 100)); // Mid animation
         await tester.pumpAndSettle(); // Complete animation
         
         expect(find.text('M0'), findsNothing);
@@ -431,13 +431,13 @@ void main() {
                   width: 100,
                   height: 100,
                   color: Colors.red.withOpacity(0.5),
-                  child: Center(child: Text('Dragging')),
+                  child: const Center(child: Text('Dragging')),
                 ),
                 child: Container(
                   width: 100,
                   height: 100,
                   color: Colors.blue,
-                  child: Center(child: Text('Drag Me')),
+                  child: const Center(child: Text('Drag Me')),
                 ),
                 onDragEnd: (details) {
                   dragPosition = details.offset;
@@ -448,7 +448,7 @@ void main() {
           ),
         ));
 
-        await tester.drag(find.text('Drag Me'), Offset(100, 100));
+        await tester.drag(find.text('Drag Me'), const Offset(100, 100));
         await tester.pumpAndSettle();
         
         expect(dragPosition, isNotNull);
@@ -475,12 +475,12 @@ void main() {
                     width: 100,
                     height: 100,
                     color: Colors.blue,
-                    child: Center(child: Text('Source')),
+                    child: const Center(child: Text('Source')),
                   ),
                 ),
-                SizedBox(height: 100),
+                const SizedBox(height: 100),
                 DragTarget<String>(
-                  onAccept: (data) {
+                  onAcceptWithDetails: (data) {
                     droppedData = data;
                     print('🔄 [DROP] Data received: $data');
                   },
@@ -489,7 +489,7 @@ void main() {
                       width: 100,
                       height: 100,
                       color: candidateData.isNotEmpty ? Colors.green : Colors.grey,
-                      child: Center(child: Text('Target')),
+                      child: const Center(child: Text('Target')),
                     );
                   },
                 ),
@@ -498,7 +498,7 @@ void main() {
           ),
         ));
 
-        await tester.drag(find.text('Source'), Offset(0, 200));
+        await tester.drag(find.text('Source'), const Offset(0, 200));
         await tester.pumpAndSettle();
         
         expect(droppedData, equals('test_data'));
@@ -528,7 +528,7 @@ void main() {
                   width: 100,
                   height: 100,
                   color: isHovered ? Colors.green : Colors.blue,
-                  child: Center(child: Text('Hover Me')),
+                  child: const Center(child: Text('Hover Me')),
                 ),
               ),
             ),
@@ -564,7 +564,7 @@ void main() {
                   width: 100,
                   height: 100,
                   color: Colors.purple,
-                  child: Center(child: Text('Right Click')),
+                  child: const Center(child: Text('Right Click')),
                 ),
               ),
             ),
@@ -599,7 +599,7 @@ void main() {
                   width: 200,
                   height: 200,
                   color: Colors.indigo,
-                  child: Center(child: Text('Multi Touch')),
+                  child: const Center(child: Text('Multi Touch')),
                 ),
               ),
             ),
@@ -610,11 +610,11 @@ void main() {
         final pointer1 = TestPointer(1);
         final pointer2 = TestPointer(2);
         
-        await tester.sendEventToBinding(pointer1.down(center + Offset(-20, 0)));
+        await tester.sendEventToBinding(pointer1.down(center + const Offset(-20, 0)));
         await tester.pump();
         expect(touchCount, equals(1));
         
-        await tester.sendEventToBinding(pointer2.down(center + Offset(20, 0)));
+        await tester.sendEventToBinding(pointer2.down(center + const Offset(20, 0)));
         await tester.pump();
         expect(touchCount, equals(2));
         
@@ -647,7 +647,7 @@ void main() {
                   width: 100,
                   height: 100,
                   color: Colors.brown,
-                  child: Center(child: Text('Priority')),
+                  child: const Center(child: Text('Priority')),
                 ),
               ),
             ),

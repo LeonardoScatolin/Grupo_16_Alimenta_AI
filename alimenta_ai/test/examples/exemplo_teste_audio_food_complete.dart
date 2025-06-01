@@ -107,7 +107,7 @@ void main() {
       final stopwatch = Stopwatch()..start();
       
       await audioService.startRecording();
-      await Future.delayed(Duration(seconds: 2)); // Simula gravação
+      await Future.delayed(const Duration(seconds: 2)); // Simula gravação
       final audioPath = await audioService.stopRecording();
       
       final transcricao = await audioService.transcribeAudio(audioPath!);
@@ -184,7 +184,7 @@ void main() {
       // ACT: Simular interação do usuário
       
       // 1. Encontrar e pressionar botão de gravação
-      final recordButton = find.byKey(Key('record_button'));
+      final recordButton = find.byKey(const Key('record_button'));
       expect(recordButton, findsOneWidget);
       await tester.tap(recordButton);
       await tester.pump();
@@ -194,18 +194,18 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
       // 3. Simular fim da gravação
-      await tester.pump(Duration(seconds: 2));
-      await tester.tap(find.byKey(Key('stop_button')));
+      await tester.pump(const Duration(seconds: 2));
+      await tester.tap(find.byKey(const Key('stop_button')));
       await tester.pump();
 
       // 4. Aguardar processamento
-      await tester.pump(Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
 
       // ASSERT: Verificar resultados na UI
       expect(find.text('Transcrição: banana prata'), findsOneWidget);
       expect(find.text('Banana Prata'), findsOneWidget);
       expect(find.text('89 kcal/100g'), findsOneWidget);
-      expect(find.byKey(Key('alimento_card_3')), findsOneWidget);
+      expect(find.byKey(const Key('alimento_card_3')), findsOneWidget);
 
       print('✅ Teste de Caixa Cinza: UI integrada com sucesso');
     });
@@ -345,7 +345,7 @@ void main() {
       
       when(mockDio.post(any, data: anyNamed('data'), options: anyNamed('options')))
           .thenAnswer((_) async {
-        await Future.delayed(Duration(milliseconds: 800)); // Simula OpenAI
+        await Future.delayed(const Duration(milliseconds: 800)); // Simula OpenAI
         return Response(
           data: {'text': 'performance test'},
           statusCode: 200,
@@ -355,7 +355,7 @@ void main() {
 
       when(mockDio.get(any, queryParameters: anyNamed('queryParameters')))
           .thenAnswer((_) async {
-        await Future.delayed(Duration(milliseconds: 200)); // Simula backend
+        await Future.delayed(const Duration(milliseconds: 200)); // Simula backend
         return Response(
           data: {'alimentos': []},
           statusCode: 200,
@@ -415,7 +415,7 @@ class AudioFoodProvider extends ChangeNotifier {
 
       // Simula gravação
       await _audioService.startRecording();
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 2));
       final audioPath = await _audioService.stopRecording();
 
       _isRecording = false;
@@ -441,84 +441,86 @@ class AudioFoodProvider extends ChangeNotifier {
 /// WIDGET DE TELA PARA CADASTRO POR ÁUDIO
 /// Interface completa para demonstrar integração
 class AudioFoodRegistrationScreen extends StatelessWidget {
+  const AudioFoodRegistrationScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro por Áudio'),
+        title: const Text('Cadastro por Áudio'),
         backgroundColor: Colors.green,
       ),
       body: Consumer<AudioFoodProvider>(
         builder: (context, provider, child) {
           return Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
                 // Status Card
                 Card(
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
                         if (provider.isRecording) ...[
-                          CircularProgressIndicator(),
-                          SizedBox(height: 8),
-                          Text('🎤 Gravando...', style: TextStyle(fontSize: 18)),
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 8),
+                          const Text('🎤 Gravando...', style: TextStyle(fontSize: 18)),
                         ] else if (provider.isProcessing) ...[
-                          CircularProgressIndicator(),
-                          SizedBox(height: 8),
-                          Text('🔄 Processando...', style: TextStyle(fontSize: 18)),
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 8),
+                          const Text('🔄 Processando...', style: TextStyle(fontSize: 18)),
                         ] else ...[
-                          Icon(Icons.mic, size: 48, color: Colors.green),
-                          SizedBox(height: 8),
-                          Text('Pressione para falar', style: TextStyle(fontSize: 18)),
+                          const Icon(Icons.mic, size: 48, color: Colors.green),
+                          const SizedBox(height: 8),
+                          const Text('Pressione para falar', style: TextStyle(fontSize: 18)),
                         ],
                       ],
                     ),
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Botões de controle
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      key: Key('record_button'),
+                      key: const Key('record_button'),
                       onPressed: provider.isRecording || provider.isProcessing 
                           ? null 
                           : () => provider.processarAudio(),
-                      child: Icon(Icons.mic),
+                      child: const Icon(Icons.mic),
                     ),
                     ElevatedButton(
-                      key: Key('stop_button'),
+                      key: const Key('stop_button'),
                       onPressed: provider.isRecording 
                           ? () => provider.processarAudio() 
                           : null,
-                      child: Icon(Icons.stop),
+                      child: const Icon(Icons.stop),
                     ),
                   ],
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Transcrição
                 if (provider.transcricao != null)
                   Card(
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Transcrição:', style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text('Transcrição:', style: TextStyle(fontWeight: FontWeight.bold)),
                           Text(provider.transcricao!),
                         ],
                       ),
                     ),
                   ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Lista de alimentos encontrados
                 Expanded(
@@ -534,10 +536,10 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
                           trailing: ElevatedButton(
                             onPressed: () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Alimento adicionado com sucesso!')),
+                                const SnackBar(content: Text('Alimento adicionado com sucesso!')),
                               );
                             },
-                            child: Text('Adicionar à Dieta'),
+                            child: const Text('Adicionar à Dieta'),
                           ),
                         ),
                       );
@@ -548,7 +550,7 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
                 // Mensagem de erro
                 if (provider.errorMessage != null)
                   Container(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     color: Colors.red[100],
                     child: Text(
                       provider.errorMessage!,

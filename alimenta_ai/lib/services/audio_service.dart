@@ -397,7 +397,7 @@ class AudioService extends ChangeNotifier {
 
       if (exists) {
         final size = await file.length();
-        debugPrint('✅ Arquivo verificado: $filePath (${size} bytes)');
+        debugPrint('✅ Arquivo verificado: $filePath ($size bytes)');
         return true;
       } else {
         debugPrint('❌ Arquivo não encontrado: $filePath');

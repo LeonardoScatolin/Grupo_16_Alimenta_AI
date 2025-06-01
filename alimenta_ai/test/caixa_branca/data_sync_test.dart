@@ -41,10 +41,10 @@ void main() {
       
       for (final data in testData) {
         dataController.add(data);
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
       }
       
-      await Future.delayed(Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 50));
       
       expect(receivedData.length, equals(3));
       expect(receivedData[0]['id'], equals(1));
@@ -123,9 +123,9 @@ void main() {
       
       // Create items with different timestamps
       final items = [
-        SyncItem('item1', 'Data 1', baseTime.subtract(Duration(minutes: 5))),
-        SyncItem('item2', 'Data 2', baseTime.subtract(Duration(minutes: 3))),
-        SyncItem('item3', 'Data 3', baseTime.subtract(Duration(minutes: 1))),
+        SyncItem('item1', 'Data 1', baseTime.subtract(const Duration(minutes: 5))),
+        SyncItem('item2', 'Data 2', baseTime.subtract(const Duration(minutes: 3))),
+        SyncItem('item3', 'Data 3', baseTime.subtract(const Duration(minutes: 1))),
         SyncItem('item4', 'Data 4', baseTime),
       ];
       
@@ -133,7 +133,7 @@ void main() {
       print('📅 [TIMESTAMP] 4 itens adicionados com timestamps diferentes');
       
       // Sync items newer than 2 minutes ago
-      final cutoffTime = baseTime.subtract(Duration(minutes: 2));
+      final cutoffTime = baseTime.subtract(const Duration(minutes: 2));
       final syncedItems = await syncManager.syncItemsNewerThan(cutoffTime);
       
       expect(syncedItems.length, equals(2)); // item3 and item4
@@ -153,7 +153,7 @@ void main() {
         id: 'doc1',
         data: {'title': 'Local Title', 'content': 'Local Content'},
         version: 1,
-        timestamp: DateTime.now().subtract(Duration(minutes: 1)),
+        timestamp: DateTime.now().subtract(const Duration(minutes: 1)),
       );
       
       final remoteVersion = DataVersion(
@@ -224,10 +224,10 @@ void main() {
       final updates = ['update1', 'update2', 'update3'];
       for (final update in updates) {
         await realtimeManager.simulateUpdate(update);
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
       }
       
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
       
       expect(receivedUpdates.length, equals(3));
       expect(receivedUpdates, equals(updates));
@@ -464,7 +464,7 @@ class BatchSyncManager {
     
     // Simulate batch processing
     for (int i = 0; i < batches; i++) {
-      await Future.delayed(Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 10));
     }
     
     return BatchResult(items.length, batches);
@@ -485,7 +485,7 @@ class RealtimeSyncManager {
   
   Future<void> connect() async {
     // Simulate connection
-    await Future.delayed(Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 100));
   }
   
   Future<void> disconnect() async {

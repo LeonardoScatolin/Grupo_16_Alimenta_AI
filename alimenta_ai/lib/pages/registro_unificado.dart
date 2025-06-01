@@ -552,7 +552,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                    '✅ ${foodData['nome']} adicionado ao ${selectedMealTitle}!'),
+                    '✅ ${foodData['nome']} adicionado ao $selectedMealTitle!'),
                 backgroundColor: Colors.green,
               ),
             );

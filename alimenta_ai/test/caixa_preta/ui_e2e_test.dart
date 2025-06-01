@@ -167,9 +167,9 @@ void main() {
       stopwatch.start();
       
       // Configurar diferentes tamanhos de tela
-      await tester.binding.setSurfaceSize(Size(360, 640)); // Mobile small
+      await tester.binding.setSurfaceSize(const Size(360, 640)); // Mobile small
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       print('📱 [SCREEN] Tela configurada: 360x640 (Mobile)');
@@ -206,9 +206,9 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Responsivo Mobile 414px');
       stopwatch.start();
       
-      await tester.binding.setSurfaceSize(Size(414, 896)); // iPhone 11 Pro Max
+      await tester.binding.setSurfaceSize(const Size(414, 896)); // iPhone 11 Pro Max
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       print('📱 [SCREEN] Tela configurada: 414x896 (iPhone 11 Pro Max)');
@@ -230,9 +230,9 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Responsivo Tablet 768px');
       stopwatch.start();
       
-      await tester.binding.setSurfaceSize(Size(768, 1024)); // iPad
+      await tester.binding.setSurfaceSize(const Size(768, 1024)); // iPad
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       print('📱 [SCREEN] Tela configurada: 768x1024 (iPad)');
@@ -253,9 +253,9 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Responsivo Desktop 1440px');
       stopwatch.start();
       
-      await tester.binding.setSurfaceSize(Size(1440, 900)); // Desktop comum
+      await tester.binding.setSurfaceSize(const Size(1440, 900)); // Desktop comum
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       print('📱 [SCREEN] Tela configurada: 1440x900 (Desktop)');
@@ -273,7 +273,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Gestos de usuário');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       // Procurar elementos interativos
@@ -292,7 +292,7 @@ void main() {
       final scrollableFinder = find.byType(SingleChildScrollView);
       if (scrollableFinder.evaluate().isNotEmpty) {
         print('👤 [GESTURE] Testando scroll');
-        await tester.drag(scrollableFinder.first, Offset(0, -200));
+        await tester.drag(scrollableFinder.first, const Offset(0, -200));
         await tester.pump();
       }
       
@@ -306,8 +306,8 @@ void main() {
       stopwatch.start();
       
       // Testar portrait
-      await tester.binding.setSurfaceSize(Size(360, 640));
-      await tester.pumpWidget(TestApp());
+      await tester.binding.setSurfaceSize(const Size(360, 640));
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       print('📱 [ORIENTATION] Portrait - 360x640');
       
@@ -315,7 +315,7 @@ void main() {
       print('✅ [LAYOUT] Portrait sem erros');
       
       // Testar landscape  
-      await tester.binding.setSurfaceSize(Size(640, 360));
+      await tester.binding.setSurfaceSize(const Size(640, 360));
       await tester.pump();
       await tester.pumpAndSettle();
       print('📱 [ORIENTATION] Landscape - 640x360');
@@ -332,7 +332,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Acessibilidade');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       // Verificar se elementos têm semântica adequada
@@ -358,7 +358,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Performance carregamento');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       
       final initialLoadTime = stopwatch.elapsedMilliseconds;
       print('⏱️ [PERFORMANCE] Carregamento inicial: ${initialLoadTime}ms');
@@ -380,7 +380,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Combinações formulário');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       final textFieldFinder = find.byType(TextFormField);
@@ -424,7 +424,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Mensagens de erro');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       // Tentar ações que devem gerar erros
@@ -465,7 +465,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Navegação');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       // Procurar elementos de navegação
@@ -502,7 +502,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Deep linking');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       // Verificar se app inicializa corretamente com rotas
@@ -529,9 +529,9 @@ void main() {
       
       // Testar com scaling normal
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: MediaQuery(
-            data: MediaQueryData(textScaleFactor: 1.0),
+            data: MediaQueryData(textScaler: TextScaler.linear(1.0)),
             child: TestApp(),
           ),
         ),
@@ -543,9 +543,9 @@ void main() {
       
       // Testar com scaling grande
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: MediaQuery(
-            data: MediaQueryData(textScaleFactor: 2.0),
+            data: MediaQueryData(textScaler: TextScaler.linear(2.0)),
             child: TestApp(),
           ),
         ),
@@ -565,9 +565,9 @@ void main() {
       stopwatch.start();
       
       // Testar em tela muito pequena para forçar overflow
-      await tester.binding.setSurfaceSize(Size(200, 300));
+      await tester.binding.setSurfaceSize(const Size(200, 300));
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       print('📱 [SCREEN] Tela pequena: 200x300');
@@ -582,7 +582,7 @@ void main() {
         print('📜 [SCROLL] Elementos scrolláveis encontrados');
         
         // Testar scroll
-        await tester.drag(scrollableFinder.first, Offset(0, -100));
+        await tester.drag(scrollableFinder.first, const Offset(0, -100));
         await tester.pump();
         print('📜 [SCROLL] Scroll executado');
       }
@@ -596,7 +596,7 @@ void main() {
       print('🧪 [${DateTime.now()}] Iniciando teste: Fluxo completo E2E');
       stopwatch.start();
       
-      await tester.pumpWidget(TestApp());
+      await tester.pumpWidget(const TestApp());
       await tester.pumpAndSettle();
       
       print('👤 [USER FLOW] Iniciando jornada completa do usuário');

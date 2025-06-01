@@ -352,14 +352,14 @@ class _CacheManager {
 
   Future<void> cacheData(String key, String data, Duration expiration) async {
     final expirationTime = DateTime.now().add(expiration).millisecondsSinceEpoch;
-    await _prefs.setString('cache_${key}', data);
+    await _prefs.setString('cache_$key', data);
     await _prefs.setInt('cache_${key}_exp', expirationTime);
   }
 
   Future<String?> getCachedData(String key) async {
     final expirationTime = _prefs.getInt('cache_${key}_exp');
     if (expirationTime != null && DateTime.now().millisecondsSinceEpoch < expirationTime) {
-      return _prefs.getString('cache_${key}');
+      return _prefs.getString('cache_$key');
     }
     return null;
   }

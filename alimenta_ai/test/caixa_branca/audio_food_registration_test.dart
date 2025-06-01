@@ -520,7 +520,7 @@ void main() {
         'https://api.openai.com/v1/audio/transcriptions',
         data: anyNamed('data'),
       )).thenAnswer((_) async {
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         return Response(
           data: {'text': 'banana'},
           statusCode: 200,
@@ -532,7 +532,7 @@ void main() {
         'http://127.0.0.1:3333/alimento/buscar-por-transcricao',
         data: anyNamed('data'),
       )).thenAnswer((_) async {
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
         return Response(
           data: {
             'status': true,
@@ -564,7 +564,7 @@ void main() {
       final futureResult = audioService.processAudioForFoodRegistration();
       
       // Aguardar um pouco e verificar estados intermediários
-      await Future.delayed(Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 50));
       
       // Aguardar conclusão
       final result = await futureResult;

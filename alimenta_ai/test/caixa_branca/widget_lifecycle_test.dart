@@ -39,7 +39,7 @@ void main() {
           .thenAnswer((_) async => {'success': true, 'token': 'mock_token'});
 
       print('📱 [WIDGET] Criando widget de login...');
-      await tester.pumpWidget(MaterialApp(home: LoginPage()));
+      await tester.pumpWidget(const MaterialApp(home: LoginPage()));
       
       // Verificar se o widget foi criado
       expect(find.byType(LoginPage), findsOneWidget);
@@ -48,7 +48,7 @@ void main() {
       if (inkWellFinder.evaluate().isNotEmpty) {
         await tester.tap(inkWellFinder.first);
         // Usar pump com timeout específico para evitar timeout em animações
-        await tester.pump(Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
       } else {
         print('ℹ️ [INFO] Nenhum botão encontrado para simular tap - pulando navegação');
       }
@@ -104,7 +104,7 @@ void main() {
               body: Column(
                 children: [
                   Text(statusText),
-                  if (isLoading) CircularProgressIndicator(),
+                  if (isLoading) const CircularProgressIndicator(),
                   ElevatedButton(
                     onPressed: () {
                       print('🔄 [STATE] Mudando estado - isLoading: $isLoading -> ${!isLoading}');
@@ -113,7 +113,7 @@ void main() {
                         statusText = isLoading ? 'Carregando' : 'Parado';
                       });
                     },
-                    child: Text('Toggle Loading'),
+                    child: const Text('Toggle Loading'),
                   ),
                 ],
               ),
@@ -182,7 +182,7 @@ void main() {
       // Test animation
       controller.forward();
       await tester.pump();
-      await tester.pump(Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(controller.value, greaterThan(0.0));
       print('📊 [PERFORMANCE] Animation value: ${controller.value}');
@@ -229,7 +229,7 @@ void main() {
       
       Future<String> mockAsyncOperation() async {
         print('⏳ [ASYNC] Operação assíncrona iniciada');
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
         if (shouldComplete) {
           print('✅ [ASYNC] Operação completada com sucesso');
           return 'Completed';
@@ -246,7 +246,7 @@ void main() {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 print('⏳ [FUTUREBUILDER] Estado: waiting');
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
                 print('❌ [FUTUREBUILDER] Estado: error - ${snapshot.error}');
                 return Text('Error: ${snapshot.error}');
@@ -284,7 +284,7 @@ void main() {
               if (snapshot.hasData) {
                 return Text('Value: ${snapshot.data}');
               } else {
-                return Text('No data');
+                return const Text('No data');
               }
             },
           ),
@@ -309,7 +309,7 @@ void main() {
       // Teste para layout mobile (largura < 600)
       await tester.pumpWidget(MaterialApp(
         home: MediaQuery(
-          data: MediaQueryData(size: Size(400, 800)),
+          data: const MediaQueryData(size: Size(400, 800)),
           child: ResponsiveTestWidget(),
         ),
       ));
@@ -321,7 +321,7 @@ void main() {
       // Teste para layout tablet (600 <= largura < 1200)
       await tester.pumpWidget(MaterialApp(
         home: MediaQuery(
-          data: MediaQueryData(size: Size(800, 1200)),
+          data: const MediaQueryData(size: Size(800, 1200)),
           child: ResponsiveTestWidget(),
         ),
       ));
@@ -333,7 +333,7 @@ void main() {
       // Teste para layout desktop (largura >= 1200)
       await tester.pumpWidget(MaterialApp(
         home: MediaQuery(
-          data: MediaQueryData(size: Size(1400, 1000)),
+          data: const MediaQueryData(size: Size(1400, 1000)),
           child: ResponsiveTestWidget(),
         ),
       ));
@@ -355,11 +355,11 @@ void main() {
             children: [
               TextField(
                 focusNode: focusNode1,
-                decoration: InputDecoration(hintText: 'Field 1'),
+                decoration: const InputDecoration(hintText: 'Field 1'),
               ),
               TextField(
                 focusNode: focusNode2,
-                decoration: InputDecoration(hintText: 'Field 2'),
+                decoration: const InputDecoration(hintText: 'Field 2'),
               ),
             ],
           ),
@@ -431,7 +431,7 @@ class _AnimatedTestWidgetState extends State<AnimatedTestWidget>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
       vsync: this,
     );
     widget.onControllerCreated(_controller);
@@ -467,13 +467,15 @@ class _AnimatedTestWidgetState extends State<AnimatedTestWidget>
 }
 
 class ResponsiveTestWidget extends StatelessWidget {
+  const ResponsiveTestWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     print('📱 [RESPONSIVE] Screen size: ${size.width}x${size.height}');
     
     if (size.width < 600) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Text(
             'Mobile Layout',
@@ -482,7 +484,7 @@ class ResponsiveTestWidget extends StatelessWidget {
         ),
       );
     } else if (size.width < 1200) {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Text(
             'Tablet Layout',
@@ -491,7 +493,7 @@ class ResponsiveTestWidget extends StatelessWidget {
         ),
       );
     } else {
-      return Scaffold(
+      return const Scaffold(
         body: Center(
           child: Text(
             'Desktop Layout',

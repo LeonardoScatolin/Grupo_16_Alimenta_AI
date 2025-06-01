@@ -38,7 +38,7 @@ class OpenAIService {
 
       // Verificar tamanho do arquivo
       final fileSize = await file.length();
-      debugPrint('📊 Tamanho do arquivo: ${fileSize} bytes');
+      debugPrint('📊 Tamanho do arquivo: $fileSize bytes');
 
       if (fileSize == 0) {
         debugPrint('❌ Arquivo de áudio está vazio');

@@ -89,11 +89,11 @@ void main() {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TestArgumentPage(),
-                      settings: RouteSettings(arguments: {'id': 123, 'name': 'Test User'}),
+                      settings: const RouteSettings(arguments: {'id': 123, 'name': 'Test User'}),
                     ),
                   );
                 },
-                child: Text('Navigate with Args'),
+                child: const Text('Navigate with Args'),
               ),
             ),
           ),
@@ -121,7 +121,7 @@ void main() {
                 print('🎭 [TRANSITION] Animation value: ${animation.value}');
                 return SlideTransition(
                   position: Tween<Offset>(
-                    begin: Offset(1.0, 0.0),
+                    begin: const Offset(1.0, 0.0),
                     end: Offset.zero,
                   ).animate(animation),
                   child: child,
@@ -136,7 +136,7 @@ void main() {
       // Navigate with custom transition
       await tester.tap(find.text('Custom Transition'));
       await tester.pump(); // Start animation
-      await tester.pump(Duration(milliseconds: 150)); // Mid animation
+      await tester.pump(const Duration(milliseconds: 150)); // Mid animation
       await tester.pumpAndSettle(); // Complete animation
 
       expect(find.text('Second Page Content'), findsOneWidget);
@@ -165,7 +165,7 @@ void main() {
       // Start animation
       controller.forward();
       await tester.pump();
-      await tester.pump(Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(animation.value, greaterThan(0.0));
       expect(animation.value, lessThan(1.0));
@@ -198,7 +198,7 @@ void main() {
       // Reverse animation
       controller.reverse();
       await tester.pump();
-      await tester.pump(Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       expect(controller.value, lessThan(1.0));
       print('📊 [PERFORMANCE] Reverse progress: ${controller.value}');
 
@@ -222,7 +222,7 @@ void main() {
 
       // Trigger animation
       await tester.tap(find.text('Animate'));
-      await tester.pump();      await tester.pump(Duration(milliseconds: 150));
+      await tester.pump();      await tester.pump(const Duration(milliseconds: 150));
 
       // Check animation in progress
       AnimatedContainer animatingContainer = tester.widget(containerFinder);
@@ -255,7 +255,7 @@ void main() {
       // Tap hero to navigate
       await tester.tap(find.byType(Hero));
       await tester.pump(); // Start hero animation
-      await tester.pump(Duration(milliseconds: 150)); // Mid animation
+      await tester.pump(const Duration(milliseconds: 150)); // Mid animation
       await tester.pumpAndSettle(); // Complete animation
 
       expect(find.text('Hero Detail Content'), findsOneWidget);
@@ -273,13 +273,13 @@ void main() {
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
-                    builder: (context) => Container(
+                    builder: (context) => SizedBox(
                       height: 200,
-                      child: Center(child: Text('Modal Content')),
+                      child: const Center(child: Text('Modal Content')),
                     ),
                   );
                 },
-                child: Text('Show Modal'),
+                child: const Text('Show Modal'),
               ),
             ),
           ),
@@ -288,14 +288,14 @@ void main() {
 
       await tester.tap(find.text('Show Modal'));
       await tester.pump(); // Start modal animation
-      await tester.pump(Duration(milliseconds: 150)); // Mid animation
+      await tester.pump(const Duration(milliseconds: 150)); // Mid animation
       await tester.pumpAndSettle(); // Complete animation
 
       expect(find.text('Modal Content'), findsOneWidget);
       print('✅ [SUCESSO] Modal animation executada');
 
       // Close modal
-      await tester.tapAt(Offset(100, 100)); // Tap outside modal
+      await tester.tapAt(const Offset(100, 100)); // Tap outside modal
       await tester.pumpAndSettle();
 
       expect(find.text('Modal Content'), findsNothing);
@@ -311,7 +311,7 @@ void main() {
           '/swipe-target': (context) => TestSwipeTargetPage(),
         },
       ));      // Swipe to navigate
-      await tester.fling(find.text('Swipe me right'), Offset(300, 0), 600);
+      await tester.fling(find.text('Swipe me right'), const Offset(300, 0), 600);
       await tester.pumpAndSettle();
 
       expect(find.text('Swipe Target Content'), findsOneWidget);
@@ -322,23 +322,25 @@ void main() {
 
 // Helper Widgets for Testing
 class TestHomePage extends StatelessWidget {
+  const TestHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Home Page')),
+      appBar: AppBar(title: const Text('Home Page')),
       body: Column(
         children: [
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/second'),
-            child: Text('Go to Second'),
+            child: const Text('Go to Second'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/third'),
-            child: Text('Go to Third'),
+            child: const Text('Go to Third'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, '/custom'),
-            child: Text('Custom Transition'),
+            child: const Text('Custom Transition'),
           ),
         ],
       ),
@@ -347,32 +349,38 @@ class TestHomePage extends StatelessWidget {
 }
 
 class TestSecondPage extends StatelessWidget {
+  const TestSecondPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Second Page')),
-      body: Center(child: Text('Second Page Content')),
+      appBar: AppBar(title: const Text('Second Page')),
+      body: const Center(child: Text('Second Page Content')),
     );
   }
 }
 
 class TestThirdPage extends StatelessWidget {
+  const TestThirdPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Third Page')),
-      body: Center(child: Text('Third Page Content')),
+      appBar: AppBar(title: const Text('Third Page')),
+      body: const Center(child: Text('Third Page Content')),
     );
   }
 }
 
 class TestArgumentPage extends StatelessWidget {
+  const TestArgumentPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     
     return Scaffold(
-      appBar: AppBar(title: Text('Argument Page')),
+      appBar: AppBar(title: const Text('Argument Page')),
       body: Column(
         children: [
           Text('ID: ${args?['id']}'),
@@ -401,7 +409,7 @@ class _TestAnimationWidgetState extends State<TestAnimationWidget>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
@@ -437,6 +445,8 @@ class _TestAnimationWidgetState extends State<TestAnimationWidget>
 }
 
 class TestTweenWidget extends StatefulWidget {
+  const TestTweenWidget({super.key});
+
   @override
   _TestTweenWidgetState createState() => _TestTweenWidgetState();
 }
@@ -451,7 +461,7 @@ class _TestTweenWidgetState extends State<TestTweenWidget> {
       body: Column(
         children: [
           AnimatedContainer(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             width: _width,
             height: 100,
             color: _color,
@@ -463,7 +473,7 @@ class _TestTweenWidgetState extends State<TestTweenWidget> {
                 _color = _color == Colors.blue ? Colors.red : Colors.blue;
               });
             },
-            child: Text('Animate'),
+            child: const Text('Animate'),
           ),
         ],
       ),
@@ -472,6 +482,8 @@ class _TestTweenWidgetState extends State<TestTweenWidget> {
 }
 
 class TestHeroPage extends StatelessWidget {
+  const TestHeroPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -484,7 +496,7 @@ class TestHeroPage extends StatelessWidget {
               width: 100,
               height: 100,
               color: Colors.purple,
-              child: Center(child: Text('Hero')),
+              child: const Center(child: Text('Hero')),
             ),
           ),
         ),
@@ -494,10 +506,12 @@ class TestHeroPage extends StatelessWidget {
 }
 
 class TestHeroDetailPage extends StatelessWidget {
+  const TestHeroDetailPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Hero Detail')),
+      appBar: AppBar(title: const Text('Hero Detail')),
       body: Center(
         child: Hero(
           tag: 'hero-tag',
@@ -505,7 +519,7 @@ class TestHeroDetailPage extends StatelessWidget {
             width: 200,
             height: 200,
             color: Colors.purple,
-            child: Center(child: Text('Hero Detail Content')),
+            child: const Center(child: Text('Hero Detail Content')),
           ),
         ),
       ),
@@ -514,6 +528,8 @@ class TestHeroDetailPage extends StatelessWidget {
 }
 
 class TestGestureNavPage extends StatelessWidget {
+  const TestGestureNavPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -528,7 +544,7 @@ class TestGestureNavPage extends StatelessWidget {
             width: 200,
             height: 100,
             color: Colors.green,
-            child: Center(child: Text('Swipe me right')),
+            child: const Center(child: Text('Swipe me right')),
           ),
         ),
       ),
@@ -537,11 +553,13 @@ class TestGestureNavPage extends StatelessWidget {
 }
 
 class TestSwipeTargetPage extends StatelessWidget {
+  const TestSwipeTargetPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Swipe Target')),
-      body: Center(child: Text('Swipe Target Content')),
+      appBar: AppBar(title: const Text('Swipe Target')),
+      body: const Center(child: Text('Swipe Target Content')),
     );
   }
 }

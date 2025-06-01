@@ -307,7 +307,7 @@ void main() {
         print('📤 [REQUEST] GET /posts com timeout de 1ms');
         
         final future = apiClient.get('/posts');
-        await future.timeout(Duration(milliseconds: 1));
+        await future.timeout(const Duration(milliseconds: 1));
         
       } catch (e) {
         timeoutOccurred = true;

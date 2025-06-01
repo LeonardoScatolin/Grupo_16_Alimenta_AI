@@ -79,7 +79,7 @@ class EncryptionService {
     if (_detectSuspiciousPatterns(input)) {
       throw SecurityException('Input contém padrões suspeitos');
     }
-    return input.replaceAll(RegExp(r'[<>&"' + "'" + r'/]'), '');
+    return input.replaceAll(RegExp(r'[<>&"' "'" + r'/]'), '');
   }
 }
 

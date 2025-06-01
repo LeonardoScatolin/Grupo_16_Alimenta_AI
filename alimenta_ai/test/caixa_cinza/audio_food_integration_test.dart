@@ -36,7 +36,7 @@ class MockAudioServiceProvider extends ChangeNotifier {  bool _isRecording = fal
         // FASE 1: Gravação
       _isRecording = true;
       _safeNotifyListeners();
-      await Future.delayed(Duration(seconds: 2)); // Simular gravação
+      await Future.delayed(const Duration(seconds: 2)); // Simular gravação
       
       _isRecording = false;
       _safeNotifyListeners();
@@ -44,14 +44,14 @@ class MockAudioServiceProvider extends ChangeNotifier {  bool _isRecording = fal
       // FASE 2: Transcrição
       _isTranscribing = true;
       _safeNotifyListeners();
-      await Future.delayed(Duration(seconds: 3)); // Simular transcrição
+      await Future.delayed(const Duration(seconds: 3)); // Simular transcrição
       
       _lastTranscription = "duas fatias de pão integral com manteiga";
       _isTranscribing = false;
       _safeNotifyListeners();
       
       // FASE 3: Busca de alimentos
-      await Future.delayed(Duration(milliseconds: 500)); // Simular busca
+      await Future.delayed(const Duration(milliseconds: 500)); // Simular busca
       
       _foundFoods = [
         {
@@ -88,12 +88,12 @@ class MockAudioServiceProvider extends ChangeNotifier {  bool _isRecording = fal
   Future<void> processAudioWithTranscriptionError() async {
     _isRecording = true;
     _safeNotifyListeners();
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     
     _isRecording = false;
     _isTranscribing = true;
     _safeNotifyListeners();
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     
     _isTranscribing = false;
     _errorMessage = "Falha na transcrição: Áudio muito baixo ou com ruído";
@@ -126,23 +126,23 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro por Áudio'),
+        title: const Text('Cadastro por Áudio'),
         backgroundColor: Colors.green,
       ),
       body: Consumer<MockAudioServiceProvider>(
         builder: (context, audioService, child) {
           return Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Status Card
                 _buildStatusCard(audioService),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 
                 // Botão de gravação
                 _buildRecordingButton(context, audioService),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 
                 // Transcrição
                 if (audioService.lastTranscription != null)
@@ -183,14 +183,14 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
     }
     
     return Card(
-      key: Key('status_card'),
+      key: const Key('status_card'),
       color: color.withOpacity(0.1),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Icon(icon, color: color, size: 30),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 status,
@@ -203,7 +203,7 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
             ),
             if (audioService.isRecording || audioService.isTranscribing)
               CircularProgressIndicator(
-                key: Key('loading_indicator'),
+                key: const Key('loading_indicator'),
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
           ],
@@ -218,7 +218,7 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
     return SizedBox(
       height: 60,
       child: ElevatedButton.icon(
-        key: Key('record_button'),
+        key: const Key('record_button'),
         onPressed: isActive ? null : () {
           audioService.processAudioForFoodRegistration();
         },
@@ -232,7 +232,7 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
             : audioService.isTranscribing 
               ? 'Processando...'
               : 'Gravar Alimentos',
-          style: TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: audioService.isRecording ? Colors.red : Colors.green,
@@ -244,13 +244,13 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
   
   Widget _buildTranscriptionCard(MockAudioServiceProvider audioService) {
     return Card(
-      key: Key('transcription_card'),
+      key: const Key('transcription_card'),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
                 Icon(Icons.text_fields, color: Colors.blue),
                 SizedBox(width: 8),
@@ -260,10 +260,10 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               '"${audioService.lastTranscription}"',
-              style: TextStyle(
+              style: const TextStyle(
                 fontStyle: FontStyle.italic,
                 fontSize: 16,
               ),
@@ -276,11 +276,11 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
   
   Widget _buildFoodList(MockAudioServiceProvider audioService) {
     return Card(
-      key: Key('food_list_card'),
+      key: const Key('food_list_card'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.all(16),
             child: Row(
               children: [
@@ -309,7 +309,7 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
                   ),
                   title: Text(
                     food['nome'],
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,13 +320,13 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
                         'Proteínas: ${food['proteinas']}g | '
                         'Carbo: ${food['carboidratos']}g | '
                         'Gordura: ${food['gordura']}g',
-                        style: TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
                   trailing: IconButton(
                     key: Key('add_food_button_$index'),
-                    icon: Icon(Icons.add_circle, color: Colors.green),
+                    icon: const Icon(Icons.add_circle, color: Colors.green),
                     onPressed: () {
                       // Simular adição do alimento
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -348,26 +348,26 @@ class AudioFoodRegistrationScreen extends StatelessWidget {
   
   Widget _buildErrorCard(MockAudioServiceProvider audioService) {
     return Card(
-      key: Key('error_card'),
+      key: const Key('error_card'),
       color: Colors.red.withOpacity(0.1),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(Icons.error, color: Colors.red),
-            SizedBox(width: 12),
+            const Icon(Icons.error, color: Colors.red),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 audioService.errorMessage!,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
             ),
             TextButton(
-              key: Key('retry_button'),
+              key: const Key('retry_button'),
               onPressed: () {
                 audioService.clearData();
               },
-              child: Text('Tentar Novamente'),
+              child: const Text('Tentar Novamente'),
             ),
           ],
         ),
@@ -401,65 +401,65 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider<MockAudioServiceProvider>(
             create: (_) => mockAudioService,
-            child: AudioFoodRegistrationScreen(),
+            child: const AudioFoodRegistrationScreen(),
           ),
         ),
       );
       
       // VERIFICAR ESTADO INICIAL
       expect(find.text('Pronto para gravar'), findsOneWidget);
-      expect(find.byKey(Key('record_button')), findsOneWidget);
+      expect(find.byKey(const Key('record_button')), findsOneWidget);
       expect(find.text('Gravar Alimentos'), findsOneWidget);
-      expect(find.byKey(Key('transcription_card')), findsNothing);
-      expect(find.byKey(Key('food_list_card')), findsNothing);
+      expect(find.byKey(const Key('transcription_card')), findsNothing);
+      expect(find.byKey(const Key('food_list_card')), findsNothing);
       
       print('✅ [UI] Estado inicial verificado');
       
       // ACT - Clicar no botão de gravação
-      await tester.tap(find.byKey(Key('record_button')));
+      await tester.tap(find.byKey(const Key('record_button')));
       await tester.pump();
       
       // VERIFICAR ESTADO DE GRAVAÇÃO
       expect(find.text('Gravando áudio...'), findsOneWidget);
-      expect(find.byKey(Key('loading_indicator')), findsOneWidget);
+      expect(find.byKey(const Key('loading_indicator')), findsOneWidget);
       expect(find.text('Gravando...'), findsOneWidget);
       
       print('✅ [UI] Estado de gravação verificado');
       
       // Aguardar fim da "gravação" (2 segundos simulados)
-      await tester.pump(Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 2));
       
       // VERIFICAR ESTADO DE TRANSCRIÇÃO
       expect(find.text('Transcrevendo áudio...'), findsOneWidget);
-      expect(find.byKey(Key('loading_indicator')), findsOneWidget);
+      expect(find.byKey(const Key('loading_indicator')), findsOneWidget);
       expect(find.text('Processando...'), findsOneWidget);
       
       print('✅ [UI] Estado de transcrição verificado');
       
       // Aguardar fim da transcrição (3 segundos simulados)
-      await tester.pump(Duration(seconds: 3));
+      await tester.pump(const Duration(seconds: 3));
       
       // VERIFICAR TRANSCRIÇÃO EXIBIDA
-      expect(find.byKey(Key('transcription_card')), findsOneWidget);
+      expect(find.byKey(const Key('transcription_card')), findsOneWidget);
       expect(find.text('"duas fatias de pão integral com manteiga"'), findsOneWidget);
       
       print('✅ [UI] Transcrição exibida corretamente');
       
       // Aguardar busca de alimentos (500ms simulados)
-      await tester.pump(Duration(milliseconds: 500));
+      await tester.pump(const Duration(milliseconds: 500));
       
       // VERIFICAR LISTA DE ALIMENTOS
       expect(find.text('Alimentos encontrados!'), findsOneWidget);
-      expect(find.byKey(Key('food_list_card')), findsOneWidget);
-      expect(find.byKey(Key('food_item_0')), findsOneWidget);
-      expect(find.byKey(Key('food_item_1')), findsOneWidget);
+      expect(find.byKey(const Key('food_list_card')), findsOneWidget);
+      expect(find.byKey(const Key('food_item_0')), findsOneWidget);
+      expect(find.byKey(const Key('food_item_1')), findsOneWidget);
       expect(find.text('Pão integral'), findsOneWidget);
       expect(find.text('Manteiga'), findsOneWidget);
       
       print('✅ [UI] Lista de alimentos exibida corretamente');
       
       // TESTAR ADIÇÃO DE ALIMENTO
-      await tester.tap(find.byKey(Key('add_food_button_0')));
+      await tester.tap(find.byKey(const Key('add_food_button_0')));
       await tester.pump();
       
       expect(find.text('Pão integral adicionado!'), findsOneWidget);
@@ -480,7 +480,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider<MockAudioServiceProvider>(
             create: (_) => mockAudioService,
-            child: AudioFoodRegistrationScreen(),
+            child: const AudioFoodRegistrationScreen(),
           ),
         ),
       );        // ACT - Simular erro na transcrição
@@ -488,24 +488,24 @@ void main() {
       await tester.pump();
       
       // Aguardar gravação - verificar imediatamente após o estado ser definido
-      await tester.pump(Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       expect(find.text('Gravando áudio...'), findsOneWidget);
         // Aguardar transcrição com erro - simular o tempo com pump
-      await tester.pump(Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 2));
       await tester.pump();
       
       // ASSERT - Verificar exibição do erro
-      expect(find.byKey(Key('error_card')), findsOneWidget);
+      expect(find.byKey(const Key('error_card')), findsOneWidget);
       expect(find.text('Falha na transcrição: Áudio muito baixo ou com ruído'), findsOneWidget);
-      expect(find.byKey(Key('retry_button')), findsOneWidget);
+      expect(find.byKey(const Key('retry_button')), findsOneWidget);
       
       print('✅ [UI] Erro exibido corretamente');
       
       // TESTAR BOTÃO DE RETRY
-      await tester.tap(find.byKey(Key('retry_button')));
+      await tester.tap(find.byKey(const Key('retry_button')));
       await tester.pump();
       
-      expect(find.byKey(Key('error_card')), findsNothing);
+      expect(find.byKey(const Key('error_card')), findsNothing);
       expect(find.text('Pronto para gravar'), findsOneWidget);
       
       print('✅ [UI] Retry funcionando corretamente');
@@ -524,7 +524,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider<MockAudioServiceProvider>(
             create: (_) => mockAudioService,
-            child: AudioFoodRegistrationScreen(),
+            child: const AudioFoodRegistrationScreen(),
           ),
         ),
       );
@@ -535,7 +535,7 @@ void main() {
       expect(find.byIcon(Icons.mic), findsAtLeastNWidgets(2)); // Status + Botão
       
       // Iniciar gravação
-      await tester.tap(find.byKey(Key('record_button')));
+      await tester.tap(find.byKey(const Key('record_button')));
       await tester.pump();
       
       // Estado gravação - Vermelho
@@ -545,7 +545,7 @@ void main() {
       print('✅ [UI] Ícones alterados durante gravação');
       
       // Aguardar transição para transcrição
-      await tester.pump(Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 2));
       
       // Estado transcrição - Laranja
       expect(find.byIcon(Icons.text_fields), findsOneWidget);
@@ -553,8 +553,8 @@ void main() {
       print('✅ [UI] Ícones alterados durante transcrição');
       
       // Aguardar conclusão
-      await tester.pump(Duration(seconds: 3));
-      await tester.pump(Duration(milliseconds: 500));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(milliseconds: 500));
       
       // Estado sucesso - Verde
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
@@ -576,29 +576,29 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider<MockAudioServiceProvider>(
             create: (_) => mockAudioService,
-            child: AudioFoodRegistrationScreen(),
+            child: const AudioFoodRegistrationScreen(),
           ),
         ),
       );
       
       // Processar áudio completo para ter elementos na tela
       mockAudioService.processAudioForFoodRegistration();
-      await tester.pump(Duration(seconds: 6)); // Aguardar todo o processo
+      await tester.pump(const Duration(seconds: 6)); // Aguardar todo o processo
       
       // VERIFICAR SEMANTICS DOS ELEMENTOS PRINCIPAIS
       
       // Botão de gravação deve ter semantics
-      final recordButton = find.byKey(Key('record_button'));
+      final recordButton = find.byKey(const Key('record_button'));
       expect(recordButton, findsOneWidget);
       
       // Cards devem ser acessíveis
-      expect(find.byKey(Key('status_card')), findsOneWidget);
-      expect(find.byKey(Key('transcription_card')), findsOneWidget);
-      expect(find.byKey(Key('food_list_card')), findsOneWidget);
+      expect(find.byKey(const Key('status_card')), findsOneWidget);
+      expect(find.byKey(const Key('transcription_card')), findsOneWidget);
+      expect(find.byKey(const Key('food_list_card')), findsOneWidget);
       
       // Botões de adicionar alimentos devem ter semantics únicos
-      expect(find.byKey(Key('add_food_button_0')), findsOneWidget);
-      expect(find.byKey(Key('add_food_button_1')), findsOneWidget);
+      expect(find.byKey(const Key('add_food_button_0')), findsOneWidget);
+      expect(find.byKey(const Key('add_food_button_1')), findsOneWidget);
       
       // Textos importantes devem estar presentes para screen readers
       expect(find.text('Pão integral'), findsOneWidget);

@@ -124,23 +124,23 @@ class _CustomDashboardState extends State<CustomDashboard> {
         
         if (userProvider.error != null) {
           return Center(
-            key: Key('error_display'),
+            key: const Key('error_display'),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error, color: Colors.red),
-                SizedBox(height: 8),
+                const Icon(Icons.error, color: Colors.red),
+                const SizedBox(height: 8),
                 Text('Erro: ${userProvider.error}'),
                 ElevatedButton(
-                  key: Key('retry_button'),
+                  key: const Key('retry_button'),
                   onPressed: () {
                     // Simular retry
                     userProvider.setLoading(true);
-                    Future.delayed(Duration(seconds: 1), () {
+                    Future.delayed(const Duration(seconds: 1), () {
                       userProvider.setUser('123', 'Usuario Teste');
                     });
                   },
-                  child: Text('Tentar Novamente'),
+                  child: const Text('Tentar Novamente'),
                 ),
               ],
             ),
@@ -159,10 +159,10 @@ class _CustomDashboardState extends State<CustomDashboard> {
             title: Text('Dashboard - ${userProvider.userName}'),
             actions: [
               if (networkProvider.isOffline)
-                Icon(Icons.wifi_off, key: Key('offline_indicator')),
+                const Icon(Icons.wifi_off, key: Key('offline_indicator')),
               IconButton(
-                key: Key('logout_button'),
-                icon: Icon(Icons.logout),
+                key: const Key('logout_button'),
+                icon: const Icon(Icons.logout),
                 onPressed: () => userProvider.logout(),
               ),
             ],
@@ -171,11 +171,11 @@ class _CustomDashboardState extends State<CustomDashboard> {
             children: [
               if (networkProvider.isOffline)
                 Container(
-                  key: Key('offline_banner'),
+                  key: const Key('offline_banner'),
                   width: double.infinity,
                   color: Colors.orange,
-                  padding: EdgeInsets.all(8),
-                  child: Text(
+                  padding: const EdgeInsets.all(8),
+                  child: const Text(
                     'Modo Offline - Dados podem estar desatualizados',
                     style: TextStyle(color: Colors.white),
                     textAlign: TextAlign.center,
@@ -183,18 +183,18 @@ class _CustomDashboardState extends State<CustomDashboard> {
                 ),
               Expanded(
                 child: ListView(
-                  key: Key('dashboard_content'),
+                  key: const Key('dashboard_content'),
                   children: [
                     ListTile(
-                      title: Text('ID do Usuário'),
+                      title: const Text('ID do Usuário'),
                       subtitle: Text(userProvider.userId ?? 'N/A'),
                     ),
                     ListTile(
-                      title: Text('Status da Conexão'),
+                      title: const Text('Status da Conexão'),
                       subtitle: Text(networkProvider.isOnline ? 'Online' : 'Offline'),
                     ),
                     ListTile(
-                      title: Text('Última Atualização'),
+                      title: const Text('Última Atualização'),
                       subtitle: Text(DateTime.now().toString()),
                     ),                  ],
                 ),
@@ -265,27 +265,27 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
       
       // Estado inicial - não logado
-      expect(find.byKey(Key('login_prompt')), findsOneWidget);
+      expect(find.byKey(const Key('login_prompt')), findsOneWidget);
       print('👤 [STATE] Estado inicial: não logado');
       
       // Simular login
       userProvider.setLoading(true);
       await tester.pump();
       
-      expect(find.byKey(Key('loading_indicator')), findsOneWidget);
+      expect(find.byKey(const Key('loading_indicator')), findsOneWidget);
       print('⏳ [STATE] Loading state ativo');      // Completar login
       userProvider.setUser('123', 'Teste User');
       await tester.pump(); // Primeira reconstrução
       await tester.pump(const Duration(milliseconds: 100)); // Aguarda estabilização
       await tester.pump(); // Pump extra para garantir que o estado seja processado
       
-      expect(find.byKey(Key('dashboard_content')), findsOneWidget);
+      expect(find.byKey(const Key('dashboard_content')), findsOneWidget);
       expect(find.text('Dashboard - Teste User'), findsOneWidget);
       print('✅ [STATE] Usuario logado - Dashboard exibido');
       
@@ -308,7 +308,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -316,16 +316,16 @@ void main() {
       await tester.pump();
       
       // Estado inicial - online
-      expect(find.byKey(Key('offline_indicator')), findsNothing);
-      expect(find.byKey(Key('offline_banner')), findsNothing);
+      expect(find.byKey(const Key('offline_indicator')), findsNothing);
+      expect(find.byKey(const Key('offline_banner')), findsNothing);
       print('🌐 [NETWORK] Estado inicial: Online');
       
       // Simular perda de conexão
       networkProvider.setOnlineStatus(false);
       await tester.pump();
       
-      expect(find.byKey(Key('offline_indicator')), findsOneWidget);
-      expect(find.byKey(Key('offline_banner')), findsOneWidget);
+      expect(find.byKey(const Key('offline_indicator')), findsOneWidget);
+      expect(find.byKey(const Key('offline_banner')), findsOneWidget);
       expect(find.text('Modo Offline - Dados podem estar desatualizados'), findsOneWidget);
       print('📶 [NETWORK] Modo offline ativo - UI atualizada');
       
@@ -333,8 +333,8 @@ void main() {
       networkProvider.setOnlineStatus(true);
       await tester.pump();
       
-      expect(find.byKey(Key('offline_indicator')), findsNothing);
-      expect(find.byKey(Key('offline_banner')), findsNothing);
+      expect(find.byKey(const Key('offline_indicator')), findsNothing);
+      expect(find.byKey(const Key('offline_banner')), findsNothing);
       print('🌐 [NETWORK] Reconectado - UI voltou ao normal');
       
       stopwatch.stop();
@@ -393,7 +393,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -402,24 +402,24 @@ void main() {
       userProvider.setError('Falha na conexão com servidor');
       await tester.pump();
       
-      expect(find.byKey(Key('error_display')), findsOneWidget);
+      expect(find.byKey(const Key('error_display')), findsOneWidget);
       expect(find.text('Erro: Falha na conexão com servidor'), findsOneWidget);
-      expect(find.byKey(Key('retry_button')), findsOneWidget);
+      expect(find.byKey(const Key('retry_button')), findsOneWidget);
       print('❌ [ERROR] Erro exibido na UI com botão de retry');
         // Testar retry
-      await tester.tap(find.byKey(Key('retry_button')));
+      await tester.tap(find.byKey(const Key('retry_button')));
       await tester.pump();
       
-      expect(find.byKey(Key('loading_indicator')), findsOneWidget);
+      expect(find.byKey(const Key('loading_indicator')), findsOneWidget);
       print('🔄 [RETRY] Loading state após retry');
         // Simular sucesso após retry - aguardar o Future.delayed de 1 segundo
-      await tester.pump(Duration(seconds: 1)); // Aguardar o Future.delayed
+      await tester.pump(const Duration(seconds: 1)); // Aguardar o Future.delayed
       await tester.pump(); // Processar o setUser
       await tester.pump(const Duration(milliseconds: 100)); // Estabilizar UI
       await tester.pump(); // Pump extra para garantir que o estado seja processado
       
-      expect(find.byKey(Key('dashboard_content')), findsOneWidget);
-      expect(find.byKey(Key('error_display')), findsNothing);
+      expect(find.byKey(const Key('dashboard_content')), findsOneWidget);
+      expect(find.byKey(const Key('error_display')), findsNothing);
       print('✅ [RECOVERY] Erro resolvido após retry');
       
       stopwatch.stop();
@@ -438,7 +438,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -456,7 +456,7 @@ void main() {
         userProvider.setLoading(true);
         await tester.pump();
         
-        expect(find.byKey(Key('loading_indicator')), findsOneWidget);
+        expect(find.byKey(const Key('loading_indicator')), findsOneWidget);
           // Simular tempo de loading
         await tester.pump(Duration(milliseconds: state['duration'] as int));
         
@@ -465,8 +465,8 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50)); // Aguarda estabilização
         await tester.pump(); // Pump extra para garantir que o loading seja removido
         
-        expect(find.byKey(Key('loading_indicator')), findsNothing);
-        expect(find.byKey(Key('dashboard_content')), findsOneWidget);
+        expect(find.byKey(const Key('loading_indicator')), findsNothing);
+        expect(find.byKey(const Key('dashboard_content')), findsOneWidget);
         
         print('✅ [LOADING] ${state['description']} completed');
         
@@ -491,7 +491,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -510,21 +510,21 @@ void main() {
       networkProvider.setOnlineStatus(false);
       await tester.pump();
       
-      expect(find.byKey(Key('offline_banner')), findsOneWidget);
+      expect(find.byKey(const Key('offline_banner')), findsOneWidget);
       print('✅ [STEP 2] Offline mode activated');
       
       // 3. Voltar online
       networkProvider.setOnlineStatus(true);
       await tester.pump();
       
-      expect(find.byKey(Key('offline_banner')), findsNothing);
+      expect(find.byKey(const Key('offline_banner')), findsNothing);
       print('✅ [STEP 3] Back online');
       
       // 4. Logout
-      await tester.tap(find.byKey(Key('logout_button')));
+      await tester.tap(find.byKey(const Key('logout_button')));
       await tester.pump();
       
-      expect(find.byKey(Key('login_prompt')), findsOneWidget);
+      expect(find.byKey(const Key('login_prompt')), findsOneWidget);
       print('✅ [STEP 4] Logout completed');
       
       stopwatch.stop();
@@ -545,7 +545,7 @@ void main() {
       when(mockPrefs.remove('pending_sync')).thenAnswer((_) async => true);
       
       // Simular processo de sync
-      final syncFuture = Future.delayed(Duration(milliseconds: 300), () {
+      final syncFuture = Future.delayed(const Duration(milliseconds: 300), () {
         // Simular sucesso
         syncCompleted = true;
         return {'status': 'success', 'synced_items': 5};
@@ -581,7 +581,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -600,7 +600,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -676,7 +676,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -757,29 +757,29 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
       
       // Pump parcial - apenas algumas frames
-      await tester.pump(Duration(milliseconds: 16)); // 1 frame
+      await tester.pump(const Duration(milliseconds: 16)); // 1 frame
       print('🔄 [PUMP] 1 frame pumped');
       
-      await tester.pump(Duration(milliseconds: 32)); // 2 frames
+      await tester.pump(const Duration(milliseconds: 32)); // 2 frames
       print('🔄 [PUMP] 2 frames pumped');
       
       // Pump com mudança de estado no meio
       networkProvider.setOnlineStatus(false);
-      await tester.pump(Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 16));
       
-      expect(find.byKey(Key('offline_indicator')), findsOneWidget);
+      expect(find.byKey(const Key('offline_indicator')), findsOneWidget);
       print('🔄 [PUMP] Estado alterado durante pump parcial');
       
       // Completar pump
       await tester.pumpAndSettle();
       
-      expect(find.byKey(Key('offline_banner')), findsOneWidget);
+      expect(find.byKey(const Key('offline_banner')), findsOneWidget);
       print('🔄 [PUMP] Pump completo realizado');
       
       stopwatch.stop();
@@ -827,7 +827,7 @@ void main() {
               ChangeNotifierProvider.value(value: userProvider),
               ChangeNotifierProvider.value(value: networkProvider),
             ],
-            child: CustomDashboard(),
+            child: const CustomDashboard(),
           ),
         ),
       );
@@ -835,7 +835,7 @@ void main() {
       // Testar transições de estado com animações
       userProvider.setLoading(true);
       await tester.pump();
-      await tester.pump(Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       print('🎬 [ANIMATION] Loading animation ativa');
@@ -843,10 +843,10 @@ void main() {
       // Transição para estado logado
       userProvider.setUser('123', 'Animation Test');
       await tester.pump(); // Início da transição
-      await tester.pump(Duration(milliseconds: 16)); // Frame animation
+      await tester.pump(const Duration(milliseconds: 16)); // Frame animation
       
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.byKey(Key('dashboard_content')), findsOneWidget);
+      expect(find.byKey(const Key('dashboard_content')), findsOneWidget);
       print('🎬 [ANIMATION] Transição para dashboard');
       
       // Pump restante da animação
@@ -874,7 +874,7 @@ void main() {
         
         // Simular uso
         provider.setUser('user$i', 'Test User $i');
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
       }
       
       print('🧠 [MEMORY] ${providers.length} providers criados');
@@ -896,7 +896,7 @@ void main() {
       print('🧹 [MEMORY] Providers disposed');
       
       // Simular garbage collection delay
-      await Future.delayed(Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 100));
       
       stopwatch.stop();
       print('📊 [PERFORMANCE] Tempo memory management: ${stopwatch.elapsedMilliseconds}ms');
