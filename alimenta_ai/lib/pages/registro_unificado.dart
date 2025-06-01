@@ -153,17 +153,13 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       fatTotal = 0;
       carbsTotal = 0;
       initializeMeals(); // Reinicializar com dados vazios
-    });
-
-    // Carregar alimentos persistidos
+    });    // Carregar alimentos persistidos
     await _loadDetailedFoodsForDate(dateString);
 
-    // Carregar resumo diário da API real (mas sem sobrescrever os dados já calculados)
-    nutricaoService.atualizarResumoDiario().then((_) {
-      // Não atualizar dados automaticamente, pois já foram calculados pelos alimentos
-      debugPrint(
-          '✅ Resumo da API carregado, mas mantendo dados calculados dos alimentos');
-    });
+    // NÃO carregar resumo da API pois pode sobrescrever os dados já carregados
+    // nutricaoService.atualizarResumoDiario().then((_) {
+    //   debugPrint('✅ Resumo da API carregado, mas mantendo dados calculados dos alimentos');
+    // });
   }
 
   /// Carregar metas definidas pela nutricionista (sem autenticação)
@@ -244,14 +240,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         items: [],
       ),
     ];
-  }
-
-  // Carrega refeições de acordo com a data (dados da API)
+  }  // Carrega refeições de acordo com a data (dados da API)
   void _loadMealsForDate(DateTime date) async {
-    // Atualizar dados através da API
-    final nutricaoService =
-        Provider.of<NutricaoService>(context, listen: false);
-
     // Carregar dados para a data selecionada
     final dateString =
         "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
@@ -267,14 +257,14 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       initializeMeals(); // Reinicializar com dados vazios
     });
 
-    // 1° Passo: Carregar alimentos detalhados do backend
-    await _loadDetailedFoodsForDate(dateString);
-
-    // 2° Passo: Carregar metas para a data específica após os alimentos
+    // 1° Passo: Carregar metas para a data específica ANTES dos alimentos
     _carregarMetasParaData(dateString);
 
-    // 3° Passo: Atualizar resumo diário (sem sobrescrever os dados já carregados)
-    nutricaoService.atualizarResumoDiario(dateString);
+    // 2° Passo: Carregar alimentos detalhados do backend
+    await _loadDetailedFoodsForDate(dateString);
+
+    // 3° Passo: NÃO chamar atualizarResumoDiario pois pode sobrescrever os dados
+    // nutricaoService.atualizarResumoDiario(dateString); // REMOVIDO - causa conflito
 
     // Garantir que a interface seja atualizada
     setState(() {});
