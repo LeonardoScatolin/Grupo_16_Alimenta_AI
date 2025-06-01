@@ -139,14 +139,23 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     nutricaoService.configurarUsuarios(DEFAULT_PACIENTE_ID, DEFAULT_NUTRI_ID);
 
     // Carregar metas públicas primeiro
-    _carregarMetasPublicas();
-
-    // Carregar alimentos detalhados para a data atual PRIMEIRO
+    _carregarMetasPublicas();    // Carregar alimentos detalhados para a data atual PRIMEIRO
     final dateString =
         "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
 
+    // TESTE: Verificar se a API está funcionando
+    debugPrint('🧪 TESTE: Testando API antes de carregar dados...');
+    try {
+      final testResult = await nutricaoService.apiService.obterAlimentosDetalhados(DEFAULT_PACIENTE_ID, dateString);
+      debugPrint('🧪 TESTE: Resultado da API direta: $testResult');
+    } catch (e) {
+      debugPrint('🧪 TESTE: Erro na API: $e');
+    }
+
     // Carregar alimentos persistidos (só na inicialização da página)
+    debugPrint('🚀 CHAMANDO _loadDetailedFoodsForDate para $dateString');
     await _loadDetailedFoodsForDate(dateString);
+    debugPrint('🏁 _loadDetailedFoodsForDate CONCLUÍDO para $dateString');
 
     // NÃO carregar resumo da API pois pode sobrescrever os dados já carregados
     // nutricaoService.atualizarResumoDiario().then((_) {
@@ -270,7 +279,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
     debugPrint('✅ Dados para $dateString carregados com sucesso!');
   }
-
   // Carrega alimentos detalhados salvos no backend para a data específica
   Future<void> _loadDetailedFoodsForDate(String dateString) async {
     final nutricaoService =
@@ -278,16 +286,23 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
     try {
       debugPrint('🔍 Iniciando carregamento de alimentos para $dateString...');
+      debugPrint('🏥 Paciente ID configurado: ${nutricaoService.pacienteId}');
 
       // Buscar alimentos detalhados para a data agrupados por refeição
       final alimentosAgrupados =
           await nutricaoService.obterAlimentosPorData(dateString);
 
       debugPrint('📊 Resultado da busca:');
-      debugPrint(
-          '- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
-      debugPrint(
-          '- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
+      debugPrint('- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
+      debugPrint('- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
+      
+      // Debug detalhado por refeição
+      alimentosAgrupados.forEach((tipo, alimentos) {
+        debugPrint('  📝 $tipo: ${alimentos.length} alimentos');
+        for (var alimento in alimentos) {
+          debugPrint('    🍎 ${alimento.nomeAlimento} - ${alimento.quantidade}g');
+        }
+      });
       if (alimentosAgrupados.isNotEmpty) {        debugPrint(
             '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}');
 

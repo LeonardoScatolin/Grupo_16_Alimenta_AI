@@ -684,11 +684,15 @@ class RegistroAlimentoDetalhado {
       'data_registro': dataRegistro.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
     };
-  }
-
-  // Método para obter nome amigável do tipo de refeição
+  }  // Método para obter nome amigável do tipo de refeição
   String get tipoRefeicaoAmigavel {
     final tipo = tipoRefeicao.toLowerCase().trim();
+    
+    // Se está vazio, usar 'Café da Manhã' como padrão
+    if (tipo.isEmpty) {
+      return 'Café da Manhã';
+    }
+    
     switch (tipo) {
       case 'café da manhã':
       case 'cafe_manha':
@@ -706,11 +710,12 @@ class RegistroAlimentoDetalhado {
       case 'lanche da tarde':
       case 'lanche_tarde':
       case 'lanche':
+      case 'lanches':
         return 'Lanches';
       case 'ceia':
         return 'Lanches';
       default:
-        return 'Lanches';
+        return 'Café da Manhã'; // Padrão para valores desconhecidos
     }
   }
 }
