@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import 'package:alimenta_ai/models/modelo_categoria.dart';
 import 'package:alimenta_ai/models/ver_dietanutri.dart';
@@ -678,7 +680,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           // Encontrar a refeição correspondente e adicionar o item
           final mealIndex = meals.indexWhere((meal) =>
               meal.title.toLowerCase() == selectedMealTitle.toLowerCase());
-
           if (mealIndex != -1) {
             setState(() {
               meals[mealIndex].items.add(novoItem);
@@ -694,6 +695,23 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               fatTotal += novoItem.fat;
               carbsTotal += novoItem.carbs;
             });
+
+            // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
+            try {
+              await _salvarAlimentoNoBackend(
+                nomeAlimento: foodData['nome'],
+                quantidade: foodData['quantidade_sugerida'],
+                tipoRefeicao: selectedMealTitle,
+                calorias: (foodData['calorias'] as num).toDouble(),
+                proteinas: (foodData['proteinas'] as num).toDouble(),
+                carboidratos: (foodData['carboidratos'] as num).toDouble(),
+                gorduras: (foodData['gordura'] as num).toDouble(),
+              );
+              debugPrint('✅ Alimento salvo no backend com sucesso!');
+            } catch (e) {
+              debugPrint('⚠️ Erro ao salvar no backend: $e');
+              // Continuar mesmo se der erro no backend (dados já estão na UI)
+            }
 
             // Limpar dados de gravação
             setState(() {
@@ -736,6 +754,72 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         setState(() => showRecordingModal = true); // Voltar ao modal
       }
     }
+  }
+
+  /// 🔥 MÉTODO CRÍTICO: Salva alimento no backend para persistência
+  Future<void> _salvarAlimentoNoBackend({
+    required String nomeAlimento,
+    required int quantidade,
+    required String tipoRefeicao,
+    required double calorias,
+    required double proteinas,
+    required double carboidratos,
+    required double gorduras,
+  }) async {
+    try {
+      debugPrint('🔄 Salvando alimento no backend...');
+      debugPrint('📊 Dados: $nomeAlimento ($quantidade g) - $tipoRefeicao');
+
+      // Pegar o usuário atual
+      String? usuarioId = await _getStoredUserId();
+      if (usuarioId == null) {
+        throw Exception('Usuário não identificado');
+      }
+
+      // Acessar o API service através do NutricaoService
+      final nutricaoService = Provider.of<NutricaoService>(context,
+          listen:
+              false); // Preparar dados para o backend (formato esperado pela API)
+      final alimentoData = {
+        'nomeAlimento': nomeAlimento,
+        'quantidade': quantidade,
+        'tipoRefeicao': tipoRefeicao.toLowerCase(),
+        'pacienteId': int.parse(usuarioId),
+        'nutriId': 1, // Por enquanto usar nutricionista padrão
+        'observacoes':
+            'Registrado via Flutter - ${_formatDateForBackend(selectedDate)}',
+      };
+
+      debugPrint(
+          '📤 Enviando para backend: $alimentoData'); // Chamar API para salvar
+      final response = await nutricaoService.apiService
+          .salvarAlimentoDetalhado(alimentoData);
+
+      if (response['success'] == true) {
+        debugPrint('✅ Alimento salvo no backend com sucesso');
+      } else {
+        throw Exception('Resposta inválida do backend: $response');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao salvar alimento no backend: $e');
+      rethrow; // Re-throw para que o caller possa tratar
+    }
+  }
+
+  /// Helper para obter ID do usuário armazenado
+  Future<String?> _getStoredUserId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('user_id');
+    } catch (e) {
+      debugPrint('❌ Erro ao obter user_id: $e');
+      return null;
+    }
+  }
+
+  /// Helper para formatar data para o backend (YYYY-MM-DD)
+  String _formatDateForBackend(DateTime date) {
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 
   @override

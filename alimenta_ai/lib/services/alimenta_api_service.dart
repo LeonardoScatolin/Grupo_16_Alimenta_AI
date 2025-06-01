@@ -557,6 +557,50 @@ class AlimentaAPIService {
     }
   }
 
+  // ===============================================
+  // 🍽️ ALIMENTOS DETALHADOS
+  // ===============================================
+
+  /// Salvar alimento detalhado no backend
+  Future<Map<String, dynamic>> salvarAlimentoDetalhado(
+      Map<String, dynamic> alimentoData) async {
+    try {
+      debugPrint(
+          '💾 Salvando alimento no backend: ${alimentoData['nomeAlimento']}');
+
+      // Preparar dados para o endpoint /alimentos/calcular-macros
+      final payload = {
+        'nome_alimento': alimentoData['nomeAlimento'],
+        'quantidade': alimentoData['quantidade'],
+        'paciente_id': alimentoData['pacienteId'],
+        'nutri_id': alimentoData['nutriId'],
+        'tipo_refeicao': alimentoData['tipoRefeicao'] ?? 'outro',
+        'observacoes': alimentoData['observacoes'],
+      };
+
+      debugPrint('📤 Payload enviado: $payload');
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/alimentos/calcular-macros'),
+        headers: _headers,
+        body: json.encode(payload),
+      );
+
+      final result = _handleResponse(response);
+
+      if (result['success'] == true) {
+        debugPrint('✅ Alimento salvo com sucesso no backend');
+      } else {
+        debugPrint('❌ Erro ao salvar alimento: ${result['error']}');
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('💥 Erro ao salvar alimento: $e');
+      return _handleError(e);
+    }
+  }
+
   /// Formatar data para API (YYYY-MM-DD)
   String _formatDate(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
