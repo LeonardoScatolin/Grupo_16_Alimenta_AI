@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -55,9 +56,16 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   int proteinGoal = 150;
   int fatGoal = 80;
   int carbsGoal = 250;
-
   // Modelo de dados para refeições
   late List<MealData> meals;
+
+  // Cache em memória das refeições por data
+  Map<String, List<MealData>> _mealsByDate = {};
+
+  // Getter para obter refeições da data atual
+  List<MealData> get _currentDisplayMeals =>
+      _mealsByDate[_formatDateForBackend(selectedDate)] ??
+      _initializeEmptyMealsForDate();
 
   // Controle de visibilidade do modal de gravação
   bool showRecordingModal = false;
@@ -95,12 +103,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     selectedDate = _getBrasiliaTimeNow();
     _initialScrollDone = false;
     initializeMeals();
-    calculateTotalCalories();
-
-    // Carregar dados do NutricaoService
+    calculateTotalCalories(); // Carregar dados do NutricaoService
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _inicializarServicos();
-      _carregarDadosNutricao();
+      // Carregar dados para a data atual (prioriza SharedPreferences)
+      _loadMealsForDate(selectedDate);
       // Verificar permissões do microfone
       _verificarPermissoesMicrofone();
     });
@@ -108,8 +115,21 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
   // Inicializar serviços com dados do usuário
   Future<void> _inicializarServicos() async {
-    // Configurações de teste - por enquanto usar dados fixos
+    // Configurações de teste - CORRIGIDO: usar ID do usuário logado
     debugPrint('⚙️ Inicializando serviços...');
+
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+
+    // Obter IDs do usuário logado dinamicamente
+    final userIdString =
+        await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+    final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+
+    debugPrint('👤 Configurando serviços para usuário ID: $userId');
+
+    // Configurar usuários dinamicamente
+    nutricaoService.configurarUsuarios(userId, DEFAULT_NUTRI_ID);
 
     // Carregar metas da API
     _carregarMetasPublicas();
@@ -131,23 +151,34 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       }
     }
   }
+
   void _carregarDadosNutricao() async {
     final nutricaoService =
         Provider.of<NutricaoService>(context, listen: false);
 
-    // Configurar usuários padrão
-    nutricaoService.configurarUsuarios(DEFAULT_PACIENTE_ID, DEFAULT_NUTRI_ID);
+    // CORRIGIDO: Configurar usuários dinamicamente
+    final userIdString =
+        await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+    final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+
+    debugPrint('👤 Configurando NutricaoService para usuário ID: $userId');
+    nutricaoService.configurarUsuarios(userId, DEFAULT_NUTRI_ID);
 
     // Carregar metas públicas primeiro
-    _carregarMetasPublicas();    // Carregar alimentos detalhados para a data atual PRIMEIRO
+    _carregarMetasPublicas(); // Carregar alimentos detalhados para a data atual PRIMEIRO
     final dateString =
-        "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-
-    // TESTE: Verificar se a API está funcionando
+        "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"; // TESTE: Verificar se a API está funcionando
     debugPrint('🧪 TESTE: Testando API antes de carregar dados...');
     try {
-      final testResult = await nutricaoService.apiService.obterAlimentosDetalhados(DEFAULT_PACIENTE_ID, dateString);
-      debugPrint('🧪 TESTE: Resultado da API direta: $testResult');
+      // CORRIGIDO: usar ID do usuário logado
+      final userIdString =
+          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+      final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+
+      final testResult = await nutricaoService.apiService
+          .obterAlimentosDetalhados(userId, dateString);
+      debugPrint(
+          '🧪 TESTE: Resultado da API direta para usuário $userId: $testResult');
     } catch (e) {
       debugPrint('🧪 TESTE: Erro na API: $e');
     }
@@ -169,9 +200,15 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         Provider.of<NutricaoService>(context, listen: false);
 
     try {
-      // Usar IDs fixos para teste - você pode modificar para usar IDs reais
+      // CORRIGIDO: usar ID do usuário logado dinamicamente
+      final userIdString =
+          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+      final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+
+      debugPrint('👤 Carregando metas para usuário ID: $userId');
+
       final meta = await nutricaoService.buscarMetasPublicas(
-        pacienteIdOverride: DEFAULT_PACIENTE_ID, // ID do paciente
+        pacienteIdOverride: userId, // ID do paciente logado
         nutriIdOverride: DEFAULT_NUTRI_ID, // ID da nutricionista
       );
 
@@ -241,44 +278,45 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         items: [],
       ),
     ];
-  }  // Carrega refeições de acordo com a data (dados da API)
-  void _loadMealsForDate(DateTime date) async {
-    // Carregar dados para a data selecionada
-    final dateString =
-        "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";    debugPrint('🗓️ Carregando dados para a data: $dateString');
+  } // Carrega refeições de acordo com a data (dados do cache local ou API)
 
-    // Só limpar dados se for uma mudança real de data
-    bool isDifferentDate = dateString != 
-        "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
-    
-    if (isDifferentDate) {
-      debugPrint('📅 Mudança de data detectada - limpando dados locais');
-      // Limpar dados locais primeiro só quando necessário
+  void _loadMealsForDate(DateTime date) async {
+    // Atualizar selectedDate
+    selectedDate = date;
+
+    // Carregar dados para a data selecionada
+    final dateString = _formatDateForBackend(date);
+    debugPrint('🗓️ Carregando dados para a data: $dateString');
+
+    // Primeiro: tentar carregar do SharedPreferences
+    final cachedMeals = await _loadMealsFromPrefs(dateString);
+
+    if (cachedMeals != null) {
+      debugPrint('� Dados encontrados no cache local para $dateString');
+
+      // Atualizar cache em memória
+      _mealsByDate[dateString] = cachedMeals;
+
+      // Atualizar variável meals para compatibilidade com código existente
       setState(() {
-        totalDailyCalories = 0;
-        proteinTotal = 0;
-        fatTotal = 0;
-        carbsTotal = 0;
-        initializeMeals(); // Reinicializar com dados vazios
+        meals = List.from(cachedMeals);
       });
-    } else {
-      debugPrint('📅 Mesma data - mantendo dados existentes');
+
+      // Atualizar totais de macronutrientes
+      _updateTotalsForDate(dateString);
+
+      // Carregar metas para a data
+      _carregarMetasParaData(dateString);
+
+      debugPrint('✅ Dados carregados do cache local para $dateString');
+      return;
     }
 
-    // 1° Passo: Carregar metas para a data específica ANTES dos alimentos
-    _carregarMetasParaData(dateString);
-
-    // 2° Passo: Carregar alimentos detalhados do backend
-    await _loadDetailedFoodsForDate(dateString);
-
-    // 3° Passo: NÃO chamar atualizarResumoDiario pois pode sobrescrever os dados
-    // nutricaoService.atualizarResumoDiario(dateString); // REMOVIDO - causa conflito
-
-    // Garantir que a interface seja atualizada
-    setState(() {});
-
-    debugPrint('✅ Dados para $dateString carregados com sucesso!');
+    // Se não há dados no cache, buscar do backend
+    debugPrint('🌐 Buscando dados do backend para $dateString');
+    await _fetchAndSetMealsForDate(dateString);
   }
+
   // Carrega alimentos detalhados salvos no backend para a data específica
   Future<void> _loadDetailedFoodsForDate(String dateString) async {
     final nutricaoService =
@@ -293,17 +331,21 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           await nutricaoService.obterAlimentosPorData(dateString);
 
       debugPrint('📊 Resultado da busca:');
-      debugPrint('- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
-      debugPrint('- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
-      
+      debugPrint(
+          '- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
+      debugPrint(
+          '- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
+
       // Debug detalhado por refeição
       alimentosAgrupados.forEach((tipo, alimentos) {
         debugPrint('  📝 $tipo: ${alimentos.length} alimentos');
         for (var alimento in alimentos) {
-          debugPrint('    🍎 ${alimento.nomeAlimento} - ${alimento.quantidade}g');
+          debugPrint(
+              '    🍎 ${alimento.nomeAlimento} - ${alimento.quantidade}g');
         }
       });
-      if (alimentosAgrupados.isNotEmpty) {        debugPrint(
+      if (alimentosAgrupados.isNotEmpty) {
+        debugPrint(
             '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}');
 
         // Atualizar as meals com os alimentos carregados
@@ -373,10 +415,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               debugPrint('    - ${item.name} (${item.calories} cal)');
             }
           }
-        });
+        }); // Salvar dados carregados do backend no cache local
+        await _saveMealsToPrefs(dateString, meals);
 
         debugPrint(
-            '✅ Carregados ${alimentosAgrupados.values.expand((x) => x).length} alimentos para $dateString');
+            '✅ Carregados ${alimentosAgrupados.values.expand((x) => x).length} alimentos para $dateString e salvos no cache');
       } else {
         debugPrint(
             'ℹ️ Nenhum alimento encontrado para $dateString - mantendo dados zerados');
@@ -530,7 +573,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           return; // Não remove localmente se houve erro
         }
       }
-
       setState(() {
         // Remove o item
         meals[mealIndex].items.removeAt(itemIndex);
@@ -546,6 +588,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         // Recalcula os totais diários
         calculateTotalCalories();
       });
+
+      // Salvar no cache local após remoção bem-sucedida
+      final currentDateString = _formatDateForBackend(selectedDate);
+      _mealsByDate[currentDateString] = List.from(meals);
+      await _saveMealsToPrefs(currentDateString, meals);
+      debugPrint('💾 Cache atualizado após remoção de alimento');
     }
   }
 
@@ -720,7 +768,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               proteinTotal += novoItem.protein;
               fatTotal += novoItem.fat;
               carbsTotal += novoItem.carbs;
-            });            // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
+            }); // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
             try {
               await _salvarAlimentoNoBackend(
                 nomeAlimento: foodData['nome'],
@@ -732,6 +780,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                 gorduras: (foodData['gordura'] as num).toDouble(),
               );
               debugPrint('✅ Alimento salvo no backend com sucesso!');
+
+              // Salvar no cache local após sucesso no backend
+              final currentDateString = _formatDateForBackend(selectedDate);
+              _mealsByDate[currentDateString] = List.from(meals);
+              await _saveMealsToPrefs(currentDateString, meals);
+              debugPrint('💾 Dados atualizados no cache local');
 
               // ⚠️ NÃO RECARREGAR - Os dados já estão na UI e foram salvos no backend
               // O reload pode causar perda de dados se o backend ainda não retornou
@@ -871,7 +925,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
   /// Helper para formatar data para o backend (YYYY-MM-DD)
   String _formatDateForBackend(DateTime date) {
-    return DateFormat('yyyy-MM-dd').format(date);
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
   /// Helper para mapear tipos de refeição para o formato do backend
@@ -897,6 +951,200 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     };
 
     return mapeamentoRefeicoes[tipoRefeicaoBackend] ?? 'Lanches';
+  }
+
+  // Função para inicializar refeições vazias com placeholders
+  List<MealData> _initializeEmptyMealsForDate() {
+    return [
+      MealData(
+        title: "Café da Manhã",
+        totalCalories: 0,
+        items: [
+          MealItemData(
+            name: "Adicione um alimento",
+            calories: 0,
+            isPlaceholder: true,
+          )
+        ],
+      ),
+      MealData(
+        title: "Almoço",
+        totalCalories: 0,
+        items: [
+          MealItemData(
+            name: "Adicione um alimento",
+            calories: 0,
+            isPlaceholder: true,
+          )
+        ],
+      ),
+      MealData(
+        title: "Lanches",
+        totalCalories: 0,
+        items: [
+          MealItemData(
+            name: "Adicione um alimento",
+            calories: 0,
+            isPlaceholder: true,
+          )
+        ],
+      ),
+      MealData(
+        title: "Janta",
+        totalCalories: 0,
+        items: [
+          MealItemData(
+            name: "Adicione um alimento",
+            calories: 0,
+            isPlaceholder: true,
+          )
+        ],
+      ),
+    ];
+  }
+
+  // Função para salvar refeições no SharedPreferences
+  Future<void> _saveMealsToPrefs(
+      String dateString, List<MealData> mealsForDate) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Verificar se há dados reais (não apenas placeholders) para salvar
+      bool hasRealData = false;
+      for (var meal in mealsForDate) {
+        if (meal.items.any((item) => !item.isPlaceholder)) {
+          hasRealData = true;
+          break;
+        }
+      }
+
+      // CORRIGIDO: Obter ID do usuário logado dinamicamente
+      final userIdString =
+          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+      final key = 'meals_${userIdString}_$dateString';
+
+      if (hasRealData) {
+        // Salvar dados como JSON
+        final jsonString =
+            jsonEncode(mealsForDate.map((meal) => meal.toJson()).toList());
+        await prefs.setString(key, jsonString);
+        debugPrint(
+            '💾 Dados salvos no SharedPreferences para usuário $userIdString na data $dateString');
+      } else {
+        // Remover chave se não há dados reais
+        await prefs.remove(key);
+        debugPrint(
+            '🗑️ Dados vazios - chave removida do SharedPreferences para usuário $userIdString na data $dateString');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao salvar no SharedPreferences: $e');
+    }
+  }
+
+  // Função para carregar refeições do SharedPreferences
+  Future<List<MealData>?> _loadMealsFromPrefs(String dateString) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // CORRIGIDO: Obter ID do usuário logado dinamicamente
+      final userIdString =
+          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+      final key = 'meals_${userIdString}_$dateString';
+
+      final jsonString = prefs.getString(key);
+      if (jsonString != null) {
+        final List<dynamic> jsonList = jsonDecode(jsonString);
+        final meals = jsonList.map((json) => MealData.fromJson(json)).toList();
+        debugPrint(
+            '📱 Dados carregados do SharedPreferences para usuário $userIdString na data $dateString');
+        return meals;
+      }
+
+      debugPrint(
+          '📱 Nenhum dado encontrado no SharedPreferences para usuário $userIdString na data $dateString');
+      return null;
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar do SharedPreferences: $e');
+      return null;
+    }
+  }
+
+  // Função para atualizar totais de macronutrientes baseado nos dados carregados
+  void _updateTotalsForDate(String dateString) {
+    final mealsForDate = _mealsByDate[dateString];
+    if (mealsForDate != null) {
+      int totalCalories = 0;
+      int totalProtein = 0;
+      int totalFat = 0;
+      int totalCarbs = 0;
+
+      for (var meal in mealsForDate) {
+        for (var item in meal.items) {
+          if (!item.isPlaceholder) {
+            totalCalories += item.calories;
+            totalProtein += item.protein;
+            totalFat += item.fat;
+            totalCarbs += item.carbs;
+          }
+        }
+      }
+
+      setState(() {
+        totalDailyCalories = totalCalories;
+        proteinTotal = totalProtein;
+        fatTotal = totalFat;
+        carbsTotal = totalCarbs;
+      });
+
+      debugPrint('📊 Totais atualizados para $dateString: $totalCalories kcal');
+    }
+  }
+
+  // Busca dados do backend e salva no cache local
+  Future<void> _fetchAndSetMealsForDate(String dateString) async {
+    try {
+      debugPrint('🌐 Buscando dados do backend para $dateString');
+
+      // Limpar dados locais primeiro
+      setState(() {
+        totalDailyCalories = 0;
+        proteinTotal = 0;
+        fatTotal = 0;
+        carbsTotal = 0;
+        initializeMeals(); // Reinicializar com dados vazios
+      });
+
+      // Carregar metas para a data específica primeiro
+      _carregarMetasParaData(dateString);
+
+      // Carregar alimentos detalhados do backend
+      await _loadDetailedFoodsForDate(dateString);
+
+      // Atualizar cache em memória com os dados carregados
+      _mealsByDate[dateString] = List.from(meals);
+
+      // Salvar no SharedPreferences
+      await _saveMealsToPrefs(dateString, meals);
+
+      debugPrint(
+          '✅ Dados carregados do backend e salvos no cache para $dateString');
+    } catch (e) {
+      debugPrint('❌ Erro ao buscar dados do backend: $e');
+
+      // Em caso de erro, criar dados vazios
+      final emptyMeals = _initializeEmptyMealsForDate();
+      _mealsByDate[dateString] = emptyMeals;
+
+      setState(() {
+        meals = emptyMeals;
+        totalDailyCalories = 0;
+        proteinTotal = 0;
+        fatTotal = 0;
+        carbsTotal = 0;
+      });
+
+      // Salvar estado "vazio" no cache
+      await _saveMealsToPrefs(dateString, emptyMeals);
+    }
   }
 
   @override
@@ -2209,6 +2457,31 @@ class MealData {
     required this.totalCalories,
     required this.items,
   });
+
+  // Serialização para JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'items': items.map((item) => item.toJson()).toList(),
+    };
+  }
+
+  // Desserialização do JSON
+  factory MealData.fromJson(Map<String, dynamic> json) {
+    final items = (json['items'] as List)
+        .map((item) => MealItemData.fromJson(item))
+        .toList();
+
+    // Recalcular totalCalories a partir dos items
+    final totalCalories =
+        items.fold<int>(0, (sum, item) => sum + item.calories);
+
+    return MealData(
+      title: json['title'],
+      totalCalories: totalCalories,
+      items: items,
+    );
+  }
 }
 
 class MealItemData {
@@ -2229,6 +2502,32 @@ class MealItemData {
     this.isPlaceholder = false,
     this.registroId,
   });
+
+  // Serialização para JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'calories': calories,
+      'protein': protein,
+      'fat': fat,
+      'carbs': carbs,
+      'isPlaceholder': isPlaceholder,
+      'registroId': registroId,
+    };
+  }
+
+  // Desserialização do JSON
+  factory MealItemData.fromJson(Map<String, dynamic> json) {
+    return MealItemData(
+      name: json['name'],
+      calories: json['calories'],
+      protein: json['protein'] ?? 0,
+      fat: json['fat'] ?? 0,
+      carbs: json['carbs'] ?? 0,
+      isPlaceholder: json['isPlaceholder'] ?? false,
+      registroId: json['registroId'],
+    );
+  }
 }
 
 // Comportamento para remover efeito de glow azul nas listas e permitir scrolling com toque

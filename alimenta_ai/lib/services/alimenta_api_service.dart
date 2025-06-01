@@ -544,13 +544,15 @@ class AlimentaAPIService {
   // ===============================================
 
   /// Obter alimentos detalhados por data
-  Future<Map<String, dynamic>> obterAlimentosDetalhados(
-      int pacienteId, [String? data]) async {
+  Future<Map<String, dynamic>> obterAlimentosDetalhados(int pacienteId,
+      [String? data]) async {
     try {
       debugPrint('🔍 Buscando alimentos detalhados para paciente $pacienteId');
-      
+
       final dataParam = data ?? _formatDate(DateTime.now());
-      debugPrint('📅 Data da busca: $dataParam');      final url = '$baseUrl/alimentos-detalhados/data/$pacienteId?data=$dataParam';
+      debugPrint('📅 Data da busca: $dataParam');
+      final url =
+          '$baseUrl/alimentos-detalhados/data/$pacienteId?data=$dataParam';
       debugPrint('🌐 URL da requisição: $url');
 
       final response = await http.get(
@@ -559,7 +561,7 @@ class AlimentaAPIService {
       );
 
       final result = _handleResponse(response);
-      
+
       if (result['success']) {
         debugPrint('✅ Alimentos detalhados obtidos com sucesso');
         debugPrint('📊 Dados retornados: ${result['data']}');
@@ -579,15 +581,14 @@ class AlimentaAPIService {
       Map<String, dynamic> alimentoData) async {
     try {
       debugPrint(
-          '💾 Salvando alimento no backend: ${alimentoData['nomeAlimento']}');
-
-      // Preparar dados para o endpoint /alimentos/calcular-macros
+          '💾 Salvando alimento no backend: ${alimentoData['nomeAlimento']}'); // Preparar dados para o endpoint /alimentos/calcular-macros
       final payload = {
         'nome_alimento': alimentoData['nomeAlimento'],
         'quantidade': alimentoData['quantidade'],
         'paciente_id': alimentoData['pacienteId'],
         'nutri_id': alimentoData['nutriId'],
         'tipo_refeicao': alimentoData['tipoRefeicao'] ?? 'outro',
+        'data_consumo': alimentoData['dataConsumo'], // 🔥 NOVA: Data específica
         'observacoes': alimentoData['observacoes'],
       };
 
