@@ -255,10 +255,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     // Carregar dados para a data selecionada
     final dateString =
         "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-    nutricaoService.atualizarResumoDiario(dateString);
 
-    // Carregar metas para a data específica
-    _carregarMetasParaData(dateString);
+    debugPrint('🗓️ Carregando dados para a data: $dateString');
 
     // Limpar dados locais primeiro
     setState(() {
@@ -269,8 +267,19 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       initializeMeals(); // Reinicializar com dados vazios
     });
 
-    // Carregar alimentos detalhados salvos para a data
+    // 1° Passo: Carregar alimentos detalhados do backend
     await _loadDetailedFoodsForDate(dateString);
+
+    // 2° Passo: Carregar metas para a data específica após os alimentos
+    _carregarMetasParaData(dateString);
+
+    // 3° Passo: Atualizar resumo diário (sem sobrescrever os dados já carregados)
+    nutricaoService.atualizarResumoDiario(dateString);
+
+    // Garantir que a interface seja atualizada
+    setState(() {});
+
+    debugPrint('✅ Dados para $dateString carregados com sucesso!');
   }
 
   // Carrega alimentos detalhados salvos no backend para a data específica
@@ -290,17 +299,9 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           '- Tipos de refeição encontrados: ${alimentosAgrupados.keys.toList()}');
       debugPrint(
           '- Total de alimentos: ${alimentosAgrupados.values.expand((x) => x).length}');
-
       if (alimentosAgrupados.isNotEmpty) {
         debugPrint(
-            '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}'); // Mapear os tipos de refeição para corresponder aos nomes das meals
-        final Map<String, String> mapeamentoRefeicoes = {
-          'cafe_manha': 'Café da Manhã',
-          'almoco': 'Almoço',
-          'lanches': 'Lanches',
-          'janta': 'Janta',
-          'outro': 'Lanches', // Mapear 'outro' para Lanches também
-        };
+            '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}');
 
         // Atualizar as meals com os alimentos carregados
         setState(() {
@@ -308,10 +309,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           for (var meal in meals) {
             meal.items.clear();
             meal.totalCalories = 0;
-          } // Adicionar alimentos carregados
+          }
+
+          // Adicionar alimentos carregados
           alimentosAgrupados.forEach((tipoRefeicaoOriginal, alimentos) {
             final tipoRefeicaoMapeado =
-                mapeamentoRefeicoes[tipoRefeicaoOriginal] ?? 'Lanches';
+                _mapearTipoRefeicaoParaUI(tipoRefeicaoOriginal);
 
             debugPrint(
                 '🍽️ Processando: $tipoRefeicaoOriginal -> $tipoRefeicaoMapeado (${alimentos.length} alimentos)');
@@ -710,9 +713,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               proteinTotal += novoItem.protein;
               fatTotal += novoItem.fat;
               carbsTotal += novoItem.carbs;
-            });
-
-            // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
+            }); // 🔥 IMPORTANTE: SALVAR NO BACKEND PARA PERSISTÊNCIA
             try {
               await _salvarAlimentoNoBackend(
                 nomeAlimento: foodData['nome'],
@@ -724,6 +725,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                 gorduras: (foodData['gordura'] as num).toDouble(),
               );
               debugPrint('✅ Alimento salvo no backend com sucesso!');
+
+              // 🔄 RECARREGAR DADOS DO BACKEND PARA GARANTIR PERSISTÊNCIA VISUAL
+              final dateString =
+                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+              await _loadDetailedFoodsForDate(dateString);
             } catch (e) {
               debugPrint('⚠️ Erro ao salvar no backend: $e');
               // Continuar mesmo se der erro no backend (dados já estão na UI)
@@ -790,16 +796,18 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       String? usuarioId = await _getStoredUserId();
       if (usuarioId == null) {
         throw Exception('Usuário não identificado');
-      }
+      } // Acessar o API service através do NutricaoService
+      final nutricaoService =
+          Provider.of<NutricaoService>(context, listen: false);
 
-      // Acessar o API service através do NutricaoService
-      final nutricaoService = Provider.of<NutricaoService>(context,
-          listen:
-              false); // Preparar dados para o backend (formato esperado pela API)
+      // Mapear tipo de refeição para formato do backend
+      final tipoRefeicaoBackend = _mapearTipoRefeicaoParaBackend(tipoRefeicao);
+
+      // Preparar dados para o backend (formato esperado pela API)
       final alimentoData = {
         'nomeAlimento': nomeAlimento,
         'quantidade': quantidade,
-        'tipoRefeicao': tipoRefeicao.toLowerCase(),
+        'tipoRefeicao': tipoRefeicaoBackend,
         'pacienteId': int.parse(usuarioId),
         'nutriId': 1, // Por enquanto usar nutricionista padrão
         'observacoes':
@@ -847,6 +855,31 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   /// Helper para formatar data para o backend (YYYY-MM-DD)
   String _formatDateForBackend(DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);
+  }
+
+  /// Helper para mapear tipos de refeição para o formato do backend
+  String _mapearTipoRefeicaoParaBackend(String tipoRefeicaoUI) {
+    final Map<String, String> mapeamentoTipoRefeicao = {
+      'Café da Manhã': 'cafe_manha',
+      'Almoço': 'almoco',
+      'Lanches': 'lanches',
+      'Janta': 'janta',
+    };
+
+    return mapeamentoTipoRefeicao[tipoRefeicaoUI] ?? 'outro';
+  }
+
+  /// Helper para mapear tipos de refeição do backend para o formato da UI
+  String _mapearTipoRefeicaoParaUI(String tipoRefeicaoBackend) {
+    final Map<String, String> mapeamentoRefeicoes = {
+      'cafe_manha': 'Café da Manhã',
+      'almoco': 'Almoço',
+      'lanches': 'Lanches',
+      'janta': 'Janta',
+      'outro': 'Lanches',
+    };
+
+    return mapeamentoRefeicoes[tipoRefeicaoBackend] ?? 'Lanches';
   }
 
   @override
