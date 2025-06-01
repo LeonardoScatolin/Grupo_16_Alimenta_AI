@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 import 'package:alimenta_ai/models/modelo_categoria.dart';
 import 'package:alimenta_ai/models/ver_dietanutri.dart';
@@ -103,16 +102,30 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     selectedDate = _getBrasiliaTimeNow();
     _initialScrollDone = false;
     initializeMeals();
-    calculateTotalCalories();
+    // Não calcular totais aqui pois ainda não há dados carregados
 
     // Carregar dados do NutricaoService
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _inicializarServicos();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      debugPrint('🚀 Iniciando carregamento de dados no initState...');
+
+      await _inicializarServicos();
+
+      debugPrint('📅 Carregando dados para data: $selectedDate');
       // Carregar dados para a data atual (prioriza SharedPreferences)
       _loadMealsForDate(selectedDate);
+
       // Carregar metas explicitamente para garantir que são carregadas
       final dateString = _formatDateForBackend(selectedDate);
+      debugPrint('📊 Carregando metas para data: $dateString');
       _carregarMetasParaData(dateString);
+
+      // Aguardar um pouco para as operações assíncronas
+      await Future.delayed(Duration(milliseconds: 500));
+
+      debugPrint(
+          '📊 Estado atual das metas: $caloriesGoal cal, $proteinGoal prot');
+      debugPrint('📊 Estado atual das calorias: $totalDailyCalories cal');
+
       // Verificar permissões do microfone
       _verificarPermissoesMicrofone();
     });
@@ -155,48 +168,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         );
       }
     }
-  }
-
-  void _carregarDadosNutricao() async {
-    final nutricaoService =
-        Provider.of<NutricaoService>(context, listen: false);
-
-    // CORRIGIDO: Configurar usuários dinamicamente
-    final userIdString =
-        await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
-    final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
-
-    debugPrint('👤 Configurando NutricaoService para usuário ID: $userId');
-    nutricaoService.configurarUsuarios(userId, DEFAULT_NUTRI_ID);
-
-    // Carregar metas públicas primeiro
-    _carregarMetasPublicas(); // Carregar alimentos detalhados para a data atual PRIMEIRO
-    final dateString =
-        "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}"; // TESTE: Verificar se a API está funcionando
-    debugPrint('🧪 TESTE: Testando API antes de carregar dados...');
-    try {
-      // CORRIGIDO: usar ID do usuário logado
-      final userIdString =
-          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
-      final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
-
-      final testResult = await nutricaoService.apiService
-          .obterAlimentosDetalhados(userId, dateString);
-      debugPrint(
-          '🧪 TESTE: Resultado da API direta para usuário $userId: $testResult');
-    } catch (e) {
-      debugPrint('🧪 TESTE: Erro na API: $e');
-    }
-
-    // Carregar alimentos persistidos (só na inicialização da página)
-    debugPrint('🚀 CHAMANDO _loadDetailedFoodsForDate para $dateString');
-    await _loadDetailedFoodsForDate(dateString);
-    debugPrint('🏁 _loadDetailedFoodsForDate CONCLUÍDO para $dateString');
-
-    // NÃO carregar resumo da API pois pode sobrescrever os dados já carregados
-    // nutricaoService.atualizarResumoDiario().then((_) {
-    //   debugPrint('✅ Resumo da API carregado, mas mantendo dados calculados dos alimentos');
-    // });
   }
 
   /// Carregar metas definidas pela nutricionista (sem autenticação)
@@ -297,7 +268,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     final cachedMeals = await _loadMealsFromPrefs(dateString);
 
     if (cachedMeals != null) {
-      debugPrint('� Dados encontrados no cache local para $dateString');
+      debugPrint('💾 Dados encontrados no cache local para $dateString');
 
       // Atualizar cache em memória
       _mealsByDate[dateString] = cachedMeals;
@@ -307,8 +278,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         meals = List.from(cachedMeals);
       });
 
-      // Atualizar totais de macronutrientes
-      _updateTotalsForDate(dateString);
+      // Calcular totais de macronutrientes APÓS carregar os dados
+      calculateTotalCalories();
 
       // Carregar metas para a data
       _carregarMetasParaData(dateString);
@@ -462,33 +433,43 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         Provider.of<NutricaoService>(context, listen: false);
 
     try {
-      // Obter IDs dinâmicos do usuário logado
-      final userIdString =
-          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
-      final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+      // Obter ID do usuário logado corretamente
+      final userId = await _getStoredUserId();
+      final pacienteId = int.tryParse(userId ?? '') ?? DEFAULT_PACIENTE_ID;
+
+      debugPrint(
+          '🔍 Buscando metas para paciente ID: $pacienteId, data: $data');
 
       final meta = await nutricaoService.buscarMetasPublicas(
-        pacienteIdOverride: userId, // ID do paciente logado
+        pacienteIdOverride: pacienteId, // ID do paciente logado
         nutriIdOverride:
             1, // ID da nutricionista (pode ser configurável depois)
         data: data,
       );
 
       if (meta != null) {
+        debugPrint(
+            '✅ Metas encontradas: ${meta.caloriesGoal} cal, ${meta.proteinGoal} prot, ${meta.fatGoal} fat, ${meta.carbsGoal} carbs');
+
         setState(() {
           caloriesGoal = meta.caloriesGoal;
           proteinGoal = meta.proteinGoal;
           fatGoal = meta.fatGoal;
           carbsGoal = meta.carbsGoal;
         });
+
         debugPrint(
-            '✅ Metas carregadas para paciente $userId: ${meta.caloriesGoal} cal');
+            '✅ Metas carregadas e aplicadas para paciente $pacienteId: ${meta.caloriesGoal} cal');
       } else {
         debugPrint(
-            '⚠️ Nenhuma meta encontrada para paciente $userId na data $data');
+            '⚠️ Nenhuma meta encontrada para paciente $pacienteId na data $data');
+        debugPrint(
+            '🔄 Mantendo metas padrão: $caloriesGoal cal, $proteinGoal prot');
       }
     } catch (e) {
       debugPrint('❌ Erro ao carregar metas para data $data: $e');
+      debugPrint(
+          '🔄 Mantendo metas padrão: $caloriesGoal cal, $proteinGoal prot');
     }
   }
 
@@ -499,7 +480,10 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     int totalFat = 0;
     int totalCarbs = 0;
 
-    for (var meal in meals) {
+    // Usar _currentDisplayMeals ao invés de meals para garantir que usamos os dados corretos
+    final currentMeals = _currentDisplayMeals;
+
+    for (var meal in currentMeals) {
       int mealCalories = 0;
       for (var item in meal.items) {
         // Skip placeholder items when calculating totals
@@ -520,6 +504,9 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       fatTotal = totalFat;
       carbsTotal = totalCarbs;
     });
+
+    debugPrint(
+        '🧮 Cálculo realizado - Total: $totalDailyCalories cal, Protein: $totalProtein, Fat: $totalFat, Carbs: $totalCarbs');
   }
 
   // Adiciona alimento selecionado à refeição
@@ -1091,37 +1078,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     }
   }
 
-  // Função para atualizar totais de macronutrientes baseado nos dados carregados
-  void _updateTotalsForDate(String dateString) {
-    final mealsForDate = _mealsByDate[dateString];
-    if (mealsForDate != null) {
-      int totalCalories = 0;
-      int totalProtein = 0;
-      int totalFat = 0;
-      int totalCarbs = 0;
-
-      for (var meal in mealsForDate) {
-        for (var item in meal.items) {
-          if (!item.isPlaceholder) {
-            totalCalories += item.calories;
-            totalProtein += item.protein;
-            totalFat += item.fat;
-            totalCarbs += item.carbs;
-          }
-        }
-      }
-
-      setState(() {
-        totalDailyCalories = totalCalories;
-        proteinTotal = totalProtein;
-        fatTotal = totalFat;
-        carbsTotal = totalCarbs;
-      });
-
-      debugPrint('📊 Totais atualizados para $dateString: $totalCalories kcal');
-    }
-  }
-
   // Busca dados do backend e salva no cache local
   Future<void> _fetchAndSetMealsForDate(String dateString) async {
     try {
@@ -1145,6 +1101,9 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       // Atualizar cache em memória com os dados carregados
       _mealsByDate[dateString] = List.from(meals);
 
+      // Calcular totais APÓS carregar os dados do backend
+      calculateTotalCalories();
+
       // Salvar no SharedPreferences
       await _saveMealsToPrefs(dateString, meals);
 
@@ -1164,6 +1123,9 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         fatTotal = 0;
         carbsTotal = 0;
       });
+
+      // Calcular totais mesmo com dados vazios para resetar UI
+      calculateTotalCalories();
 
       // Salvar estado "vazio" no cache
       await _saveMealsToPrefs(dateString, emptyMeals);
