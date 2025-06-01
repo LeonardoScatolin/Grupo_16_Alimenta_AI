@@ -158,10 +158,10 @@ class NutricaoService extends ChangeNotifier {
       return [];
     }
   }
-
   // ===============================================
   // 📊 RESUMO E ESTATÍSTICAS
   // ===============================================
+
   /// Obter resumo diário (meta vs consumo)
   Future<void> atualizarResumoDiario([String? data]) async {
     if (_pacienteId == null) {
@@ -191,6 +191,15 @@ class NutricaoService extends ChangeNotifier {
           debugPrint('✅ Meta calorias: ${_resumoAtual?.metaDiaria.calorias}');
           debugPrint(
               '✅ Consumo calorias: ${_resumoAtual?.consumoAtual.calorias}');
+
+          // Verificar se as metas estão zeradas ou ausentes - implementar fallback
+          if (_resumoAtual != null &&
+              (_resumoAtual!.metaDiaria.calorias == 0 ||
+                  _resumoAtual!.metaDiaria.proteina == 0)) {
+            debugPrint(
+                '⚠️ Metas ausentes no resumo. Buscando metas públicas...');
+            await _aplicarFallbackMetas(data);
+          }
         } catch (parseError) {
           debugPrint('💥 Erro ao fazer parse do ResumoDiario: $parseError');
           debugPrint('💥 Stack trace: ${parseError.toString()}');
@@ -207,6 +216,35 @@ class NutricaoService extends ChangeNotifier {
       _error = 'Erro inesperado: $e';
       debugPrint('💥 Erro inesperado: $e');
       _setLoading(false);
+    }
+  }
+
+  /// Método auxiliar para aplicar fallback de metas quando não disponíveis no resumo
+  Future<void> _aplicarFallbackMetas(String? data) async {
+    try {
+      debugPrint('🔄 Aplicando fallback de metas...');
+      final metasPublicas = await buscarMetasPublicas(data: data);
+
+      if (metasPublicas != null && _resumoAtual != null) {
+        // Recriar o _resumoAtual com as metas obtidas separadamente
+        _resumoAtual = ResumoDiario(
+          data: _resumoAtual!.data,
+          metaDiaria: metasPublicas,
+          consumoAtual: _resumoAtual!.consumoAtual,
+          restante: _resumoAtual!.restante,
+          percentualAtingido: _resumoAtual!.percentualAtingido,
+          registroEncontrado: _resumoAtual!.registroEncontrado,
+        );
+
+        debugPrint('✅ Fallback de metas aplicado com sucesso');
+        debugPrint(
+            '✅ Nova meta calorias: ${_resumoAtual!.metaDiaria.calorias}');
+        notifyListeners();
+      } else {
+        debugPrint('⚠️ Fallback de metas falhou - metas não encontradas');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro no fallback de metas: $e');
     }
   }
 

@@ -555,55 +555,146 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
             Provider.of<NutricaoService>(context, listen: false);
 
         try {
-          final success = await nutricaoService
+          // Armazenar os macros do item antes de remover
+          final currentDateString = _formatDateForBackend(selectedDate);
+          final caloriasParaRemover = itemToRemove.calories.toDouble();
+          final proteinaParaRemover = itemToRemove.protein.toDouble();
+          final carboidratoParaRemover = itemToRemove.carbs.toDouble();
+          final gorduraParaRemover = itemToRemove.fat.toDouble();
+
+          debugPrint('🗑️ Iniciando remoção do item: ${itemToRemove.name}');
+          debugPrint(
+              '📊 Macros a remover - Cal: $caloriasParaRemover, Prot: $proteinaParaRemover, Carb: $carboidratoParaRemover, Gord: $gorduraParaRemover');
+
+          // 1. Primeiro, remover o item específico do backend
+          final deleteSuccess = await nutricaoService
               .removerAlimentoDetalhado(itemToRemove.registroId!);
-          if (!success) {
+
+          if (!deleteSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Erro ao remover alimento do servidor'),
                 backgroundColor: Colors.red,
               ),
             );
-            return; // Não remove localmente se houve erro no backend
+            return; // Não prosseguir se a deleção falhou
+          }
+
+          debugPrint(
+              '✅ Item removido do backend com sucesso'); // 2. Subtrair os macros do resumo diário
+          final subtrairSuccess = await nutricaoService.removerAlimento(
+            proteina: proteinaParaRemover,
+            carboidrato: carboidratoParaRemover,
+            gordura: gorduraParaRemover,
+            calorias: caloriasParaRemover,
+            data: currentDateString,
+          );
+
+          if (subtrairSuccess) {
+            debugPrint('✅ Macros subtraídos com sucesso do resumo diário');
+
+            // 3. Atualizar a UI local apenas se tudo ocorreu bem
+            setState(() {
+              // Remove o item
+              final removedItem = meals[mealIndex].items[itemIndex];
+              meals[mealIndex].items.removeAt(itemIndex);
+
+              debugPrint(
+                  '🗑️ Removendo item da UI: ${removedItem.name} (${removedItem.calories} cal)');
+              debugPrint('📊 Total antes da remoção: $totalDailyCalories cal');
+
+              // Recalcula as calorias da refeição
+              if (meals[mealIndex].items.isNotEmpty) {
+                meals[mealIndex].totalCalories = meals[mealIndex]
+                    .items
+                    .fold(0, (sum, i) => sum + i.calories);
+              } else {
+                meals[mealIndex].totalCalories = 0;
+              }
+
+              // Recalcula os totais diários
+              calculateTotalCalories();
+
+              debugPrint('📊 Total após remoção: $totalDailyCalories cal');
+            });
+
+            // 4. Salvar no cache local após remoção bem-sucedida
+            _mealsByDate[currentDateString] = List.from(meals);
+            await _saveMealsToPrefs(currentDateString, meals);
+            debugPrint('💾 Cache atualizado após remoção de alimento');
+
+            // 5. Mostrar feedback de sucesso
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Alimento "${itemToRemove.name}" removido com sucesso'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            // Se subtrairMacros falhou, mostrar aviso mas manter UI consistente
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Item removido, mas houve problema ao atualizar totais no servidor'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+            // Ainda assim, atualizar a UI local para consistência visual
+            setState(() {
+              meals[mealIndex].items.removeAt(itemIndex);
+
+              // Recalcula as calorias da refeição
+              if (meals[mealIndex].items.isNotEmpty) {
+                meals[mealIndex].totalCalories = meals[mealIndex]
+                    .items
+                    .fold(0, (sum, i) => sum + i.calories);
+              } else {
+                meals[mealIndex].totalCalories = 0;
+              }
+
+              calculateTotalCalories();
+            });
+
+            // Atualizar cache local
+            _mealsByDate[currentDateString] = List.from(meals);
+            await _saveMealsToPrefs(currentDateString, meals);
           }
         } catch (e) {
+          debugPrint('❌ Erro durante remoção: $e');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Erro ao remover alimento: $e'),
               backgroundColor: Colors.red,
             ),
           );
-          return; // Não remove localmente se houve erro
+          return; // Não prosseguir se houve erro
         }
+      } else {
+        // Item sem registroId - apenas remoção local
+        setState(() {
+          final removedItem = meals[mealIndex].items[itemIndex];
+          meals[mealIndex].items.removeAt(itemIndex);
+
+          debugPrint(
+              '🗑️ Removendo item local: ${removedItem.name} (${removedItem.calories} cal)');
+
+          // Recalcula as calorias da refeição
+          if (meals[mealIndex].items.isNotEmpty) {
+            meals[mealIndex].totalCalories =
+                meals[mealIndex].items.fold(0, (sum, i) => sum + i.calories);
+          } else {
+            meals[mealIndex].totalCalories = 0;
+          }
+
+          calculateTotalCalories();
+        });
+
+        // Salvar no cache local
+        final currentDateString = _formatDateForBackend(selectedDate);
+        _mealsByDate[currentDateString] = List.from(meals);
+        await _saveMealsToPrefs(currentDateString, meals);
       }
-      setState(() {
-        // Remove o item
-        final removedItem = meals[mealIndex].items[itemIndex];
-        meals[mealIndex].items.removeAt(itemIndex);
-
-        debugPrint(
-            '🗑️ Removendo item: ${removedItem.name} (${removedItem.calories} cal)');
-        debugPrint('📊 Total antes da remoção: $totalDailyCalories cal');
-
-        // Recalcula as calorias da refeição
-        if (meals[mealIndex].items.isNotEmpty) {
-          meals[mealIndex].totalCalories =
-              meals[mealIndex].items.fold(0, (sum, i) => sum + i.calories);
-        } else {
-          meals[mealIndex].totalCalories = 0;
-        }
-
-        // Recalcula os totais diários
-        calculateTotalCalories();
-
-        debugPrint('📊 Total após remoção: $totalDailyCalories cal');
-      });
-
-      // Salvar no cache local após remoção bem-sucedida
-      final currentDateString = _formatDateForBackend(selectedDate);
-      _mealsByDate[currentDateString] = List.from(meals);
-      await _saveMealsToPrefs(currentDateString, meals);
-      debugPrint('💾 Cache atualizado após remoção de alimento');
     }
   }
 
