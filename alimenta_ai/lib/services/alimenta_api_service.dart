@@ -340,24 +340,6 @@ class AlimentaAPIService {
   // 🍽️ REGISTROS DETALHADOS DE ALIMENTOS
   // ===============================================
 
-  /// Obter alimentos detalhados por data
-  Future<Map<String, dynamic>> obterAlimentosDetalhados(
-    int pacienteId, [
-    String? data,
-  ]) async {
-    try {
-      String url = '$baseUrl/alimentos-detalhados/data/$pacienteId';
-      if (data != null) {
-        url += '?data=$data';
-      }
-
-      final response = await http.get(Uri.parse(url), headers: _headers);
-      return _handleResponse(response);
-    } catch (e) {
-      return _handleError(e);
-    }
-  }
-
   /// Obter alimentos detalhados por refeição
   Future<Map<String, dynamic>> obterAlimentosPorRefeicao({
     required int pacienteId,
@@ -560,6 +542,39 @@ class AlimentaAPIService {
   // ===============================================
   // 🍽️ ALIMENTOS DETALHADOS
   // ===============================================
+
+  /// Obter alimentos detalhados por data
+  Future<Map<String, dynamic>> obterAlimentosDetalhados(
+      int pacienteId, [String? data]) async {
+    try {
+      debugPrint('🔍 Buscando alimentos detalhados para paciente $pacienteId');
+      
+      final dataParam = data ?? _formatDate(DateTime.now());
+      debugPrint('📅 Data da busca: $dataParam');
+
+      final url = '$baseUrl/alimentos-detalhados/data/$pacienteId?data=$dataParam';
+      debugPrint('🌐 URL da requisição: $url');
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: _headers, // Headers sem token (rota pública)
+      );
+
+      final result = _handleResponse(response);
+      
+      if (result['success']) {
+        debugPrint('✅ Alimentos detalhados obtidos com sucesso');
+        debugPrint('📊 Dados retornados: ${result['data']}');
+      } else {
+        debugPrint('❌ Erro ao obter alimentos detalhados: ${result['error']}');
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('💥 Erro ao buscar alimentos detalhados: $e');
+      return _handleError(e);
+    }
+  }
 
   /// Salvar alimento detalhado no backend
   Future<Map<String, dynamic>> salvarAlimentoDetalhado(
