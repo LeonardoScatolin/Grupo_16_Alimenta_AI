@@ -20,8 +20,7 @@ class AlimentaAPIService {
   }
 
   // Obter token atual
-  String? get currentToken => _currentToken;
-  // Base URL da API
+  String? get currentToken => _currentToken; // Base URL da API
   String get baseUrl {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return 'http://10.0.2.2:3333'; // Para Android Emulator
