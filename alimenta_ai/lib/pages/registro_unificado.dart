@@ -130,7 +130,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     }
   }
 
-  void _carregarDadosNutricao() {
+  void _carregarDadosNutricao() async {
     final nutricaoService =
         Provider.of<NutricaoService>(context, listen: false);
 
@@ -145,6 +145,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       // Atualizar interface com dados da API
       _atualizarDadosComAPI();
     });
+
+    // Carregar alimentos detalhados para a data atual
+    final dateString =
+        "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+    await _loadDetailedFoodsForDate(dateString);
   }
 
   /// Carregar metas definidas pela nutricionista (sem autenticação)
@@ -228,7 +233,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   }
 
   // Carrega refeições de acordo com a data (dados da API)
-  void _loadMealsForDate(DateTime date) {
+  void _loadMealsForDate(DateTime date) async {
     // Atualizar dados através da API
     final nutricaoService =
         Provider.of<NutricaoService>(context, listen: false);
@@ -241,8 +246,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     // Carregar metas para a data específica
     _carregarMetasParaData(dateString);
 
-    // Os dados são atualizados através do listener do Provider
-    // Limpar dados locais para evitar conflito
+    // Limpar dados locais primeiro
     setState(() {
       totalDailyCalories = 0;
       proteinTotal = 0;
@@ -250,6 +254,87 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       carbsTotal = 0;
       initializeMeals(); // Reinicializar com dados vazios
     });
+
+    // Carregar alimentos detalhados salvos para a data
+    await _loadDetailedFoodsForDate(dateString);
+  }
+
+  // Carrega alimentos detalhados salvos no backend para a data específica
+  Future<void> _loadDetailedFoodsForDate(String dateString) async {
+    final nutricaoService =
+        Provider.of<NutricaoService>(context, listen: false);
+
+    try {
+      // Buscar alimentos detalhados para a data agrupados por refeição
+      final alimentosAgrupados =
+          await nutricaoService.obterAlimentosPorData(dateString);
+
+      if (alimentosAgrupados.isNotEmpty) {
+        debugPrint(
+            '✅ Carregados alimentos para $dateString: ${alimentosAgrupados.keys}');
+
+        // Mapear os tipos de refeição para corresponder aos nomes das meals
+        final Map<String, String> mapeamentoRefeicoes = {
+          'Café da Manhã': 'Café da Manhã',
+          'Almoço': 'Almoço',
+          'Lanche da Manhã': 'Lanches',
+          'Lanche da Tarde': 'Lanches',
+          'Jantar': 'Janta',
+          'Ceia': 'Lanches',
+          'Outro': 'Lanches',
+        };
+
+        // Atualizar as meals com os alimentos carregados
+        setState(() {
+          // Primeiro, limpar todos os itens das refeições
+          for (var meal in meals) {
+            meal.items.clear();
+            meal.totalCalories = 0;
+          }
+
+          // Adicionar alimentos carregados
+          alimentosAgrupados.forEach((tipoRefeicaoOriginal, alimentos) {
+            final tipoRefeicaoMapeado =
+                mapeamentoRefeicoes[tipoRefeicaoOriginal] ?? 'Lanches';
+
+            // Encontrar a meal correspondente
+            final mealIndex =
+                meals.indexWhere((meal) => meal.title == tipoRefeicaoMapeado);
+            if (mealIndex != -1) {
+              // Converter RegistroAlimentoDetalhado para MealItemData
+              final itensConvertidos = alimentos.map((alimento) {
+                return MealItemData(
+                  name:
+                      '${alimento.nomeAlimento} (${alimento.quantidade.toStringAsFixed(0)}g)',
+                  calories: alimento.calorias.round(),
+                  protein: alimento.proteinas.round(),
+                  fat: alimento.gorduras.round(),
+                  carbs: alimento.carboidratos.round(),
+                  registroId: alimento.id, // Salvar ID para permitir remoção
+                );
+              }).toList();
+
+              meals[mealIndex].items.addAll(itensConvertidos);
+
+              // Recalcular total de calorias da refeição
+              meals[mealIndex].totalCalories = meals[mealIndex]
+                  .items
+                  .fold(0, (sum, item) => sum + item.calories);
+            }
+          });
+
+          // Recalcular totais gerais
+          calculateTotalCalories();
+        });
+
+        debugPrint(
+            '✅ Carregados ${alimentosAgrupados.values.expand((x) => x).length} alimentos para $dateString');
+      } else {
+        debugPrint('ℹ️ Nenhum alimento encontrado para $dateString');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar alimentos detalhados: $e');
+    }
   }
 
   /// Carregar metas para uma data específica
@@ -340,11 +425,41 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   }
 
   // Remove alimento da refeição
-  void removeFoodFromMeal(String mealTitle, int itemIndex) {
+  void removeFoodFromMeal(String mealTitle, int itemIndex) async {
     final mealIndex = meals.indexWhere((m) => m.title == mealTitle);
     if (mealIndex != -1 &&
         itemIndex >= 0 &&
         itemIndex < meals[mealIndex].items.length) {
+      final itemToRemove = meals[mealIndex].items[itemIndex];
+
+      // Se o item tem um registroId, remover do backend também
+      if (itemToRemove.registroId != null) {
+        final nutricaoService =
+            Provider.of<NutricaoService>(context, listen: false);
+
+        try {
+          final success = await nutricaoService
+              .removerAlimentoDetalhado(itemToRemove.registroId!);
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Erro ao remover alimento do servidor'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            return; // Não remove localmente se houve erro no backend
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao remover alimento: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return; // Não remove localmente se houve erro
+        }
+      }
+
       setState(() {
         // Remove o item
         meals[mealIndex].items.removeAt(itemIndex);
@@ -1919,6 +2034,7 @@ class MealItemData {
   final int fat;
   final int carbs;
   final bool isPlaceholder;
+  final int? registroId; // ID do registro no backend para permitir remoção
 
   MealItemData({
     required this.name,
@@ -1927,6 +2043,7 @@ class MealItemData {
     this.fat = 0,
     this.carbs = 0,
     this.isPlaceholder = false,
+    this.registroId,
   });
 }
 

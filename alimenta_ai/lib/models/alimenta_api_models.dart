@@ -532,3 +532,163 @@ class RegistroHistorico {
     );
   }
 }
+
+/// Modelo para alimento detalhado (registro individual)
+class AlimentoDetalhado {
+  final int id;
+  final int pacienteId;
+  final String nomeAlimento;
+  final double quantidade;
+  final String? tipoRefeicao;
+  final double proteina;
+  final double carboidrato;
+  final double gordura;
+  final double calorias;
+  final String? observacoes;
+  final String data;
+  final String? horario;
+  final DateTime createdAt;
+
+  AlimentoDetalhado({
+    required this.id,
+    required this.pacienteId,
+    required this.nomeAlimento,
+    required this.quantidade,
+    this.tipoRefeicao,
+    required this.proteina,
+    required this.carboidrato,
+    required this.gordura,
+    required this.calorias,
+    this.observacoes,
+    required this.data,
+    this.horario,
+    required this.createdAt,
+  });
+
+  factory AlimentoDetalhado.fromJson(Map<String, dynamic> json) {
+    return AlimentoDetalhado(
+      id: json['id'] ?? 0,
+      pacienteId: json['paciente_id'] ?? 0,
+      nomeAlimento: json['nome_alimento'] ?? '',
+      quantidade: (json['quantidade'] ?? 0).toDouble(),
+      tipoRefeicao: json['tipo_refeicao'],
+      proteina: (json['proteina'] ?? 0).toDouble(),
+      carboidrato: (json['carboidrato'] ?? 0).toDouble(),
+      gordura: (json['gordura'] ?? 0).toDouble(),
+      calorias: (json['calorias'] ?? 0).toDouble(),
+      observacoes: json['observacoes'],
+      data: json['data'] ?? '',
+      horario: json['horario'],
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'paciente_id': pacienteId,
+      'nome_alimento': nomeAlimento,
+      'quantidade': quantidade,
+      'tipo_refeicao': tipoRefeicao,
+      'proteina': proteina,
+      'carboidrato': carboidrato,
+      'gordura': gordura,
+      'calorias': calorias,
+      'observacoes': observacoes,
+      'data': data,
+      'horario': horario,
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+}
+
+/// Modelo para registro de alimento detalhado
+class RegistroAlimentoDetalhado {
+  final int id;
+  final int pacienteId;
+  final int nutriId;
+  final String nomeAlimento;
+  final double quantidade;
+  final String tipoRefeicao;
+  final double calorias;
+  final double proteinas;
+  final double carboidratos;
+  final double gorduras;
+  final String? observacoes;
+  final DateTime dataRegistro;
+  final DateTime createdAt;
+
+  RegistroAlimentoDetalhado({
+    required this.id,
+    required this.pacienteId,
+    required this.nutriId,
+    required this.nomeAlimento,
+    required this.quantidade,
+    required this.tipoRefeicao,
+    required this.calorias,
+    required this.proteinas,
+    required this.carboidratos,
+    required this.gorduras,
+    this.observacoes,
+    required this.dataRegistro,
+    required this.createdAt,
+  });
+
+  factory RegistroAlimentoDetalhado.fromJson(Map<String, dynamic> json) {
+    return RegistroAlimentoDetalhado(
+      id: json['id'] ?? 0,
+      pacienteId: json['paciente_id'] ?? 0,
+      nutriId: json['nutri_id'] ?? 0,
+      nomeAlimento: json['nome_alimento'] ?? '',
+      quantidade: (json['quantidade'] ?? 0).toDouble(),
+      tipoRefeicao: json['tipo_refeicao'] ?? '',
+      calorias: (json['calorias'] ?? 0).toDouble(),
+      proteinas: (json['proteinas'] ?? 0).toDouble(),
+      carboidratos: (json['carboidratos'] ?? 0).toDouble(),
+      gorduras: (json['gorduras'] ?? 0).toDouble(),
+      observacoes: json['observacoes'],
+      dataRegistro: DateTime.parse(
+          json['data_registro'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'paciente_id': pacienteId,
+      'nutri_id': nutriId,
+      'nome_alimento': nomeAlimento,
+      'quantidade': quantidade,
+      'tipo_refeicao': tipoRefeicao,
+      'calorias': calorias,
+      'proteinas': proteinas,
+      'carboidratos': carboidratos,
+      'gorduras': gorduras,
+      'observacoes': observacoes,
+      'data_registro': dataRegistro.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+
+  // Método para obter nome amigável do tipo de refeição
+  String get tipoRefeicaoAmigavel {
+    switch (tipoRefeicao) {
+      case 'cafe_manha':
+        return 'Café da Manhã';
+      case 'almoco':
+        return 'Almoço';
+      case 'jantar':
+        return 'Jantar';
+      case 'lanche_manha':
+        return 'Lanche da Manhã';
+      case 'lanche_tarde':
+        return 'Lanche da Tarde';
+      case 'ceia':
+        return 'Ceia';
+      default:
+        return 'Outro';
+    }
+  }
+}

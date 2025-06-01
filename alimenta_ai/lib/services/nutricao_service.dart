@@ -317,6 +317,101 @@ class NutricaoService extends ChangeNotifier {
   }
 
   // ===============================================
+  // 🍽️ ALIMENTOS DETALHADOS POR DATA
+  // ===============================================
+
+  /// Obter lista detalhada de alimentos consumidos em uma data
+  Future<List<AlimentoDetalhado>> obterAlimentosDetalhados(
+      [String? data]) async {
+    if (_pacienteId == null) {
+      _error = 'ID do paciente não configurado';
+      notifyListeners();
+      return [];
+    }
+    try {
+      final result =
+          await _apiService.obterAlimentosDetalhados(_pacienteId!, data);
+
+      if (result['success']) {
+        final alimentosData = result['data']?['alimentos'] as List?;
+        if (alimentosData != null) {
+          return alimentosData
+              .map((item) => AlimentoDetalhado.fromJson(item))
+              .toList();
+        }
+      } else {
+        _error = result['error'] ?? 'Erro ao obter alimentos detalhados';
+      }
+      return [];
+    } catch (e) {
+      _error = 'Erro inesperado: $e';
+      debugPrint('❌ Erro ao obter alimentos detalhados: $e');
+      return [];
+    }
+  }
+
+  /// Obter alimentos de uma refeição específica
+  Future<List<AlimentoDetalhado>> obterAlimentosPorRefeicao({
+    required String tipoRefeicao,
+    String? data,
+  }) async {
+    if (_pacienteId == null) {
+      _error = 'ID do paciente não configurado';
+      notifyListeners();
+      return [];
+    }
+
+    try {
+      final result = await _apiService.obterAlimentosPorRefeicao(
+        pacienteId: _pacienteId!,
+        tipoRefeicao: tipoRefeicao,
+        data: data,
+      );
+
+      if (result['success']) {
+        final alimentosData = result['data']?['alimentos'] as List?;
+        if (alimentosData != null) {
+          return alimentosData
+              .map((item) => AlimentoDetalhado.fromJson(item))
+              .toList();
+        }
+      } else {
+        _error = result['error'] ?? 'Erro ao obter alimentos da refeição';
+      }
+      return [];
+    } catch (e) {
+      _error = 'Erro inesperado: $e';
+      debugPrint('❌ Erro ao obter alimentos da refeição: $e');
+      return [];
+    }
+  }
+
+  /// Remover alimento detalhado específico
+  Future<bool> removerAlimentoDetalhado(int registroId) async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final result = await _apiService.removerAlimentoDetalhado(registroId);
+
+      if (result['success']) {
+        // Atualizar resumo automaticamente
+        await atualizarResumoDiario();
+        _setLoading(false);
+        return true;
+      } else {
+        _error = result['error'] ?? 'Erro ao remover alimento';
+        _setLoading(false);
+        return false;
+      }
+    } catch (e) {
+      _error = 'Erro inesperado: $e';
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // ===============================================
   // 📈 METAS E ESTATÍSTICAS
   // ===============================================  /// Obter meta atual
   Future<MetaDiaria?> obterMeta([String? data]) async {
@@ -440,4 +535,52 @@ class NutricaoService extends ChangeNotifier {
       fatGoal > 0 ? (fatTotal / fatGoal).clamp(0.0, 1.0) : 0.0;
   double get carbsProgress =>
       carbsGoal > 0 ? (carbsTotal / carbsGoal).clamp(0.0, 1.0) : 0.0;
+
+  // ===============================================
+  // 🍽️ ALIMENTOS DETALHADOS POR DATA
+  // ===============================================
+
+  /// Obter lista de alimentos registrados por data
+  Future<Map<String, List<RegistroAlimentoDetalhado>>> obterAlimentosPorData(
+      [String? data]) async {
+    if (_pacienteId == null) {
+      _error = 'ID do paciente não configurado';
+      notifyListeners();
+      return {};
+    }
+
+    try {
+      final result =
+          await _apiService.obterAlimentosDetalhados(_pacienteId!, data);
+
+      if (result['success']) {
+        final List<dynamic> alimentosJson = result['data'] ?? [];
+        final List<RegistroAlimentoDetalhado> alimentos = alimentosJson
+            .map((json) => RegistroAlimentoDetalhado.fromJson(json))
+            .toList();
+
+        // Agrupar por tipo de refeição
+        final Map<String, List<RegistroAlimentoDetalhado>> alimentosAgrupados =
+            {};
+
+        for (final alimento in alimentos) {
+          final tipoRefeicao = alimento.tipoRefeicaoAmigavel;
+          if (!alimentosAgrupados.containsKey(tipoRefeicao)) {
+            alimentosAgrupados[tipoRefeicao] = [];
+          }
+          alimentosAgrupados[tipoRefeicao]!.add(alimento);
+        }
+
+        return alimentosAgrupados;
+      } else {
+        _error = result['error'] ?? 'Erro ao buscar alimentos';
+        notifyListeners();
+        return {};
+      }
+    } catch (e) {
+      _error = 'Erro inesperado ao buscar alimentos: $e';
+      notifyListeners();
+      return {};
+    }
+  }
 }

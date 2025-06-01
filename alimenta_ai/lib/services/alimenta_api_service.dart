@@ -338,6 +338,62 @@ class AlimentaAPIService {
   }
 
   // ===============================================
+  // 🍽️ REGISTROS DETALHADOS DE ALIMENTOS
+  // ===============================================
+
+  /// Obter alimentos detalhados por data
+  Future<Map<String, dynamic>> obterAlimentosDetalhados(
+    int pacienteId, [
+    String? data,
+  ]) async {
+    try {
+      String url = '$baseUrl/alimentos-detalhados/data/$pacienteId';
+      if (data != null) {
+        url += '?data=$data';
+      }
+
+      final response = await http.get(Uri.parse(url), headers: _headers);
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
+  /// Obter alimentos detalhados por refeição
+  Future<Map<String, dynamic>> obterAlimentosPorRefeicao({
+    required int pacienteId,
+    required String tipoRefeicao,
+    String? data,
+  }) async {
+    try {
+      final dataParam = data ?? DateTime.now().toIso8601String().split('T')[0];
+      final response = await http.get(
+        Uri.parse(
+            '$baseUrl/alimentos-detalhados/refeicao/$pacienteId?tipo_refeicao=$tipoRefeicao&data=$dataParam'),
+        headers: _headersWithAuth,
+      );
+
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
+  /// Remover alimento detalhado específico
+  Future<Map<String, dynamic>> removerAlimentoDetalhado(int registroId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl/alimentos-detalhados/$registroId'),
+        headers: _headers,
+      );
+
+      return _handleResponse(response);
+    } catch (e) {
+      return _handleError(e);
+    }
+  }
+
+  // ===============================================
   // 🎯 METAS NUTRICIONAIS
   // ===============================================  /// Obter meta atual do paciente
   Future<Map<String, dynamic>> obterMeta(int pacienteId, int nutriId,
