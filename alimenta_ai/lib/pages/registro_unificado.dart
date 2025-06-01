@@ -905,17 +905,17 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
   Future<String?> _getStoredUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String? userId = prefs.getString('user_id');
+      int? userId = prefs.getInt('user_id'); // Mudado para getInt
 
       // Fallback para usuário padrão se não encontrar
-      if (userId == null || userId.isEmpty) {
+      if (userId == null) {
         debugPrint(
             '⚠️ user_id não encontrado, usando padrão: $DEFAULT_PACIENTE_ID');
         return DEFAULT_PACIENTE_ID.toString();
       }
 
       debugPrint('✅ user_id encontrado: $userId');
-      return userId;
+      return userId.toString(); // Converter int para string
     } catch (e) {
       debugPrint('❌ Erro ao obter user_id: $e');
       debugPrint('🔄 Usando user_id padrão: $DEFAULT_PACIENTE_ID');
