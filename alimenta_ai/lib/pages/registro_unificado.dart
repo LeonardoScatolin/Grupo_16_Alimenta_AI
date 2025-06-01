@@ -103,11 +103,16 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     selectedDate = _getBrasiliaTimeNow();
     _initialScrollDone = false;
     initializeMeals();
-    calculateTotalCalories(); // Carregar dados do NutricaoService
+    calculateTotalCalories();
+
+    // Carregar dados do NutricaoService
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _inicializarServicos();
       // Carregar dados para a data atual (prioriza SharedPreferences)
       _loadMealsForDate(selectedDate);
+      // Carregar metas explicitamente para garantir que são carregadas
+      final dateString = _formatDateForBackend(selectedDate);
+      _carregarMetasParaData(dateString);
       // Verificar permissões do microfone
       _verificarPermissoesMicrofone();
     });
@@ -457,9 +462,15 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         Provider.of<NutricaoService>(context, listen: false);
 
     try {
+      // Obter IDs dinâmicos do usuário logado
+      final userIdString =
+          await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
+      final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+
       final meta = await nutricaoService.buscarMetasPublicas(
-        pacienteIdOverride: 1, // ID do paciente
-        nutriIdOverride: 1, // ID da nutricionista
+        pacienteIdOverride: userId, // ID do paciente logado
+        nutriIdOverride:
+            1, // ID da nutricionista (pode ser configurável depois)
         data: data,
       );
 
@@ -470,6 +481,11 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           fatGoal = meta.fatGoal;
           carbsGoal = meta.carbsGoal;
         });
+        debugPrint(
+            '✅ Metas carregadas para paciente $userId: ${meta.caloriesGoal} cal');
+      } else {
+        debugPrint(
+            '⚠️ Nenhuma meta encontrada para paciente $userId na data $data');
       }
     } catch (e) {
       debugPrint('❌ Erro ao carregar metas para data $data: $e');
@@ -575,7 +591,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       }
       setState(() {
         // Remove o item
+        final removedItem = meals[mealIndex].items[itemIndex];
         meals[mealIndex].items.removeAt(itemIndex);
+
+        debugPrint(
+            '🗑️ Removendo item: ${removedItem.name} (${removedItem.calories} cal)');
+        debugPrint('📊 Total antes da remoção: $totalDailyCalories cal');
 
         // Recalcula as calorias da refeição
         if (meals[mealIndex].items.isNotEmpty) {
@@ -587,6 +608,8 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
 
         // Recalcula os totais diários
         calculateTotalCalories();
+
+        debugPrint('📊 Total após remoção: $totalDailyCalories cal');
       });
 
       // Salvar no cache local após remoção bem-sucedida
