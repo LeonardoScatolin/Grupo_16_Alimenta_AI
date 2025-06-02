@@ -34,6 +34,8 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   test: ^1.24.9
+  flutter_launcher_icons: ^0.14.3
+
 
 flutter:
   uses-material-design: true
@@ -49,3 +51,10 @@ flutter:
         - asset: assets/fonts/Poppins-Regular.ttf
         - asset: assets/fonts/Poppins-Bold.ttf
           weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icons/app_icon_final.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icons/app_icon_final.png
