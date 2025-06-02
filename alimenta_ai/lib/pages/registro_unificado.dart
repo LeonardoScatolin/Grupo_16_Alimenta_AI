@@ -1272,7 +1272,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Registro Unificado',
+          '',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
             fontSize: 18,
@@ -1283,22 +1283,16 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: SvgPicture.asset('assets/icons/seta_esquerda.svg',
-              height: 20, width: 20),
+          icon: SvgPicture.asset(
+            'assets/icons/seta_esquerda.svg',
+            height: 12,
+            width: 12,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : null,
+          ),
           onPressed: () => Navigator.pushNamed(context, '/home'),
         ),
-        actions: [
-          IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.1), shape: BoxShape.circle),
-              child: SvgPicture.asset('assets/icons/dots.svg',
-                  height: 5, width: 5),
-            ),
-            onPressed: () {},
-          )
-        ],
       ),
       body: Container(
         color: Theme.of(context).colorScheme.surface,
@@ -1454,7 +1448,9 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                                       ? Colors.white
                                       : _isToday(date)
                                           ? const Color(0xff92A3FD)
-                                          : Colors.black87)),
+                                          : Theme.of(context).brightness == Brightness.dark
+                                              ? Colors.white
+                                              : Colors.black87)),
                         ]),
                   ),
                 );
@@ -1470,19 +1466,20 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-            colors: [Colors.white, Color(0xFFF8F9FA)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.shade200,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black.withOpacity(0.3)
+                  : Colors.grey.shade200,
               blurRadius: 15,
               offset: const Offset(0, 5))
         ],
-        border: Border.all(color: Colors.grey.shade50, width: 1),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.08),
+          width: 1,
+        ),
       ),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         _buildSummaryItem(
@@ -1493,12 +1490,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         Container(
             height: 50,
             width: 1,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-              Colors.white,
-              Colors.grey.shade200,
-              Colors.white
-            ]))),
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.08)),
         _buildSummaryItemSvg(
             svgPath: 'assets/icons/protein.svg',
             value: proteinTotal.toString(),
@@ -1507,12 +1499,7 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         Container(
             height: 50,
             width: 1,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-              Colors.white,
-              Colors.grey.shade200,
-              Colors.white
-            ]))),
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.08)),
         _buildSummaryItem(
             icon: Icons.fastfood_rounded,
             value: carbsTotal.toString(),
@@ -1543,16 +1530,16 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       ),
       const SizedBox(height: 8),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
               letterSpacing: 0.5)),
       const SizedBox(height: 2),
       Text(label,
           style: TextStyle(
               fontSize: 12,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontWeight: FontWeight.w500)),
     ]);
   }
@@ -1578,16 +1565,16 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       ),
       const SizedBox(height: 8),
       Text(value,
-          style: const TextStyle(
+          style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
               letterSpacing: 0.5)),
       const SizedBox(height: 2),
       Text(label,
           style: TextStyle(
               fontSize: 12,
-              color: Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontWeight: FontWeight.w500)),
     ]);
   }
@@ -1598,15 +1585,20 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: Colors.grey.shade200,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.3)
+                    : Colors.grey.shade200,
                 blurRadius: 15,
                 offset: const Offset(0, 5))
           ],
-          border: Border.all(color: Colors.grey.shade50, width: 1),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.08),
+            width: 1,
+          ),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Cabeçalho da refeição
@@ -1726,22 +1718,24 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               padding: const EdgeInsets.symmetric(vertical: 20),
               margin: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: Colors.grey.shade200)),
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withOpacity(0.08))),
               child: Center(
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.restaurant, size: 30, color: Colors.grey.shade400),
+                  Icon(Icons.restaurant, size: 30, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
                   const SizedBox(height: 8),
                   Text("Nenhum alimento registrado",
                       style: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                           fontWeight: FontWeight.w500,
                           fontSize: 14)),
                   const SizedBox(height: 4),
                   Text("Adicione alimentos usando o botão abaixo",
-                      style:
-                          TextStyle(color: Colors.grey.shade400, fontSize: 12)),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                          fontSize: 12)),
                 ]),
               ),
             )
@@ -1799,15 +1793,17 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.08),
+          ),
         ),
         child: Center(
           child: Text(
             item.name,
             style: TextStyle(
-              color: Colors.grey.shade500,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -1852,25 +1848,37 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade100),
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.grey.shade50,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2))
-            ]),
-        child: Row(children: [
-          Expanded(
-            child: Column(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.08),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.black.withOpacity(0.10)
+                  : Colors.grey.shade50,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            )
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(item.name,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 15),
-                      overflow: TextOverflow.ellipsis),
+                  Text(
+                    item.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 4),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -1879,236 +1887,241 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                       const SizedBox(width: 6),
                       _buildNutrientBadge('C: ${item.carbs}g', Colors.blue),
                       const SizedBox(width: 6),
-                      _buildNutrientBadge(
-                          'G: ${item.fat}g', Colors.orangeAccent),
+                      _buildNutrientBadge('G: ${item.fat}g', Colors.orangeAccent),
                     ]),
                   ),
-                ]),
-          ),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                    color: const Color(0xff92A3FD).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10)),
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.local_fire_department,
-                      color: Color(0xff92A3FD), size: 16),
-                  const SizedBox(width: 4),
-                  Text('${item.calories}',
-                      style: const TextStyle(
-                          color: Color(0xff92A3FD),
-                          fontWeight: FontWeight.bold))
-                ])),
-            const SizedBox(height: 4),
-            Row(mainAxisSize: MainAxisSize.min, children: [
-              GestureDetector(
-                onTap: () async {
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Remover Alimento'),
-                      content: Text('Deseja remover ${item.name} do registro?'),
-                      actions: [
-                        TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(false),
-                            child: const Text('Cancelar')),
-                        TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(true),
-                            child: const Text('Remover')),
-                      ],
-                    ),
-                  );
-                  if (confirm == true) {
-                    final mi = meals.indexWhere((m) => m.items.contains(item));
-                    if (mi != -1) {
-                      removeFoodFromMeal(
-                          meals[mi].title, meals[mi].items.indexOf(item));
-                    }
-                  }
-                },
-                child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
-                        shape: BoxShape.circle),
-                    child: const Icon(Icons.delete_outline,
-                        color: Colors.red, size: 18)),
+                ],
               ),
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) {
-                      return Dialog(
-                        backgroundColor: Colors.white,
-                        insetPadding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 60),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Título e ícone de lixeira
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      item.name,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+            ),
+            Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                      color: const Color(0xff92A3FD).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.local_fire_department,
+                        color: Color(0xff92A3FD), size: 16),
+                    const SizedBox(width: 4),
+                    Text('${item.calories}',
+                        style: const TextStyle(
+                            color: Color(0xff92A3FD),
+                            fontWeight: FontWeight.bold))
+                  ])),
+              const SizedBox(height: 4),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                GestureDetector(
+                  onTap: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Remover Alimento'),
+                        content: Text('Deseja remover ${item.name} do registro?'),
+                        actions: [
+                          TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: const Text('Cancelar')),
+                          TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              child: const Text('Remover')),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      final mi = meals.indexWhere((m) => m.items.contains(item));
+                      if (mi != -1) {
+                        removeFoodFromMeal(
+                            meals[mi].title, meals[mi].items.indexOf(item));
+                      }
+                    }
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          shape: BoxShape.circle),
+                      child: const Icon(Icons.delete_outline,
+                          color: Colors.red, size: 18)),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) {
+                        return Dialog(
+                          backgroundColor: Theme.of(context).colorScheme.surface,
+                          insetPadding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 60),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Título e ícone de lixeira
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        item.name,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.purple),
-                                    onPressed: () {
-                                      Navigator.of(ctx).pop();
-                                      final mi = meals.indexWhere(
-                                          (m) => m.items.contains(item));
-                                      if (mi != -1) {
-                                        removeFoodFromMeal(meals[mi].title,
-                                            meals[mi].items.indexOf(item));
-                                      }
-                                    },
-                                  )
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              const Text(
-                                'Tabela TACO',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.blueAccent,
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.purple),
+                                      onPressed: () {
+                                        Navigator.of(ctx).pop();
+                                        final mi = meals.indexWhere(
+                                            (m) => m.items.contains(item));
+                                        if (mi != -1) {
+                                          removeFoodFromMeal(meals[mi].title,
+                                              meals[mi].items.indexOf(item));
+                                        }
+                                      },
+                                    )
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'Tabela TACO',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
 
-                              // Campo quantidade e unidade (visual)
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 85,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                          color: Colors.grey.shade100),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.08),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
+                                // Campo quantidade e unidade (visual)
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 85,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.surface,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: Theme.of(context).colorScheme.outline.withOpacity(0.08)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.black.withOpacity(0.08)
+                                                : Colors.grey.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: const Text(
+                                        "50",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                         
+                                          fontWeight: FontWeight.normal,
+                                          color: Color(0xFF7B6F72),
+                                          fontFamily: 'Poppins',
                                         ),
-                                      ],
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "50",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.normal,
-                                        color: Color(0xFF7B6F72),
-                                        fontFamily: 'Poppins',
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    width: 85,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                          color: Colors.grey.shade100),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.08),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "G",
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.normal,
-                                            color: Color(0xFF7B6F72),
-                                            fontFamily: 'Poppins',
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      width: 85,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.surface,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                            color: Theme.of(context).colorScheme.outline.withOpacity(0.08)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.black.withOpacity(0.08)
+                                                : Colors.grey.withOpacity(0.08),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
                                           ),
-                                        ),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.keyboard_arrow_down_rounded,
-                                            size: 22, color: Color(0xFF7B6F72)),
-                                      ],
+                                        ],
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "G",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.normal,
+                                              color: Color(0xFF7B6F72),
+                                              fontFamily: 'Poppins',
+                                            ),
+                                          ),
+                                          SizedBox(width: 4),
+                                          Icon(Icons.keyboard_arrow_down_rounded,
+                                              size: 22, color: Color(0xFF7B6F72)),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
 
-                              const Text(
-                                'Informação Nutricional',
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 12),
+                                const Text(
+                                  'Informação Nutricional',
+                                  style: TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 12),
 
-                              // Calorias
-                              _buildInfoCard(
-                                iconPath: 'assets/icons/protein.svg',
-                                label: 'Calorias',
-                                value: '${item.calories} cal',
-                              ),
-                              const SizedBox(height: 10),
+                                // Calorias
+                                _buildInfoCard(
+                                  iconPath: 'assets/icons/protein.svg',
+                                  label: 'Calorias',
+                                  value: '${item.calories} cal',
+                                ),
+                                const SizedBox(height: 10),
 
-                              // Proteínas
-                              _buildInfoCard(
-                                iconPath: 'assets/icons/protein.svg',
-                                label: 'Proteínas',
-                                value: '${item.protein}g',
-                              ),
-                              const SizedBox(height: 10),
+                                // Proteínas
+                                _buildInfoCard(
+                                  iconPath: 'assets/icons/protein.svg',
+                                  label: 'Proteínas',
+                                  value: '${item.protein}g',
+                                ),
+                                const SizedBox(height: 10),
 
-                              // Gordura
-                              _buildInfoCard(
-                                iconPath: 'assets/icons/protein.svg',
-                                label: 'Gordura',
-                                value: '${item.fat}g',
-                              ),
-                              const SizedBox(height: 10),
+                                // Gordura
+                                _buildInfoCard(
+                                  iconPath: 'assets/icons/protein.svg',
+                                  label: 'Gordura',
+                                  value: '${item.fat}g',
+                                ),
+                                const SizedBox(height: 10),
 
-                              // Carboidrato
-                              _buildInfoCard(
-                                iconPath: 'assets/icons/protein.svg',
-                                label: 'Carbo',
-                                value: '${item.carbs}g',
-                              ),
-                            ],
+                                // Carboidrato
+                                _buildInfoCard(
+                                  iconPath: 'assets/icons/protein.svg',
+                                  label: 'Carbo',
+                                  value: '${item.carbs}g',
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        );
+                        },
                       );
                     },
-                  );
-                },
-                child: const Icon(Icons.arrow_forward_ios,
-                    size: 16, color: Colors.grey),
+                    child: const Icon(Icons.arrow_forward_ios,
+                        size: 16, color: Colors.grey),
               ),
             ]),
           ]),
@@ -2126,11 +2139,13 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.black.withOpacity(0.03)
+                : Colors.grey.shade200,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -2144,12 +2159,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     height: 1.5,
-                    color: Color(0xFF1D1617), // ← cor dos nomes
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -2161,12 +2176,12 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
           // Valor à direita (ex: 500 cal)
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 12,
               fontWeight: FontWeight.w500,
               height: 1.5,
-              color: Color(0xFF7B6F72), // ← cor dos valores
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
         ],
@@ -2263,11 +2278,13 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-                color: Colors.grey.shade100,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black.withOpacity(0.08)
+                    : Colors.grey.shade100,
                 blurRadius: 12,
                 offset: const Offset(0, 4))
           ]),
@@ -2359,180 +2376,184 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               width: MediaQuery.of(context).size.width * 0.85,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text(
-                  "Adicionar alimento para $selectedMealTitle",
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color(0xff1D1617).withOpacity(0.11),
-                            blurRadius: 40)
-                      ]),
-                  child: Row(children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 15),
-                        child: Row(children: [
-                          Listener(
-                            onPointerDown: !hasRecordedAudio &&
-                                    !isRecording &&
-                                    !isPlayingAudio
-                                ? (_) {
-                                    setState(() {
-                                      micButtonOffset = -5;
-                                    });
-                                    recordingDelayTimer = Timer(
-                                        const Duration(milliseconds: 50), () {
-                                      if (mounted) {
-                                        setState(() {
-                                          isLongPress = true;
-                                          isRecording = true;
-                                          startRecordingTimer();
-                                        });
-                                      }
-                                    });
-                                  }
-                                : null,
-                            onPointerUp: (_) {
-                              if (!isLongPress) {
-                                recordingDelayTimer?.cancel();
-                                setState(() {
-                                  micButtonOffset = 0;
-                                });
-                              } else {
-                                setState(() {
-                                  micButtonOffset = 0;
-                                  isRecording = false;
-                                  hasRecordedAudio = true;
-                                  stopRecordingTimer();
-                                  isLongPress = false;
-                                });
-                              }
-                            },
-                            child: GestureDetector(
-                              onTap: hasRecordedAudio &&
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(20)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Adicionar alimento para $selectedMealTitle",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                              color: const Color(0xff1D1617).withOpacity(0.11),
+                              blurRadius: 40)
+                        ]),
+                    child: Row(children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: Row(children: [
+                            Listener(
+                              onPointerDown: !hasRecordedAudio &&
                                       !isRecording &&
                                       !isPlayingAudio
-                                  ? playRecordedAudio
+                                  ? (_) {
+                                      setState(() {
+                                        micButtonOffset = -5;
+                                      });
+                                      recordingDelayTimer = Timer(
+                                          const Duration(milliseconds: 50), () {
+                                        if (mounted) {
+                                          setState(() {
+                                            isLongPress = true;
+                                            isRecording = true;
+                                            startRecordingTimer();
+                                          });
+                                        }
+                                      });
+                                    }
                                   : null,
-                              child: AnimatedContainer(
-                                height: 28,
-                                width: 28,
-                                duration: const Duration(milliseconds: 150),
-                                transform: Matrix4.translationValues(
-                                    0, micButtonOffset, 0),
-                                child: hasRecordedAudio
-                                    ? Icon(
-                                        isPlayingAudio
-                                            ? Icons.pause_circle_filled
-                                            : Icons.play_arrow,
-                                        color: const Color(0xff92A3FD),
-                                        size: 28)
-                                    : SvgPicture.asset('assets/icons/mic.svg',
-                                        color: isRecording
-                                            ? const Color(0xff92A3FD)
-                                            : null),
+                              onPointerUp: (_) {
+                                if (!isLongPress) {
+                                  recordingDelayTimer?.cancel();
+                                  setState(() {
+                                    micButtonOffset = 0;
+                                  });
+                                } else {
+                                  setState(() {
+                                    micButtonOffset = 0;
+                                    isRecording = false;
+                                    hasRecordedAudio = true;
+                                    stopRecordingTimer();
+                                    isLongPress = false;
+                                  });
+                                }
+                              },
+                              child: GestureDetector(
+                                onTap: hasRecordedAudio &&
+                                        !isRecording &&
+                                        !isPlayingAudio
+                                    ? playRecordedAudio
+                                    : null,
+                                child: AnimatedContainer(
+                                  height: 28,
+                                  width: 28,
+                                  duration: const Duration(milliseconds: 150),
+                                  transform: Matrix4.translationValues(
+                                      0, micButtonOffset, 0),
+                                  child: hasRecordedAudio
+                                      ? Icon(
+                                          isPlayingAudio
+                                              ? Icons.pause_circle_filled
+                                              : Icons.play_arrow,
+                                          color: const Color(0xff92A3FD),
+                                          size: 28)
+                                      : SvgPicture.asset('assets/icons/mic.svg',
+                                          color: isRecording
+                                              ? const Color(0xff92A3FD)
+                                              : null),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: isRecording || isPlayingAudio
+                                  ? Row(children: [
+                                      Text(formattedRecordingTime,
+                                          style: const TextStyle(
+                                              color: Color(0xff92A3FD),
+                                              fontWeight: FontWeight.bold)),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          isRecording
+                                              ? 'Gravando...'
+                                              : 'Reproduzindo...',
+                                          style: const TextStyle(
+                                              color: Color(0xff92A3FD),
+                                              fontWeight: FontWeight.w500),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ])
+                                  : Text(
+                                      hasRecordedAudio
+                                          ? 'Áudio gravado'
+                                          : 'Pressione e segure para falar',
+                                      style: TextStyle(
+                                          color: hasRecordedAudio
+                                              ? const Color(0xff92A3FD)
+                                              : const Color(0xffDDDADA),
+                                          fontSize: 14),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                            ),
+                            if (hasRecordedAudio &&
+                                !isRecording &&
+                                !isPlayingAudio)
+                              GestureDetector(
+                                onTap: deleteRecordedAudio,
+                                child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                        color: Colors.red.withOpacity(0.1),
+                                        shape: BoxShape.circle),
+                                    child: const Icon(Icons.close,
+                                        color: Colors.red, size: 20)),
+                              ),
+                          ]),
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.all(5),
+                        width: 50,
+                        child: Row(children: [
+                          Container(
+                              width: 1,
+                              height: 30,
+                              color: const Color(0xFFEEEEEE)),
+                          Expanded(
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: hasRecordedAudio &&
+                                        !isRecording &&
+                                        !isPlayingAudio
+                                    ? submitRecordedAudio
+                                    : null,
+                                child: SvgPicture.asset('assets/icons/enviar.svg',
+                                    color: hasRecordedAudio &&
+                                            !isRecording &&
+                                            !isPlayingAudio
+                                        ? null
+                                        : Colors.grey),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: isRecording || isPlayingAudio
-                                ? Row(children: [
-                                    Text(formattedRecordingTime,
-                                        style: const TextStyle(
-                                            color: Color(0xff92A3FD),
-                                            fontWeight: FontWeight.bold)),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        isRecording
-                                            ? 'Gravando...'
-                                            : 'Reproduzindo...',
-                                        style: const TextStyle(
-                                            color: Color(0xff92A3FD),
-                                            fontWeight: FontWeight.w500),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ])
-                                : Text(
-                                    hasRecordedAudio
-                                        ? 'Áudio gravado'
-                                        : 'Pressione e segure para falar',
-                                    style: TextStyle(
-                                        color: hasRecordedAudio
-                                            ? const Color(0xff92A3FD)
-                                            : const Color(0xffDDDADA),
-                                        fontSize: 14),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                          ),
-                          if (hasRecordedAudio &&
-                              !isRecording &&
-                              !isPlayingAudio)
-                            GestureDetector(
-                              onTap: deleteRecordedAudio,
-                              child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                      color: Colors.red.withOpacity(0.1),
-                                      shape: BoxShape.circle),
-                                  child: const Icon(Icons.close,
-                                      color: Colors.red, size: 20)),
-                            ),
                         ]),
                       ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(5),
-                      width: 50,
-                      child: Row(children: [
-                        Container(
-                            width: 1,
-                            height: 30,
-                            color: const Color(0xFFEEEEEE)),
-                        Expanded(
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: hasRecordedAudio &&
-                                      !isRecording &&
-                                      !isPlayingAudio
-                                  ? submitRecordedAudio
-                                  : null,
-                              child: SvgPicture.asset('assets/icons/enviar.svg',
-                                  color: hasRecordedAudio &&
-                                          !isRecording &&
-                                          !isPlayingAudio
-                                      ? null
-                                      : Colors.grey),
-                            ),
-                          ),
-                        ),
-                      ]),
-                    ),
-                  ]),
-                ),
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                      onPressed: hideAddFoodModal,
-                      child: const Text("Cancelar",
-                          style: TextStyle(color: Colors.grey))),
-                ),
-              ]),
+                    ]),
+                  ),
+                  const SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                        onPressed: hideAddFoodModal,
+                        child: const Text("Cancelar",
+                            style: TextStyle(color: Colors.grey))),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

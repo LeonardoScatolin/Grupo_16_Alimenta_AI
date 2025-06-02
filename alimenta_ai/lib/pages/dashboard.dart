@@ -198,16 +198,7 @@ class _DashboardPageState extends State<DashboardPage>
             backgroundColor: Theme.of(context).colorScheme.surface,
             elevation: 0,
             toolbarHeight: 50,
-            leading: IconButton(
-              icon: SvgPicture.asset(
-                themeProvider.isDarkMode 
-                  ? 'assets/icons/seta-white.svg'
-                  : 'assets/icons/seta-black.svg',
-                width: 20,
-                height: 20,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
+            automaticallyImplyLeading: false, // <-- Adicione esta linha!
             actions: [
               IconButton(
                 onPressed: () {
