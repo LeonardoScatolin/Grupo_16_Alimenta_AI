@@ -616,12 +616,14 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               calculateTotalCalories();
 
               debugPrint('📊 Total após remoção: $totalDailyCalories cal');
-            });
-
-            // 4. Salvar no cache local após remoção bem-sucedida
+            }); // 4. Salvar no cache local após remoção bem-sucedida
             _mealsByDate[currentDateString] = List.from(meals);
             await _saveMealsToPrefs(currentDateString, meals);
             debugPrint('💾 Cache atualizado após remoção de alimento');
+
+            // 🔄 Forçar atualização do resumo diário para sincronizar com o Dashboard
+            await nutricaoService.atualizarResumoDiario(currentDateString);
+            debugPrint('🔄 Resumo diário atualizado após remoção');
 
             // 5. Mostrar feedback de sucesso
             ScaffoldMessenger.of(context).showSnackBar(
@@ -654,11 +656,17 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
               }
 
               calculateTotalCalories();
-            });
-
-            // Atualizar cache local
+            }); // Atualizar cache local
             _mealsByDate[currentDateString] = List.from(meals);
             await _saveMealsToPrefs(currentDateString, meals);
+
+            // 🔄 Tentar atualizar resumo diário mesmo com falha na subtração
+            try {
+              await nutricaoService.atualizarResumoDiario(currentDateString);
+              debugPrint('🔄 Resumo diário atualizado após remoção (fallback)');
+            } catch (e) {
+              debugPrint('❌ Erro ao atualizar resumo diário: $e');
+            }
           }
         } catch (e) {
           debugPrint('❌ Erro durante remoção: $e');

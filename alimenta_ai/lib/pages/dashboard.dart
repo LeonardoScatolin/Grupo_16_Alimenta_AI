@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../services/weight_service.dart';
 import '../services/nutricao_service.dart';
-import '../services/user_service.dart';  // Nova importação
+import '../services/user_service.dart'; // Nova importação
 import 'package:alimenta_ai/pages/weight_history.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -58,10 +59,44 @@ class _DashboardPageState extends State<DashboardPage>
     }
   }
 
-  void _carregarDadosDiarios() {
+  void _carregarDadosDiarios() async {
     final nutricaoService =
         Provider.of<NutricaoService>(context, listen: false);
+
+    // 🔧 Garantir que os IDs estão configurados antes de carregar dados
+    await _configurarUsuariosSeNecessario(nutricaoService);
+
+    // 🎯 Carregar metas diárias primeiro
+    nutricaoService.carregarMetas();
+
+    // 📊 Depois carregar o resumo diário completo
     nutricaoService.atualizarResumoDiario();
+  }
+
+  // Método para configurar IDs de usuário se ainda não estiverem configurados
+  Future<void> _configurarUsuariosSeNecessario(
+      NutricaoService nutricaoService) async {
+    if (nutricaoService.pacienteId == null || nutricaoService.nutriId == null) {
+      try {
+        // Tentar obter ID do usuário do SharedPreferences ou UserService
+        final userId = await UserService.getUserId();
+        if (userId != null) {
+          nutricaoService.configurarUsuarios(
+              userId, 1); // Usando nutri_id padrão
+          debugPrint(
+              '🔧 IDs configurados no Dashboard: paciente=$userId, nutri=1');
+        } else {
+          // Fallback para IDs padrão
+          nutricaoService.configurarUsuarios(1, 1);
+          debugPrint(
+              '🔧 IDs padrão configurados no Dashboard: paciente=1, nutri=1');
+        }
+      } catch (e) {
+        debugPrint('❌ Erro ao configurar usuários: $e');
+        // Fallback para IDs padrão em caso de erro
+        nutricaoService.configurarUsuarios(1, 1);
+      }
+    }
   }
 
   @override
@@ -138,7 +173,8 @@ class _DashboardPageState extends State<DashboardPage>
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
-        ),        const SizedBox(height: 5),
+        ),
+        const SizedBox(height: 5),
         Text(
           _userName,
           style: TextStyle(

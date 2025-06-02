@@ -230,6 +230,8 @@ class NutricaoService extends ChangeNotifier {
       debugPrint('💥 Erro inesperado: $e');
     } finally {
       _setLoading(false);
+      // 🔔 Sempre notificar listeners no final, independente do resultado
+      notifyListeners();
     }
   }
 
@@ -525,10 +527,55 @@ class NutricaoService extends ChangeNotifier {
       return false;
     }
   }
-
   // ===============================================
   // 📈 METAS E ESTATÍSTICAS
-  // ===============================================  /// Obter meta atual
+  // ===============================================
+
+  /// Carregar metas diárias do nutricionista (método público para uso no Dashboard)
+  Future<void> carregarMetas([String? data]) async {
+    if (_pacienteId == null || _nutriId == null) {
+      _error = 'IDs de paciente e nutricionista não configurados';
+      notifyListeners();
+      return;
+    }
+
+    debugPrint('🎯 Carregando metas para o Dashboard...');
+
+    try {
+      final meta = await buscarMetasPublicas(
+        pacienteIdOverride: _pacienteId,
+        nutriIdOverride: _nutriId,
+        data: data,
+      );
+
+      if (meta != null) {
+        // Se já existe um resumo, atualizar apenas as metas
+        if (_resumoAtual != null) {
+          _resumoAtual = ResumoDiario(
+            data: _resumoAtual!.data,
+            metaDiaria: meta,
+            consumoAtual: _resumoAtual!.consumoAtual,
+            restante: _resumoAtual!.restante,
+            percentualAtingido: _resumoAtual!.percentualAtingido,
+            registroEncontrado: _resumoAtual!.registroEncontrado,
+          );
+        }
+
+        debugPrint('✅ Metas carregadas com sucesso: ${meta.calorias} cal');
+        notifyListeners();
+      } else {
+        _error = 'Não foi possível carregar as metas';
+        debugPrint('❌ Falha ao carregar metas');
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = 'Erro ao carregar metas: $e';
+      debugPrint('❌ Erro ao carregar metas: $e');
+      notifyListeners();
+    }
+  }
+
+  /// Obter meta atual
   Future<MetaDiaria?> obterMeta([String? data]) async {
     if (_pacienteId == null || _nutriId == null) {
       _error = 'IDs do paciente e nutricionista não configurados';
