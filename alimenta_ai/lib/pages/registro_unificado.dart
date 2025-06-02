@@ -11,6 +11,7 @@ import 'package:alimenta_ai/models/modelo_categoria.dart';
 import 'package:alimenta_ai/models/ver_dietanutri.dart';
 import 'package:alimenta_ai/services/audio_service.dart';
 import 'package:alimenta_ai/services/nutricao_service.dart';
+import 'package:alimenta_ai/services/user_service.dart';
 import 'package:alimenta_ai/widgets/audio_debug_widget.dart';
 
 class RegistroUnificadoPage extends StatefulWidget {
@@ -139,15 +140,44 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
     final nutricaoService =
         Provider.of<NutricaoService>(context, listen: false);
 
-    // Obter IDs do usuário logado dinamicamente
-    final userIdString =
-        await _getStoredUserId() ?? DEFAULT_PACIENTE_ID.toString();
-    final userId = int.tryParse(userIdString) ?? DEFAULT_PACIENTE_ID;
+    // 🔧 Obter IDs dinamicamente usando UserService
+    debugPrint('🔧 Obtendo IDs dinamicamente do usuário logado...');
 
-    debugPrint('👤 Configurando serviços para usuário ID: $userId');
+    try {
+      // Verificar se usuário está logado
+      final isLoggedIn = await UserService.isUserLoggedIn();
+      if (!isLoggedIn) {
+        debugPrint('❌ Usuário não está logado - usando IDs padrão');
+        nutricaoService.configurarUsuarios(
+            DEFAULT_PACIENTE_ID, DEFAULT_NUTRI_ID);
+        _carregarMetasPublicas();
+        return;
+      }
 
-    // Configurar usuários dinamicamente
-    nutricaoService.configurarUsuarios(userId, DEFAULT_NUTRI_ID);
+      // Obter IDs dinamicamente
+      final apiIds = await UserService.getApiIds();
+      final pacienteId = apiIds['paciente_id'];
+      final nutriId = apiIds['nutri_id'];
+      final userType = await UserService.getUserType();
+
+      debugPrint(
+          '🔧 Dados obtidos - Tipo: $userType, Paciente: $pacienteId, Nutri: $nutriId');
+
+      if (pacienteId != null && nutriId != null) {
+        nutricaoService.configurarUsuarios(pacienteId, nutriId);
+        debugPrint(
+            '👤 ✅ Serviços configurados dinamicamente: paciente=$pacienteId, nutri=$nutriId');
+      } else {
+        debugPrint('⚠️ IDs incompletos - usando fallback');
+        final userId = await UserService.getUserId() ?? DEFAULT_PACIENTE_ID;
+        nutricaoService.configurarUsuarios(userId, DEFAULT_NUTRI_ID);
+        debugPrint(
+            '👤 Serviços configurados com fallback: paciente=$userId, nutri=$DEFAULT_NUTRI_ID');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao obter IDs dinâmicos: $e - usando padrão');
+      nutricaoService.configurarUsuarios(DEFAULT_PACIENTE_ID, DEFAULT_NUTRI_ID);
+    }
 
     // Carregar metas da API
     _carregarMetasPublicas();

@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/nutricao_service.dart';
-import '../services/user_service.dart';  // Nova importação
+import '../services/user_service.dart'; // Nova importação
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -662,25 +662,48 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         _passwordController.text.trim(),
         tipo: 'paciente',
       );
+      debugPrint('📋 Resultado do login: $result');
 
-      debugPrint('📋 Resultado do login: $result');      if (result['success'] == true) {
+      if (result['success'] == true) {
         debugPrint('✅ Login bem-sucedido!');
 
         final user = result['user'];
-        
-        // Salvar dados do usuário
+        debugPrint('👤 Dados do usuário recebidos: $user');
+
+        // Salvar dados do usuário com debug detalhado
         await UserService.saveUserData(
           userId: user['id'],
           userName: user['name'] ?? 'Usuário',
           userEmail: user['email'] ?? '',
           additionalData: user,
         );
-        
-        // Configurar o NutricaoService com os IDs
+
+        debugPrint('💾 Dados do usuário salvos no SharedPreferences');
+
+        // Verificar se os dados foram salvos corretamente
+        final savedData = await UserService.getUserDataDebug();
+        debugPrint('🔍 Dados salvos verificados: $savedData');
+
+        // Configurar o NutricaoService com os IDs dinamicamente
         if (mounted) {
           final nutricaoService =
               Provider.of<NutricaoService>(context, listen: false);
-          nutricaoService.configurarUsuarios(user['id'], user['nutri_id'] ?? 1);
+
+          // Obter IDs dinamicamente em vez de usar valores hardcoded
+          final apiIds = await UserService.getApiIds();
+          final pacienteId = apiIds['paciente_id'];
+          final nutriId = apiIds['nutri_id'];
+
+          debugPrint(
+              '🔧 Configurando NutricaoService com IDs dinâmicos: paciente=$pacienteId, nutri=$nutriId');
+
+          if (pacienteId != null && nutriId != null) {
+            nutricaoService.configurarUsuarios(pacienteId, nutriId);
+          } else {
+            debugPrint('⚠️ Usando fallback para configuração de IDs');
+            nutricaoService.configurarUsuarios(
+                user['id'], user['nutri_id'] ?? 1);
+          }
 
           // Atualizar dados imediatamente após configurar
           await nutricaoService.atualizarResumoDiario();

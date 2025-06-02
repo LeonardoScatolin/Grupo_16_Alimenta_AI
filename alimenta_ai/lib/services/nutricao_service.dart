@@ -176,14 +176,17 @@ class NutricaoService extends ChangeNotifier {
         '🔄 Atualizando resumo diário para paciente $_pacienteId (nutri: $_nutriId) - Data: $dataParaUsar');
     _setLoading(true);
     _error = null;
-
     try {
       final result =
           await _apiService.obterResumoDiario(_pacienteId!, dataParaUsar);
       debugPrint('📄 Resposta completa da API: $result');
       debugPrint('📄 Tipo do campo data: ${result['data']?.runtimeType}');
 
-      if (result['success']) {
+      // ✅ Verificar tanto 'success' quanto 'status' para compatibilidade
+      final apiSuccess = result['success'] == true || result['status'] == true;
+      debugPrint('📄 API Success: $apiSuccess');
+
+      if (apiSuccess) {
         final apiData = result['data'];
         debugPrint('📋 Dados recebidos do campo data: $apiData');
         debugPrint('📋 Estrutura do JSON: ${apiData?.keys?.toList()}');

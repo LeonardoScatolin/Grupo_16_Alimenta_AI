@@ -107,11 +107,21 @@ class MetaDiaria {
     required this.calorias,
   });
   factory MetaDiaria.fromJson(Map<String, dynamic> json) {
+    debugPrint('🎯 Parsing MetaDiaria from: $json');
+
+    final proteina = (json['proteina'] ?? 0).toDouble();
+    final carbo = (json['carboidrato'] ?? json['carbo'] ?? 0).toDouble();
+    final gordura = (json['gordura'] ?? 0).toDouble();
+    final calorias = (json['kcal'] ?? json['calorias'] ?? 0).toDouble();
+
+    debugPrint(
+        '🎯 MetaDiaria parsed - Proteína: $proteina, Carbo: $carbo, Gordura: $gordura, Calorias: $calorias');
+
     return MetaDiaria(
-      proteina: (json['proteina'] ?? 0).toDouble(),
-      carbo: (json['carboidrato'] ?? json['carbo'] ?? 0).toDouble(),
-      gordura: (json['gordura'] ?? 0).toDouble(),
-      calorias: (json['kcal'] ?? json['calorias'] ?? 0).toDouble(),
+      proteina: proteina,
+      carbo: carbo,
+      gordura: gordura,
+      calorias: calorias,
     );
   }
 
@@ -145,11 +155,21 @@ class ConsumoAtual {
     required this.calorias,
   });
   factory ConsumoAtual.fromJson(Map<String, dynamic> json) {
+    debugPrint('🍽️ Parsing ConsumoAtual from: $json');
+
+    final proteina = (json['proteina'] ?? 0).toDouble();
+    final carbo = (json['carboidrato'] ?? json['carbo'] ?? 0).toDouble();
+    final gordura = (json['gordura'] ?? 0).toDouble();
+    final calorias = (json['kcal'] ?? json['calorias'] ?? 0).toDouble();
+
+    debugPrint(
+        '🍽️ ConsumoAtual parsed - Proteína: $proteina, Carbo: $carbo, Gordura: $gordura, Calorias: $calorias');
+
     return ConsumoAtual(
-      proteina: (json['proteina'] ?? 0).toDouble(),
-      carbo: (json['carboidrato'] ?? json['carbo'] ?? 0).toDouble(),
-      gordura: (json['gordura'] ?? 0).toDouble(),
-      calorias: (json['kcal'] ?? json['calorias'] ?? 0).toDouble(),
+      proteina: proteina,
+      carbo: carbo,
+      gordura: gordura,
+      calorias: calorias,
     );
   }
 
@@ -684,15 +704,16 @@ class RegistroAlimentoDetalhado {
       'data_registro': dataRegistro.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
     };
-  }  // Método para obter nome amigável do tipo de refeição
+  } // Método para obter nome amigável do tipo de refeição
+
   String get tipoRefeicaoAmigavel {
     final tipo = tipoRefeicao.toLowerCase().trim();
-    
+
     // Se está vazio, usar 'Café da Manhã' como padrão
     if (tipo.isEmpty) {
       return 'Café da Manhã';
     }
-    
+
     switch (tipo) {
       case 'café da manhã':
       case 'cafe_manha':

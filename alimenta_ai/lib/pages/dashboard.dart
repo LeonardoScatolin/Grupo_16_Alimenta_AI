@@ -69,36 +69,100 @@ class _DashboardPageState extends State<DashboardPage>
     // 📅 Garantir que estamos carregando dados do dia atual
     final String dataAtual = DateTime.now().toString().split(' ')[0];
     debugPrint('📅 Dashboard carregando dados para: $dataAtual');
+    debugPrint(
+        '🔧 IDs configurados - Paciente: ${nutricaoService.pacienteId}, Nutri: ${nutricaoService.nutriId}');
 
-    // 🎯 Carregar metas diárias primeiro
-    await nutricaoService.carregarMetas(dataAtual);
+    try {
+      // 🎯 Carregar metas diárias primeiro
+      debugPrint('🎯 Iniciando carregamento de metas...');
+      await nutricaoService.carregarMetas(dataAtual);
+      debugPrint('🎯 Metas carregadas');
 
-    // 📊 Depois carregar o resumo diário completo
-    await nutricaoService.atualizarResumoDiario(dataAtual);
+      // 📊 Depois carregar o resumo diário completo
+      debugPrint('📊 Iniciando carregamento do resumo diário...');
+      await nutricaoService.atualizarResumoDiario(dataAtual);
+      debugPrint('📊 Resumo diário carregado');
+
+      // 🔄 Verificar se os dados foram carregados corretamente
+      final resumo = nutricaoService.resumoAtual;
+      if (resumo != null) {
+        debugPrint('✅ Dashboard: Dados carregados com sucesso');
+        debugPrint(
+            '✅ Dashboard: Meta calorias = ${resumo.metaDiaria.calorias}');
+        debugPrint(
+            '✅ Dashboard: Consumo calorias = ${resumo.consumoAtual.calorias}');
+      } else {
+        debugPrint('❌ Dashboard: Nenhum resumo disponível após carregamento');
+      }
+    } catch (e) {
+      debugPrint('❌ Dashboard: Erro ao carregar dados: $e');
+    }
   }
 
   // Método para configurar IDs de usuário se ainda não estiverem configurados
   Future<void> _configurarUsuariosSeNecessario(
       NutricaoService nutricaoService) async {
-    if (nutricaoService.pacienteId == null || nutricaoService.nutriId == null) {
-      try {
-        // Tentar obter ID do usuário do SharedPreferences ou UserService
-        final userId = await UserService.getUserId();
-        if (userId != null) {
-          nutricaoService.configurarUsuarios(
-              userId, 1); // Usando nutri_id padrão
-          debugPrint(
-              '🔧 IDs configurados no Dashboard: paciente=$userId, nutri=1');
-        } else {
-          // Fallback para IDs padrão
-          nutricaoService.configurarUsuarios(1, 1);
-          debugPrint(
-              '🔧 IDs padrão configurados no Dashboard: paciente=1, nutri=1');
-        }
-      } catch (e) {
-        debugPrint('❌ Erro ao configurar usuários: $e');
-        // Fallback para IDs padrão em caso de erro
-        nutricaoService.configurarUsuarios(1, 1);
+    // Primeiro, verificar se o usuário está logado
+    final isLoggedIn = await UserService.isUserLoggedIn();
+    if (!isLoggedIn) {
+      debugPrint('❌ Usuário não está logado - redirecionando para login');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
+      }
+    }
+
+    // Verificar se os dados do usuário estão completos
+    final hasCompleteData = await UserService.hasCompleteUserData();
+    if (!hasCompleteData) {
+      debugPrint('❌ Dados do usuário incompletos - redirecionando para login');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
+      }
+    }
+
+    // Se IDs já estão configurados, não precisa fazer nada
+    if (nutricaoService.pacienteId != null && nutricaoService.nutriId != null) {
+      debugPrint(
+          '🔧 IDs já configurados - Paciente: ${nutricaoService.pacienteId}, Nutri: ${nutricaoService.nutriId}');
+      return;
+    }
+
+    try {
+      debugPrint('🔧 Obtendo IDs dinamicamente do usuário logado...');
+
+      // Debug detalhado dos dados do usuário
+      final userDataDebug = await UserService.getUserDataDebug();
+      debugPrint('🔍 Dados completos do usuário: $userDataDebug');
+
+      // Obter IDs dinamicamente baseado no usuário logado
+      final apiIds = await UserService.getApiIds();
+      final pacienteId = apiIds['paciente_id'];
+      final nutriId = apiIds['nutri_id'];
+      final userType = await UserService.getUserType();
+
+      debugPrint(
+          '🔧 Dados obtidos - Tipo: $userType, Paciente: $pacienteId, Nutri: $nutriId');
+
+      if (pacienteId != null && nutriId != null) {
+        nutricaoService.configurarUsuarios(pacienteId, nutriId);
+        debugPrint(
+            '🔧 ✅ IDs configurados dinamicamente: paciente=$pacienteId, nutri=$nutriId');
+      } else {
+        debugPrint(
+            '⚠️ IDs incompletos - Paciente: $pacienteId, Nutri: $nutriId');
+        throw Exception(
+            'IDs do usuário incompletos após verificação. Paciente: $pacienteId, Nutri: $nutriId');
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao obter IDs do usuário: $e');
+
+      // Em caso de erro crítico, redirecionar para login
+      debugPrint('❌ Erro crítico na configuração - redirecionando para login');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
       }
     }
   }
@@ -107,6 +171,21 @@ class _DashboardPageState extends State<DashboardPage>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Recarregar dados sempre que a página se tornar visível
+    // Isso garante que dados sejam atualizados quando o usuário volta de outras telas
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        debugPrint(
+            '🔄 Dashboard: Página se tornou visível, recarregando dados...');
+        _carregarDadosDiarios();
+      }
+    });
   }
 
   @override
@@ -120,10 +199,23 @@ class _DashboardPageState extends State<DashboardPage>
           'Dashboard',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
+        // ➕ Adicionar botão de refresh para debug
+        actions: [
+          IconButton(
+            onPressed: () {
+              debugPrint('🔄 Botão de refresh pressionado');
+              _carregarDadosDiarios();
+            },
+            icon: Icon(
+              Icons.refresh,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            tooltip: 'Atualizar dados',
+          ),
+        ],
       ),
       body: Container(
         color: Theme.of(context).colorScheme.surface,
@@ -350,6 +442,23 @@ class _DashboardPageState extends State<DashboardPage>
         final isLoading = nutricaoService.isLoading;
         final error = nutricaoService.error;
 
+        // 📊 Debug logging para verificar os dados
+        debugPrint('🏠 Dashboard - Resumo disponível: ${resumo != null}');
+        if (resumo != null) {
+          debugPrint(
+              '🏠 Dashboard - Meta calorias: ${resumo.metaDiaria.calorias}');
+          debugPrint(
+              '🏠 Dashboard - Consumo calorias: ${resumo.consumoAtual.calorias}');
+          debugPrint(
+              '🏠 Dashboard - Consumo proteína: ${resumo.consumoAtual.proteina}');
+          debugPrint(
+              '🏠 Dashboard - Consumo carbo: ${resumo.consumoAtual.carbo}');
+          debugPrint(
+              '🏠 Dashboard - Consumo gordura: ${resumo.consumoAtual.gordura}');
+        }
+        debugPrint('🏠 Dashboard - Loading: $isLoading');
+        debugPrint('🏠 Dashboard - Error: $error');
+
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
@@ -525,6 +634,20 @@ class _DashboardPageState extends State<DashboardPage>
   Widget _buildCaloriesProgressCard() {
     return Consumer<NutricaoService>(
       builder: (context, nutricaoService, child) {
+        // 📊 Debug logging para verificar getters
+        debugPrint(
+            '🏠 Dashboard Calorias - totalDailyCalories: ${nutricaoService.totalDailyCalories}');
+        debugPrint(
+            '🏠 Dashboard Calorias - caloriesGoal: ${nutricaoService.caloriesGoal}');
+        debugPrint(
+            '🏠 Dashboard Calorias - resumoAtual: ${nutricaoService.resumoAtual != null}');
+        if (nutricaoService.resumoAtual != null) {
+          debugPrint(
+              '🏠 Dashboard Calorias - resumo.consumoAtual.calorias: ${nutricaoService.resumoAtual!.consumoAtual.calorias}');
+          debugPrint(
+              '🏠 Dashboard Calorias - resumo.metaDiaria.calorias: ${nutricaoService.resumoAtual!.metaDiaria.calorias}');
+        }
+
         if (nutricaoService.isLoading) {
           return Container(
             width: double.infinity,
