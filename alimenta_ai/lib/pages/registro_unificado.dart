@@ -918,13 +918,18 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                 carboidratos: (foodData['carboidratos'] as num).toDouble(),
                 gorduras: (foodData['gordura'] as num).toDouble(),
               );
-              debugPrint('✅ Alimento salvo no backend com sucesso!');
-
-              // Salvar no cache local após sucesso no backend
+              debugPrint('✅ Alimento salvo no backend com sucesso!');              // Salvar no cache local após sucesso no backend
               final currentDateString = _formatDateForBackend(selectedDate);
               _mealsByDate[currentDateString] = List.from(meals);
               await _saveMealsToPrefs(currentDateString, meals);
               debugPrint('💾 Dados atualizados no cache local');
+
+              // 🔄 ATUALIZAR RESUMO DIÁRIO NO NUTRICAOSERVICE PARA DASHBOARD
+              if (mounted) {
+                final nutricaoService = Provider.of<NutricaoService>(context, listen: false);
+                await nutricaoService.atualizarResumoDiario(currentDateString);
+                debugPrint('🔄 Resumo diário atualizado no NutricaoService após adição de alimento por áudio');
+              }
 
               // ⚠️ NÃO RECARREGAR - Os dados já estão na UI e foram salvos no backend
               // O reload pode causar perda de dados se o backend ainda não retornou
