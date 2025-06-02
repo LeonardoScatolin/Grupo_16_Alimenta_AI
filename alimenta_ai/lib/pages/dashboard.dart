@@ -205,12 +205,6 @@ class _DashboardPageState extends State<DashboardPage>
                   : 'assets/icons/seta-black.svg',
                 width: 20,
                 height: 20,
-                colorFilter: ColorFilter.mode(
-                  themeProvider.isDarkMode 
-                    ? Colors.white
-                    : Colors.black,
-                  BlendMode.srcIn,
-                ),
               ),
               onPressed: () => Navigator.pop(context),
             ),
@@ -620,7 +614,7 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                     const SizedBox(height: 15),
                     _buildNutritionGoalItem(
-                      icon: 'assets/icons/janta.svg',
+                      icon: 'assets/icons/protein.svg',
                       title: 'Carboidratos',
                       current: resumo.consumoAtual.carbo,
                       goal: resumo.metaDiaria.carbo,
@@ -663,6 +657,13 @@ class _DashboardPageState extends State<DashboardPage>
     required double goal,
     required String unit,
   }) {
+    // Defina o emoji de acordo com o título
+    String emoji = '';
+    if (title.contains('Proteína')) emoji = '🥩';
+    else if (title.contains('Carboidrato')) emoji = '🌾';
+    else if (title.contains('Gordura')) emoji = '🥜';
+    else if (title.contains('Caloria')) emoji = '🔥';
+
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return Row(
@@ -675,17 +676,11 @@ class _DashboardPageState extends State<DashboardPage>
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                   : const Color(0xFFEEEEFF),
                 borderRadius: BorderRadius.circular(10),
-              ),              child: Center(
-                child: SvgPicture.asset(
-                  icon,
-                  height: 20,
-                  width: 20,
-                  colorFilter: ColorFilter.mode(
-                    themeProvider.isDarkMode 
-                      ? Theme.of(context).colorScheme.primary
-                      : const Color(0xff92A3FD),
-                    BlendMode.srcIn,
-                  ),
+              ),
+              child: Center(
+                child: Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 22),
                 ),
               ),
             ),
@@ -713,7 +708,8 @@ class _DashboardPageState extends State<DashboardPage>
                         ? Colors.grey[400]
                         : Colors.grey[600],
                     ),
-                  ),                ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -783,12 +779,7 @@ class _DashboardPageState extends State<DashboardPage>
             SvgPicture.asset(
               icon,
               height: 24,
-              colorFilter: ColorFilter.mode(
-                isActive 
-                  ? const Color(0xff92A3FD) 
-                  : (themeProvider.isDarkMode ? Colors.grey[400]! : Colors.grey),
-                BlendMode.srcIn,
-              ),
+              // Remova o colorFilter para manter as cores originais do SVG
             ),
           ],
         );
