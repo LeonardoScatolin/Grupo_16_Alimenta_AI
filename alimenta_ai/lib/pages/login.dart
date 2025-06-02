@@ -288,19 +288,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      // Removido o AppBar que continha o título de login e o botão de voltar
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       resizeToAvoidBottomInset: false,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background - branco
+            // Background adaptado para o tema
             Positioned.fill(
               child: Container(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
               ),
             ),
 
@@ -385,7 +385,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ), // Conteúdo principal
             SafeArea(
               child: SingleChildScrollView(
-                // Add ScrollView
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
@@ -410,6 +409,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                           hintText: 'Email',
                           prefixIcon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
+                          isDark: isDark,
                         ),
 
                         const SizedBox(height: 16),
@@ -420,12 +420,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                           hintText: 'Senha',
                           prefixIcon: Icons.lock_outline,
                           obscureText: _obscurePassword,
+                          isDark: isDark,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: Colors.grey[600],
+                              color: isDark ? Colors.grey[400] : Colors.grey[600],
                             ),
                             onPressed: () {
                               setState(() {
@@ -447,12 +448,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 text: 'ENTRAR',
                                 isLoading: _isLoading,
                                 onPressed: _handleLogin,
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF6E55E3),
-                                    Color(0xFF5D42D9)
-                                  ],
-                                ),
+                                gradient: isDark
+                                    ? const LinearGradient(
+                                        colors: [
+                                          Color(0xFF7A66EC),
+                                          Color(0xFF5D42D9)
+                                        ],
+                                      )
+                                    : const LinearGradient(
+                                        colors: [
+                                          Color(0xFF6E55E3),
+                                          Color(0xFF5D42D9)
+                                        ],
+                                      ),
                               ),
                             );
                           },
@@ -481,12 +489,15 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
     Widget? suffixIcon,
+    bool isDark = false,
   }) {
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1D1617).withOpacity(0.07),
+            color: isDark
+                ? Colors.black.withOpacity(0.15)
+                : const Color(0xFF1D1617).withOpacity(0.07),
             blurRadius: 40,
             spreadRadius: 0.0,
             offset: const Offset(0, 10),
@@ -497,16 +508,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
-          color: Colors.black87,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Theme.of(context).colorScheme.surface,
           hintText: hintText,
           hintStyle: TextStyle(
-            color: Colors.grey[500],
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             fontSize: 15,
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
