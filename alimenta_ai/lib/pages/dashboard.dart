@@ -523,6 +523,14 @@ class _DashboardPageState extends State<DashboardPage>
                       goal: resumo.metaDiaria.gordura,
                       unit: 'g',
                     ),
+                    const SizedBox(height: 15),
+                    _buildNutritionGoalItem(
+                      icon: 'assets/icons/janta.svg',
+                      title: 'Calorias',
+                      current: resumo.consumoAtual.calorias,
+                      goal: resumo.metaDiaria.calorias,
+                      unit: 'kcal',
+                    ),
                   ],
                 )
               else
