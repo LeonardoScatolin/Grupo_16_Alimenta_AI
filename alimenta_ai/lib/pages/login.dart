@@ -435,28 +435,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                           ),
                         ),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              style: TextButton.styleFrom(
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
-                              ),
-                              child: const Text(
-                                'Esqueceu a senha?',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Color(0xFF6E55E3),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
                         const SizedBox(height: 16),
 
                         // Login button with animation
@@ -483,32 +461,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         const SizedBox(height: 16),
 
                         // Sign up text
-                        Center(
-                          child: TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                            ),
-                            child: RichText(
-                              text: TextSpan(
-                                text: 'Não tem uma conta? ',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 13,
-                                ),
-                                children: const [
-                                  TextSpan(
-                                    text: 'Cadastre-se',
-                                    style: TextStyle(
-                                      color: Color(0xFF6E55E3),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        Center(),
                       ],
                     ),
                   ),

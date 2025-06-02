@@ -13,7 +13,6 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool _notificationsEnabled = true;
-  String _currentLanguage = 'pt_BR';
   String _userName = 'Usuário'; // Nome padrão caso não carregue
 
   @override
@@ -584,13 +583,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _changeLanguage(String langCode) {
-    setState(() {
-      _currentLanguage = langCode;
-    });
-    // Aqui você pode adicionar a lógica para mudar o idioma do app
-  }
-
   // Método para alternar o tema
   void toggleTheme() {
     context.read<ThemeProvider>().toggleTheme();
@@ -630,39 +622,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     const Divider(),
-
-                    // Idioma
-                    ListTile(
-                      leading: SvgPicture.asset(
-                        'assets/icons/language.svg',
-                        width: 24,
-                        height: 24,
-                        color: const Color(0xff92A3FD),
-                      ),
-                      title: const Text('Idioma'),
-                      trailing: DropdownButton<String>(
-                        value: _currentLanguage,
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'pt_BR',
-                            child: Text('Português'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'en_US',
-                            child: Text('English'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'es_ES',
-                            child: Text('Español'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setModalState(() {
-                            _changeLanguage(value!);
-                          });
-                        },
-                      ),
-                    ),
 
                     // Tema
                     ListTile(
