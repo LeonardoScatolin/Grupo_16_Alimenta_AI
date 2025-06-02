@@ -234,8 +234,6 @@ class _DashboardPageState extends State<DashboardPage>
                     _buildWeightTrackingCard(),
                     const SizedBox(height: 25),
                     _buildDailyGoalsCard(),
-                    const SizedBox(height: 25),
-                    _buildCaloriesProgressCard(),
                   ],
                 ),
               ),
@@ -525,14 +523,6 @@ class _DashboardPageState extends State<DashboardPage>
                       goal: resumo.metaDiaria.gordura,
                       unit: 'g',
                     ),
-                    const SizedBox(height: 15),
-                    _buildNutritionGoalItem(
-                      icon: 'assets/icons/janta.svg',
-                      title: 'Calorias',
-                      current: resumo.consumoAtual.calorias,
-                      goal: resumo.metaDiaria.calorias,
-                      unit: 'kcal',
-                    ),
                   ],
                 )
               else
@@ -554,9 +544,6 @@ class _DashboardPageState extends State<DashboardPage>
     required double goal,
     required String unit,
   }) {
-    final progress = goal > 0 ? (current / goal).clamp(0.0, 1.0) : 0.0;
-    final percentage = (progress * 100).round();
-
     return Row(
       children: [
         Container(
@@ -589,7 +576,7 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               const SizedBox(height: 3),
               Text(
-                '${current.toStringAsFixed(1)}/${goal.toStringAsFixed(1)} $unit',
+                'Meta: ${goal.toStringAsFixed(1)} $unit',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.grey[600],
@@ -598,156 +585,7 @@ class _DashboardPageState extends State<DashboardPage>
             ],
           ),
         ),
-        SizedBox(
-          width: 50,
-          height: 50,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 35,
-                height: 35,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  strokeWidth: 5,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xff92A3FD),
-                  ),
-                ),
-              ),
-              Text(
-                '$percentage%',
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
-    );
-  }
-
-  Widget _buildCaloriesProgressCard() {
-    return Consumer<NutricaoService>(
-      builder: (context, nutricaoService, child) {
-        // 📊 Debug logging para verificar getters
-        debugPrint(
-            '🏠 Dashboard Calorias - totalDailyCalories: ${nutricaoService.totalDailyCalories}');
-        debugPrint(
-            '🏠 Dashboard Calorias - caloriesGoal: ${nutricaoService.caloriesGoal}');
-        debugPrint(
-            '🏠 Dashboard Calorias - resumoAtual: ${nutricaoService.resumoAtual != null}');
-        if (nutricaoService.resumoAtual != null) {
-          debugPrint(
-              '🏠 Dashboard Calorias - resumo.consumoAtual.calorias: ${nutricaoService.resumoAtual!.consumoAtual.calorias}');
-          debugPrint(
-              '🏠 Dashboard Calorias - resumo.metaDiaria.calorias: ${nutricaoService.resumoAtual!.metaDiaria.calorias}');
-        }
-
-        if (nutricaoService.isLoading) {
-          return Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        final caloriesConsumed = nutricaoService.totalDailyCalories;
-        final caloriesGoal = nutricaoService.caloriesGoal;
-        final progress = nutricaoService.caloriesProgress;
-
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Calorias Diárias',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$caloriesConsumed kcal',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xff92A3FD),
-                        ),
-                      ),
-                      Text(
-                        'de $caloriesGoal kcal',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 70,
-                    width: 70,
-                    child: CustomPaint(
-                      painter: CircleProgressPainter(
-                        progress: progress,
-                        color: const Color(0xff92A3FD),
-                        backgroundColor: const Color(0xFFEEEEFF),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${(progress * 100).toInt()}%',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
