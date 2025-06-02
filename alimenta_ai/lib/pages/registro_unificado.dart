@@ -12,7 +12,6 @@ import 'package:alimenta_ai/models/ver_dietanutri.dart';
 import 'package:alimenta_ai/services/audio_service.dart';
 import 'package:alimenta_ai/services/nutricao_service.dart';
 import 'package:alimenta_ai/services/user_service.dart';
-import 'package:alimenta_ai/widgets/audio_debug_widget.dart';
 
 class RegistroUnificadoPage extends StatefulWidget {
   const RegistroUnificadoPage({Key? key}) : super(key: key);
@@ -1318,10 +1317,6 @@ class _RegistroUnificadoPageState extends State<RegistroUnificadoPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Widget de debug do sistema de áudio (apenas em debug mode)
-                          if (const bool.fromEnvironment('dart.vm.product') ==
-                              false)
-                            const AudioDebugWidget(),
                           _buildDateSelector(),
                           const SizedBox(height: 25),
                           _buildSummaryCard(),
