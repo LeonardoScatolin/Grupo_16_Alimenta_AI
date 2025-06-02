@@ -161,8 +161,7 @@ class NutricaoService extends ChangeNotifier {
 
   // ===============================================
   // 📊 RESUMO E ESTATÍSTICAS
-  // ===============================================
-  /// Obter resumo diário (meta vs consumo)
+  // ===============================================  /// Obter resumo diário (meta vs consumo)
   Future<void> atualizarResumoDiario([String? data]) async {
     if (_pacienteId == null) {
       _error = 'ID do paciente não configurado';
@@ -170,13 +169,17 @@ class NutricaoService extends ChangeNotifier {
       return;
     }
 
+    // 📅 Se não especificou data, usar dia atual
+    final dataParaUsar = data ?? DateTime.now().toString().split(' ')[0];
+
     debugPrint(
-        '🔄 Atualizando resumo diário para paciente $_pacienteId (nutri: $_nutriId)');
+        '🔄 Atualizando resumo diário para paciente $_pacienteId (nutri: $_nutriId) - Data: $dataParaUsar');
     _setLoading(true);
     _error = null;
 
     try {
-      final result = await _apiService.obterResumoDiario(_pacienteId!, data);
+      final result =
+          await _apiService.obterResumoDiario(_pacienteId!, dataParaUsar);
       debugPrint('📄 Resposta completa da API: $result');
       debugPrint('📄 Tipo do campo data: ${result['data']?.runtimeType}');
 
@@ -527,10 +530,10 @@ class NutricaoService extends ChangeNotifier {
       return false;
     }
   }
+
   // ===============================================
   // 📈 METAS E ESTATÍSTICAS
   // ===============================================
-
   /// Carregar metas diárias do nutricionista (método público para uso no Dashboard)
   Future<void> carregarMetas([String? data]) async {
     if (_pacienteId == null || _nutriId == null) {
@@ -541,14 +544,21 @@ class NutricaoService extends ChangeNotifier {
 
     debugPrint('🎯 Carregando metas para o Dashboard...');
 
+    // 📅 Se não especificou data, usar dia atual
+    final dataParaUsar = data ?? DateTime.now().toString().split(' ')[0];
+    debugPrint('🎯 Data para carregar metas: $dataParaUsar');
+
     try {
       final meta = await buscarMetasPublicas(
         pacienteIdOverride: _pacienteId,
         nutriIdOverride: _nutriId,
-        data: data,
+        data: dataParaUsar,
       );
 
       if (meta != null) {
+        debugPrint(
+            '✅ Metas carregadas com sucesso: ${meta.calorias} cal, ${meta.proteina}g prot, ${meta.carbo}g carbo, ${meta.gordura}g gord');
+
         // Se já existe um resumo, atualizar apenas as metas
         if (_resumoAtual != null) {
           _resumoAtual = ResumoDiario(
@@ -559,13 +569,17 @@ class NutricaoService extends ChangeNotifier {
             percentualAtingido: _resumoAtual!.percentualAtingido,
             registroEncontrado: _resumoAtual!.registroEncontrado,
           );
+          debugPrint('🔄 Resumo existente atualizado com novas metas');
+        } else {
+          debugPrint(
+              'ℹ️ Nenhum resumo existente - metas serão aplicadas quando resumo for carregado');
         }
 
-        debugPrint('✅ Metas carregadas com sucesso: ${meta.calorias} cal');
         notifyListeners();
       } else {
         _error = 'Não foi possível carregar as metas';
-        debugPrint('❌ Falha ao carregar metas');
+        debugPrint(
+            '❌ Falha ao carregar metas - buscarMetasPublicas retornou null');
         notifyListeners();
       }
     } catch (e) {
@@ -645,25 +659,57 @@ class NutricaoService extends ChangeNotifier {
         nutriId: nId,
         data: data,
       );
-
       debugPrint('📄 Resposta completa da API de metas: $response');
-      debugPrint(
-          '📄 Success: ${response['success']}, Meta: ${response['meta']}');
 
-      if (response['success'] == true && response['meta'] != null) {
+      // Verificar múltiplas possibilidades de estrutura de resposta
+      bool apiSuccess = response['success'] == true;
+      Map<String, dynamic>? metaData;
+
+      if (apiSuccess) {
+        final responseData = response['data'];
+
+        if (responseData != null) {
+          // Estrutura aninhada: {success: true, data: {success: true, meta: {...}}}
+          if (responseData is Map<String, dynamic> &&
+              responseData['meta'] != null) {
+            metaData = responseData['meta'];
+            debugPrint('📄 Meta encontrada na estrutura aninhada: $metaData');
+          }
+          // Estrutura direta: {success: true, data: {...}} onde data é a meta
+          else if (responseData is Map<String, dynamic> &&
+              responseData.containsKey('proteina')) {
+            metaData = responseData;
+            debugPrint('📄 Meta encontrada na estrutura direta: $metaData');
+          }
+        }
+
+        // Estrutura legacy: {success: true, meta: {...}}
+        if (metaData == null && response['meta'] != null) {
+          metaData = response['meta'];
+          debugPrint('📄 Meta encontrada na estrutura legacy: $metaData');
+        }
+      }
+
+      debugPrint(
+          '📄 Success: $apiSuccess, Meta encontrada: ${metaData != null}');
+      debugPrint('📄 Dados da meta final: $metaData');
+
+      if (apiSuccess && metaData != null) {
         try {
-          final meta = MetaDiaria.fromJson(response['meta']);
+          final meta = MetaDiaria.fromJson(metaData);
           debugPrint(
               '✅ Metas parseadas com sucesso: ${meta.calorias} cal, ${meta.proteina}g prot');
           return meta;
         } catch (parseError) {
           debugPrint('❌ Erro ao parsear MetaDiaria: $parseError');
-          debugPrint('❌ Dados recebidos: ${response['meta']}');
+          debugPrint('❌ Dados recebidos: $metaData');
           _error = 'Erro ao processar dados das metas: $parseError';
           return null;
         }
       } else {
-        _error = response['error'] ?? 'Erro ao buscar metas';
+        _error = response['error'] ??
+            response['data']?['message'] ??
+            'Erro ao buscar metas';
         debugPrint('❌ Falha na busca de metas: $_error');
         return null;
       }

@@ -66,11 +66,15 @@ class _DashboardPageState extends State<DashboardPage>
     // 🔧 Garantir que os IDs estão configurados antes de carregar dados
     await _configurarUsuariosSeNecessario(nutricaoService);
 
+    // 📅 Garantir que estamos carregando dados do dia atual
+    final String dataAtual = DateTime.now().toString().split(' ')[0];
+    debugPrint('📅 Dashboard carregando dados para: $dataAtual');
+
     // 🎯 Carregar metas diárias primeiro
-    nutricaoService.carregarMetas();
+    await nutricaoService.carregarMetas(dataAtual);
 
     // 📊 Depois carregar o resumo diário completo
-    nutricaoService.atualizarResumoDiario();
+    await nutricaoService.atualizarResumoDiario(dataAtual);
   }
 
   // Método para configurar IDs de usuário se ainda não estiverem configurados
