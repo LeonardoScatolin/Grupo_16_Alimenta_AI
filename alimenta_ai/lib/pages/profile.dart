@@ -3,9 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:alimenta_ai/theme/theme_provider.dart';
 import 'package:alimenta_ai/services/user_service.dart';
+import 'package:alimenta_ai/pages/chat_nutricionista.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -41,17 +42,18 @@ class _ProfilePageState extends State<ProfilePage> {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          title: Text(
-            'Perfil',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
           backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0.0,
-          centerTitle: true,
+          leading: IconButton(
+            icon: SvgPicture.asset(
+              themeProvider.isDarkMode 
+                ? 'assets/icons/seta-white.svg'
+                : 'assets/icons/seta-black.svg',
+              width: 24,
+              height: 24,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
           actions: [
             IconButton(
               icon: SvgPicture.asset(
@@ -269,11 +271,17 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Outros'),
-        _buildMenuCard(
+        _buildSectionTitle('Outros'),        _buildMenuCard(
           icon: Icons.chat_outlined,
           title: 'Contato com Nutricionista',
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ChatNutricionista(),
+              ),
+            );
+          },
         ),
         const SizedBox(height: 20),
       ],
@@ -515,10 +523,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 20),
 
                   // Nutritionist info
-                  _buildInfoRow(Icons.person, 'Nome', 'Dr. Ana Silva'),
+                  _buildInfoRow(Icons.person, 'Nome', 'Dr. Carlos'),
                   const SizedBox(height: 15),
                   _buildInfoRow(
-                      Icons.email, 'Email', 'ana.silva@nutrialimenta.com'),
+                      Icons.email, 'Email', 'carlos@nutrialimenta.com'),
                   const SizedBox(height: 15),
                   _buildInfoRow(Icons.phone, 'Telefone', '(11) 98765-4321'),
                   const SizedBox(height: 15),
@@ -627,11 +635,10 @@ class _ProfilePageState extends State<ProfilePage> {
   // Método para alternar o tema
   void toggleTheme() {
     context.read<ThemeProvider>().toggleTheme();
-  }
-  void _showSettingsModal(BuildContext context) {
+  }  void _showSettingsModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Colors.transparent, // Deixamos transparente para controlar dentro do Consumer
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -641,6 +648,10 @@ class _ProfilePageState extends State<ProfilePage> {
           return StatefulBuilder(
             builder: (context, setModalState) {
               return Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                ),
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -666,47 +677,78 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ],
                     ),
-                    const Divider(),
+                    Divider(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
 
                     // Tema
-                    ListTile(
-                      leading: Icon(
-                        themeProvider.isDarkMode
-                            ? Icons.dark_mode
-                            : Icons.light_mode,
-                        color: Theme.of(context).colorScheme.primary,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Theme.of(context).brightness == Brightness.dark
+                            ? Border.all(
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                width: 1,
+                              )
+                            : null,
                       ),
-                      title: Text(
-                        themeProvider.isDarkMode ? 'Tema Escuro' : 'Tema Claro',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
+                      child: ListTile(
+                        leading: Icon(
+                          themeProvider.isDarkMode
+                              ? Icons.dark_mode
+                              : Icons.light_mode,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        title: Text(
+                          themeProvider.isDarkMode ? 'Tema Escuro' : 'Tema Claro',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        trailing: Switch(
+                          value: themeProvider.isDarkMode,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          activeTrackColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          onChanged: (value) {
+                            themeProvider.toggleTheme();
+                          },
                         ),
                       ),
-                      trailing: Switch(
-                        value: themeProvider.isDarkMode,
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        onChanged: (value) {
-                          themeProvider.toggleTheme();
-                        },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Logout
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Theme.of(context).brightness == Brightness.dark
+                            ? Border.all(
+                                color: Colors.red.withOpacity(0.3),
+                                width: 1,
+                              )
+                            : null,
                       ),
-                    ),                    // Logout
-                    ListTile(
-                      leading: SvgPicture.asset(
-                        'assets/icons/logout.svg',
-                        width: 24,
-                        height: 24,
-                        color: Colors.red,
-                      ),
-                      title: const Text(
-                        'Sair',
-                        style: TextStyle(
+                      child: ListTile(
+                        leading: SvgPicture.asset(
+                          'assets/icons/logout.svg',
+                          width: 24,
+                          height: 24,
                           color: Colors.red,
                         ),
+                        title: const Text(
+                          'Sair',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushReplacementNamed('/login');
+                        },
                       ),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pushReplacementNamed('/login');
-                      },
                     ),
                   ],
                 ),
