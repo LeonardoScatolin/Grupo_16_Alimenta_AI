@@ -131,13 +131,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 15), // Nome do usuário
+              const SizedBox(height: 15),              // Nome do usuário
               Text(
                 _userName,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 5), // Título do usuário
@@ -145,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 'Nutricionista Nutrime',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],
@@ -154,17 +154,16 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Center(
         child: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -189,56 +188,75 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Notificação'),
-        Container(
+        _buildSectionTitle('Notificação'),        Container(
           margin: const EdgeInsets.only(bottom: 10),
           child: Material(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             clipBehavior: Clip.hardEdge,
             elevation: 2,
-            shadowColor: Colors.grey.withOpacity(0.1),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff92A3FD).withOpacity(0.1),
-                          shape: BoxShape.circle,
+            shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Theme.of(context).brightness == Brightness.dark
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                        width: 1,
+                      )
+                    : null,
+                boxShadow: Theme.of(context).brightness == Brightness.dark
+                    ? [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
-                        child: const Icon(
-                          Icons.notifications_none_outlined,
-                          color: Color(0xff92A3FD),
-                          size: 24,
+                      ]
+                    : null,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff92A3FD).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.notifications_none_outlined,
+                            color: Color(0xff92A3FD),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 15),
-                      const Text(
-                        'Notificações',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                        const SizedBox(width: 15),
+                        Text(
+                          'Notificações',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Switch(
-                    value: _notificationsEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _notificationsEnabled = value;
-                      });
-                    },
-                    activeColor: const Color(0xff92A3FD),
-                    activeTrackColor: const Color(0xff92A3FD).withOpacity(0.3),
-                  ),
-                ],
+                      ],
+                    ),
+                    Switch(
+                      value: _notificationsEnabled,
+                      onChanged: (value) {
+                        setState(() {
+                          _notificationsEnabled = value;
+                        });
+                      },
+                      activeColor: const Color(0xff92A3FD),
+                      activeTrackColor: const Color(0xff92A3FD).withOpacity(0.3),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -266,74 +284,92 @@ class _ProfilePageState extends State<ProfilePage> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-  }) {
-    return Container(
+  }) {    return Container(
       margin: const EdgeInsets.only(bottom: 10),
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.hardEdge,
         elevation: 2,
-        shadowColor: Colors.grey.withOpacity(0.1),
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xff92A3FD).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          icon,
-                          color: const Color(0xff92A3FD),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
+        shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Theme.of(context).brightness == Brightness.dark
+                ? Border.all(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    width: 1,
+                  )
+                : null,
+            boxShadow: Theme.of(context).brightness == Brightness.dark
+                ? [
+                    BoxShadow(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xff92A3FD).withOpacity(0.1),
+                            shape: BoxShape.circle,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          child: Icon(
+                            icon,
+                            color: const Color(0xff92A3FD),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 15),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey,
-                  size: 16,
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    size: 16,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
-
   Widget _buildBottomNavigationBar() {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Theme.of(context).colorScheme.shadow.withOpacity(0.2),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -368,17 +404,22 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
+        children: [          SvgPicture.asset(
             icon,
-            color: isActive ? const Color(0xff92A3FD) : Colors.grey,
+            color: isActive
+                ? const Color(0xff92A3FD)
+                : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             width: 24,
             height: 24,
-            placeholderBuilder: (BuildContext context) => const SizedBox(
+            placeholderBuilder: (BuildContext context) => SizedBox(
               width: 24,
               height: 24,
               child: Center(
-                child: Icon(Icons.error, size: 20, color: Colors.grey),
+                child: Icon(
+                  Icons.error,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
               ),
             ),
           ),
@@ -587,10 +628,10 @@ class _ProfilePageState extends State<ProfilePage> {
   void toggleTheme() {
     context.read<ThemeProvider>().toggleTheme();
   }
-
   void _showSettingsModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -607,16 +648,20 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Cabeçalho
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'Configurações',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const Spacer(),
                         IconButton(
-                          icon: const Icon(Icons.close),
+                          icon: Icon(
+                            Icons.close,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ],
@@ -644,9 +689,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           themeProvider.toggleTheme();
                         },
                       ),
-                    ),
-
-                    // Logout
+                    ),                    // Logout
                     ListTile(
                       leading: SvgPicture.asset(
                         'assets/icons/logout.svg',

@@ -53,7 +53,6 @@ class AppTheme {
       ),
     ),
   );
-
   static ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     primarySwatch: Colors.blue,
@@ -63,18 +62,44 @@ class AppTheme {
       secondary: Color(0xff9DCEFF),
       surface: Color(0xFF1E1E1E),
       onSurface: Colors.white,
+      shadow: Colors.black,
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF1E1E1E),
       foregroundColor: Colors.white,
       elevation: 0,
       iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
     ),
     cardTheme: CardThemeData(
       color: const Color(0xFF1E1E1E),
-      elevation: 2,
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(
+          color: Color(0xff92A3FD),
+          width: 0.5,
+        ),
+      ),
+      shadowColor: const Color(0xff92A3FD).withOpacity(0.3),
+    ),
+    iconTheme: const IconThemeData(
+      color: Colors.white,
+    ),
+    textTheme: const TextTheme(
+      headlineLarge: TextStyle(
+        color: Colors.white,
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+      ),
+      bodyLarge: TextStyle(
+        color: Colors.white,
+        fontSize: 16,
       ),
     ),
   );
