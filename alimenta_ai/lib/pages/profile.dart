@@ -159,12 +159,14 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
+      child: Center(
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
       ),
     );
@@ -364,18 +366,24 @@ class _ProfilePageState extends State<ProfilePage> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: SvgPicture.asset(
-        icon,
-        color: isActive ? const Color(0xff92A3FD) : Colors.grey,
-        width: 24,
-        height: 24,
-        placeholderBuilder: (BuildContext context) => const SizedBox(
-          width: 24,
-          height: 24,
-          child: Center(
-            child: Icon(Icons.error, size: 20, color: Colors.grey),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            icon,
+            color: isActive ? const Color(0xff92A3FD) : Colors.grey,
+            width: 24,
+            height: 24,
+            placeholderBuilder: (BuildContext context) => const SizedBox(
+              width: 24,
+              height: 24,
+              child: Center(
+                child: Icon(Icons.error, size: 20, color: Colors.grey),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
