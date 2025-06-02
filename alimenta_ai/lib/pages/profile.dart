@@ -368,111 +368,151 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-    );
-  }
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(
-            icon: 'assets/icons_bar/Home-Active.svg',
-            isActive: false,
-            onTap: () => Navigator.pushNamed(context, '/home'),
-          ),
-          _buildAddButton(),
-          _buildNavItem(
-            icon: 'assets/icons_bar/Profile.svg',
-            isActive: true,
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
+    );  }
 
+  Widget _buildBottomNavigationBar() {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode 
+              ? Theme.of(context).colorScheme.surface
+              : Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: themeProvider.isDarkMode 
+                  ? Colors.black.withOpacity(0.3)
+                  : Theme.of(context).colorScheme.shadow.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
+            border: themeProvider.isDarkMode 
+              ? Border(
+                  top: BorderSide(
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                    width: 1,
+                  ),
+                )
+              : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                icon: 'assets/icons_bar/Home-Active.svg',
+                isActive: false,
+                onTap: () => Navigator.pushNamed(context, '/home'),
+              ),
+              _buildAddButton(),
+              _buildNavItem(
+                icon: 'assets/icons_bar/Profile.svg',
+                isActive: true,
+                onTap: () {},
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
   Widget _buildNavItem({
     required String icon,
     required bool isActive,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [          SvgPicture.asset(
-            icon,
-            color: isActive
-                ? const Color(0xff92A3FD)
-                : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-            width: 24,
-            height: 24,
-            placeholderBuilder: (BuildContext context) => SizedBox(
-              width: 24,
-              height: 24,
-              child: Center(
-                child: Icon(
-                  Icons.error,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return GestureDetector(
+          onTap: onTap,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                icon,
+                colorFilter: ColorFilter.mode(
+                  isActive
+                      ? const Color(0xff92A3FD)
+                      : (themeProvider.isDarkMode 
+                          ? Colors.grey[400]!
+                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                  BlendMode.srcIn,
+                ),
+                width: 24,
+                height: 24,
+                placeholderBuilder: (BuildContext context) => SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Center(
+                    child: Icon(
+                      Icons.error,
+                      size: 20,
+                      color: themeProvider.isDarkMode 
+                        ? Colors.grey[400]
+                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }  Widget _buildAddButton() {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return GestureDetector(
+          onTap: () => Navigator.pushNamed(context, '/registra-alimento'),
+          child: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              gradient: themeProvider.isDarkMode
+                ? const LinearGradient(
+                    colors: [Color(0xFF7A66EC), Color(0xFF5D42D9)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : const LinearGradient(
+                    colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: themeProvider.isDarkMode
+                    ? const Color(0xFF7A66EC).withOpacity(0.3)
+                    : const Color(0xff92A3FD).withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                'assets/icons_bar/plus.svg',
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+                width: 24,
+                height: 24,
+                placeholderBuilder: (BuildContext context) => const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Center(
+                    child: Icon(Icons.add, size: 24, color: Colors.white),
+                  ),
                 ),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAddButton() {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/registra-alimento'),
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xff9DCEFF), Color(0xff92A3FD)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xff92A3FD).withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/icons_bar/plus.svg',
-            color: Colors.white,
-            width: 24,
-            height: 24,
-            placeholderBuilder: (BuildContext context) => const SizedBox(
-              width: 24,
-              height: 24,
-              child: Center(
-                child: Icon(Icons.add, size: 24, color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 

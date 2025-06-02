@@ -16,11 +16,11 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+    with SingleTickerProviderStateMixin {  late AnimationController _animationController;
   late Animation<double> _progressAnimation;
   String _userName = 'Usuário'; // Nome padrão caso não carregue
 
+  @override
   @override
   void initState() {
     super.initState();
@@ -188,75 +188,72 @@ class _DashboardPageState extends State<DashboardPage>
         _carregarDadosDiarios();
       }
     });
-  }  @override
+  }
+  @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return Scaffold(
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surface,        appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            elevation: 0,
-            toolbarHeight: 50,
-            leading: IconButton(
-              icon: SvgPicture.asset(
+          elevation: 0,
+          toolbarHeight: 50, // Navbar mais estreita          leading: IconButton(
+            icon: SvgPicture.asset(
+              themeProvider.isDarkMode 
+                ? 'assets/icons/seta-white.svg'
+                : 'assets/icons/seta-black.svg',
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
                 themeProvider.isDarkMode 
-                  ? 'assets/icons/seta-white.svg'
-                  : 'assets/icons/seta-black.svg',
-                width: 20,
-                height: 20,
-                colorFilter: ColorFilter.mode(
-                  themeProvider.isDarkMode 
-                    ? Colors.white
-                    : Colors.black,
-                  BlendMode.srcIn,
-                ),
+                  ? Colors.white
+                  : Colors.black,
+                BlendMode.srcIn,
               ),
-              onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  debugPrint('🔄 Botão de refresh pressionado');
-                  _carregarDadosDiarios();
-                },
-                icon: Icon(
-                  Icons.refresh,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  size: 20,
+            onPressed: () => Navigator.pop(context),
+          ),
+          // ➕ Adicionar botão de refresh para debug
+          actions: [
+            IconButton(
+              onPressed: () {
+                debugPrint('🔄 Botão de refresh pressionado');
+                _carregarDadosDiarios();
+              },
+              icon: Icon(
+                Icons.refresh,
+                color: Theme.of(context).colorScheme.onSurface,
+                size: 20,
+              ),              tooltip: 'Atualizar dados',
+            ),
+          ],
+        ),
+        body: Container(
+          color: Theme.of(context).colorScheme.surface,
+          child: ListView(
+            children: [
+              _buildCard(
+                child: Container(
+                  color: Theme.of(context).colorScheme.surface,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0, vertical: 60.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildGreetingSection(),
+                      const SizedBox(height: 25),
+                      _buildWeightTrackingCard(),
+                      const SizedBox(height: 25),
+                      _buildDailyGoalsCard(),
+                    ],
+                  ),
                 ),
-                tooltip: 'Atualizar dados',
               ),
             ],
           ),
-          body: Container(
-            color: Theme.of(context).colorScheme.surface,
-            child: ListView(
-              children: [
-                _buildCard(
-                  child: Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0, vertical: 60.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildGreetingSection(),
-                        const SizedBox(height: 25),
-                        _buildWeightTrackingCard(),
-                        const SizedBox(height: 25),
-                        _buildDailyGoalsCard(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          bottomNavigationBar: _buildBottomNavigationBar(),
-        );
-      },
-    );
+        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
+      );
+    });
   }
   Widget _buildCard({required Widget child}) {
     return Consumer<ThemeProvider>(
