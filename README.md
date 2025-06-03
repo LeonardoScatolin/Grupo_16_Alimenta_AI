@@ -30,3 +30,8 @@ Inspirados pelos materiais da **OpenAI**, utilizaremos:
 - **Whisper** para transcrição de áudio.
 - **YOLOv12** para reconhecimento de imagens.
 - Integração via **API na nuvem**, garantindo alto desempenho sem sobrecarregar os dispositivos dos usuários.
+
+
+### Repositórios 
+- Link repositório página web: https://github.com/LeonardoScatolin/Alimenta_AI_Web
+- Link repositório API: https://github.com/JoaoPizoli/BackAlimenta
