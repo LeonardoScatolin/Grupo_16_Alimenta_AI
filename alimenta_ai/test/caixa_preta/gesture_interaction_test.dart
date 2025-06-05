@@ -481,8 +481,8 @@ void main() {
                 const SizedBox(height: 100),
                 DragTarget<String>(
                   onAcceptWithDetails: (data) {
-                    droppedData = data;
-                    print('🔄 [DROP] Data received: $data');
+                    droppedData = data.data;
+                    print('🔄 [DROP] Data received: ${data.data}');
                   },
                   builder: (context, candidateData, rejectedData) {
                     return Container(

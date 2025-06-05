@@ -3,7 +3,6 @@ import 'package:alimenta_ai/pages/dashboard.dart';
 import 'package:alimenta_ai/pages/welcome.dart';
 import 'package:alimenta_ai/pages/registro_unificado.dart';
 import 'package:alimenta_ai/pages/weight_history.dart';
-import 'package:alimenta_ai/pages/debug_test.dart';
 import 'package:alimenta_ai/pages/audio_transcription_page.dart';
 import 'package:alimenta_ai/pages/profile.dart';
 import 'package:alimenta_ai/theme/app_theme.dart';
@@ -55,10 +54,9 @@ class MyApp extends StatelessWidget {
             '/registra-alimento': (context) =>
                 const RegistroUnificadoPage(), // Usando a nova tela unificada
             '/profile': (context) => const ProfilePage(),
-            '/weight-history': (context) => const WeightHistoryPage(),
-            '/notifications': (context) => const WeightHistoryPage(),
+            '/weight-history': (context) => const WeightHistoryPage(),            '/notifications': (context) => const WeightHistoryPage(),
             '/audio-transcription': (context) => const AudioTranscriptionPage(),
-            '/debug': (context) => const DebugTestPage(),
+            // '/debug': (context) => const DebugTestPage(),
           },
         );
       },
